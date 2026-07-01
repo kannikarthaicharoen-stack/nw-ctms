@@ -118,6 +118,23 @@ function cardExpiry(issued){
   if(m>=1&&m<=6) return `${y}-12-31`;
   return `${y+1}-06-30`;
 }
+window.downloadFile = async(url, filename)=>{
+  try{
+    showToast("⏳ กำลัง Download...");
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showToast("✅ Download สำเร็จ");
+  }catch(e){
+    window.open(url, "_blank");
+  }
+};
 function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(window._tt); window._tt=setTimeout(()=>t.style.display="none",3500); }
 
 // ── NAV ──
@@ -683,7 +700,7 @@ window.viewDocs = (regId)=>{
           ${url
             ?`<div style="display:flex;gap:5px">
                 <button class="btn-sm" onclick="window.open('${url}','_blank')" title="ดูไฟล์"><i class="ti ti-eye"></i> ดู</button>
-                <a href="${url}" download="${name}" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:3px"><i class="ti ti-download"></i> โหลด</a>
+                <button class="btn-sm" onclick="downloadFile('${url}','${name}')"><i class="ti ti-download"></i> โหลด</button>
               </div>`
             :`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}
         </div>`;
