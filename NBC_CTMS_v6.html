@@ -40,6 +40,40 @@ window.FS = { db, collection: (name)=>db.collection(name), doc: (col,id)=>db.col
   addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp,
   colRef: (name)=>db.collection(name) };
 window.SESSION = { role: null, email: null };
+
+// ── CLOUDINARY CONFIG ──
+const CLOUDINARY_CLOUD = "zjtygb1h";
+const CLOUDINARY_UPLOAD_PRESET = "nw_ctms_unsigned"; // will use unsigned upload
+const CLOUDINARY_API_KEY = "719252738591768";
+
+async function uploadToCloudinary(file, folder="nw-ctms") {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  formData.append("folder", folder);
+  formData.append("api_key", CLOUDINARY_API_KEY);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+    method: "POST", body: formData
+  });
+  if (!res.ok) throw new Error("Upload failed: " + res.statusText);
+  const data = await res.json();
+  return { url: data.secure_url, publicId: data.public_id, name: file.name, type: file.type };
+}
+
+async function uploadBase64ToCloudinary(base64, filename="photo", folder="nw-ctms/photos") {
+  const formData = new FormData();
+  formData.append("file", base64);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  formData.append("folder", folder);
+  formData.append("api_key", CLOUDINARY_API_KEY);
+  formData.append("public_id", filename);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: "POST", body: formData
+  });
+  if (!res.ok) throw new Error("Photo upload failed: " + res.statusText);
+  const data = await res.json();
+  return data.secure_url;
+}
 window.CFG = {
   guardEmails: ["guard1@natureworks.com"],
   ehsEmails: ["kannikar.thaicharoen@natureworkspla.com"],
@@ -231,38 +265,71 @@ window.submitReg = async()=>{
   const idno=document.getElementById("c-id").value.trim();
   const job=document.getElementById("c-job").value.trim();
   if(!fn||!ln||!co||!idno||!job){showToast("⚠ กรุณากรอกข้อมูลที่จำเป็น / Please fill required fields");return;}
+
   const quizEl=document.getElementById("c-quiz");
   const regId=genId("NBC-REG");
   const info=TYPE_INFO[window.C_TYPE];
-  const data={
-    id:regId, fn, ln, co,
-    nw:document.getElementById("c-nw").value.trim(),
-    idno, phone:document.getElementById("c-phone").value.trim(),
-    job, type:window.C_TYPE,
-    typeName:info.nameTH,
-    isShort:info.isShort,
-    pdate:document.getElementById("c-pdate").value,
-    quizSubmissionId:quizEl?quizEl.value.trim():"",
-    quizScore:null, quizPass:null,
-    docs:window.UPLOADED_FILES.map(f=>f.name),
-    photo:window.PHOTO_DATA,
-    nationality:window.C_NAT,
-    isDriver:window.C_DRIVER,
-    status:"pending",
-    approvalStatus:null,
-    cardIssued:false,
-    cardIssuedDate:null,
-    cardExpiry:null,
-    cardId:null,
-    created:TODAY,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  };
+
+  // Show loading
+  const btn=document.querySelector("#c-reg-form .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
+
   try{
+    // Upload photo to Cloudinary
+    let photoUrl = "";
+    if(window.PHOTO_DATA){
+      showToast("⏳ กำลังอัปโหลดรูปถ่าย...");
+      try{
+        photoUrl = await uploadBase64ToCloudinary(window.PHOTO_DATA, `${regId}_photo`, "nw-ctms/photos");
+      }catch(e){ showToast("⚠ อัปโหลดรูปถ่ายไม่สำเร็จ แต่จะบันทึกข้อมูลต่อ"); }
+    }
+
+    // Upload documents to Cloudinary
+    const docResults = [];
+    if(window.UPLOADED_FILES.length>0){
+      showToast(`⏳ กำลังอัปโหลดเอกสาร ${window.UPLOADED_FILES.length} ไฟล์...`);
+      for(const file of window.UPLOADED_FILES){
+        try{
+          const result = await uploadToCloudinary(file, "nw-ctms/docs");
+          docResults.push(result);
+        }catch(e){ docResults.push({url:"", name:file.name, error:e.message}); }
+      }
+    }
+
+    const data={
+      id:regId, fn, ln, co,
+      nw:document.getElementById("c-nw").value.trim(),
+      idno, phone:document.getElementById("c-phone").value.trim(),
+      job, type:window.C_TYPE,
+      typeName:info.nameTH,
+      isShort:info.isShort,
+      pdate:document.getElementById("c-pdate").value,
+      quizSubmissionId:quizEl?quizEl.value.trim():"",
+      quizScore:null, quizPass:null,
+      docs:docResults.map(d=>({name:d.name, url:d.url||""})),
+      docNames:docResults.map(d=>d.name),
+      photo:photoUrl,
+      nationality:window.C_NAT,
+      isDriver:window.C_DRIVER,
+      status:"pending",
+      approvalStatus:null,
+      cardIssued:false,
+      cardIssuedDate:null,
+      cardExpiry:null,
+      cardId:null,
+      created:TODAY,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+
     await db.collection('registrations').doc(regId).set(data);
     document.getElementById("reg-ref").textContent=regId;
     document.getElementById("c-reg-form").style.display="none";
     document.getElementById("c-reg-ok").style.display="block";
-  }catch(e){ showToast("⚠ บันทึกไม่สำเร็จ: "+e.message); }
+  }catch(e){
+    showToast("⚠ บันทึกไม่สำเร็จ: "+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit Registration";}
+  }
 };
 
 window.resetC = ()=>{
@@ -569,18 +636,47 @@ window.ehsSetScore = async(regId)=>{
 // ── VIEW DOCS/PHOTO MODAL ──
 window.viewDocs = (regId)=>{
   const r=window._allRegs.find(x=>x.id===regId); if(!r) return;
-  const photoHTML=r.photo?`<div style="text-align:center;margin-bottom:16px"><img src="${r.photo}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid #00B5A8"><div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย / Photo</div></div>`:`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block"></i>ไม่มีรูปถ่าย / No photo</div>`;
-  const docsHTML=r.docs&&r.docs.length?r.docs.map(d=>`<div class="file-item"><i class="ti ti-file"></i><span class="fi-name">${d}</span></div>`).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ / No documents attached</div>`;
+  const photoHTML=r.photo
+    ?`<div style="text-align:center;margin-bottom:16px">
+        <img src="${r.photo}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #00B5A8;cursor:pointer" onclick="window.open('${r.photo}','_blank')" title="คลิกเพื่อดูรูปเต็ม">
+        <div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย / Photo <span style="color:#00B5A8">(คลิกเพื่อขยาย)</span></div>
+      </div>`
+    :`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block;margin-bottom:4px"></i>ไม่มีรูปถ่าย / No photo</div>`;
+
+  // Support both old format (string names) and new format (objects with url)
+  const docs = r.docs||[];
+  const docsHTML = docs.length
+    ? docs.map(d=>{
+        const name = typeof d === 'string' ? d : d.name;
+        const url = typeof d === 'object' && d.url ? d.url : null;
+        const icon = name.toLowerCase().endsWith('.pdf') ? 'ti-file-type-pdf' : 'ti-photo';
+        const color = name.toLowerCase().endsWith('.pdf') ? '#E24B4A' : '#00B5A8';
+        return `<div class="file-item" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:7px">
+            <i class="ti ${icon}" style="color:${color}"></i>
+            <span class="fi-name">${name}</span>
+          </div>
+          ${url
+            ?`<div style="display:flex;gap:5px">
+                <button class="btn-sm" onclick="window.open('${url}','_blank')" title="ดูไฟล์"><i class="ti ti-eye"></i> ดู</button>
+                <a href="${url}" download="${name}" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:3px"><i class="ti ti-download"></i> โหลด</a>
+              </div>`
+            :`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}
+        </div>`;
+      }).join("")
+    :`<div style="color:#888;font-size:12px;padding:8px">ไม่มีเอกสารแนบ / No documents</div>`;
+
   showModal(`เอกสาร — ${r.fn} ${r.ln}`,`
     ${photoHTML}
-    <div style="font-size:12px;margin-bottom:8px;font-weight:500">เอกสารแนบ / Attached Documents:</div>
-    ${docsHTML}
+    <div style="font-size:12px;margin-bottom:8px;font-weight:500;color:#1F497D">เอกสารแนบ / Attached Documents:</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>
     <div class="divider"></div>
     <div style="font-size:12px;display:grid;gap:5px;margin-top:8px">
-      <div><b>สัญชาติ:</b> ${r.nationality==="thai"?"คนไทย 🇹🇭":"ต่างชาติ 🌏"}</div>
-      <div><b>พนักงานขับรถ:</b> ${r.isDriver?"ใช่ 🚛":"ไม่ใช่"}</div>
-      <div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div>
-      <div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+"%":"—"} ${r.quizPass===true?"(Pass ✓)":r.quizPass===false?"(Fail ✗)":""}</div>
+      <div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย / Thai":"🌏 ต่างชาติ / Foreign"}</div>
+      <div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่ / Yes":"ไม่ใช่ / No"}</div>
+      <div><b>Quiz Submission ID:</b> ${r.quizSubmissionId||"—"}</div>
+      <div><b>คะแนนสอบ / Score:</b> ${r.quizScore!=null?r.quizScore+"%":"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div>
+      <div><b>วันลงทะเบียน:</b> ${r.created||"—"}</div>
     </div>`);
 };
 
