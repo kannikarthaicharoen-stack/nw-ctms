@@ -247,6 +247,13 @@ window.selectType = (el,t)=>{
   window.C_TYPE=t;
   renderDocList();
   renderTypeInfo();
+  // Show position dropdown only for Full Course
+  const isFullCourse = ["4C","4D"].includes(t);
+  document.getElementById("position-row").style.display = isFullCourse ? "block" : "none";
+  document.getElementById("cert-row").style.display = "none";
+  document.getElementById("c-position").value = "";
+  window.C_POSITION = "";
+  window.C_CERT_FILE = null;
 };
 function renderDocList(){
   if(!window.C_TYPE||!DOCS[window.C_TYPE]) return;
@@ -276,7 +283,35 @@ function renderTypeInfo(){
     </div>`;
 }
 
-window.handlePhoto = (input)=>{
+window.C_CERT_FILE = null;
+window.C_POSITION = "";
+
+window.onPositionChange = ()=>{
+  const pos = document.getElementById("c-position").value;
+  window.C_POSITION = pos;
+  const certRow = document.getElementById("cert-row");
+  const alertText = document.getElementById("cert-alert-text");
+  if(pos === "safety"){
+    certRow.style.display = "block";
+    alertText.textContent = "จป.วิชาชีพ ต้องแนบใบประกาศนียบัตร จป. / Professional Safety Officer must attach certificate";
+  } else if(pos === "firewatchman"){
+    certRow.style.display = "block";
+    alertText.textContent = "Fire Watchman ต้องแนบใบประกาศนียบัตร / Fire Watchman must attach certificate";
+  } else {
+    certRow.style.display = "none";
+    window.C_CERT_FILE = null;
+    document.getElementById("cert-file-list").innerHTML = "";
+  }
+};
+
+window.handleCert = (input)=>{
+  const f = input.files[0]; if(!f) return;
+  window.C_CERT_FILE = f;
+  document.getElementById("cert-file-list").innerHTML =
+    `<div class="file-item" style="margin-top:6px"><i class="ti ti-certificate" style="color:#C5940A"></i><span class="fi-name">${f.name}</span>
+    <i class="ti ti-x fi-rm" onclick="rmCert()"></i></div>`;
+};
+window.rmCert = ()=>{ window.C_CERT_FILE=null; document.getElementById("cert-file-list").innerHTML=""; document.getElementById("cert-in").value=""; };
   const f=input.files[0]; if(!f) return;
   const reader=new FileReader();
   reader.onload=e=>{
@@ -306,6 +341,13 @@ window.submitReg = async()=>{
   const idno=document.getElementById("c-id").value.trim();
   const job=document.getElementById("c-job").value.trim();
   if(!fn||!ln||!co||!idno||!job){showToast("⚠ กรุณากรอกข้อมูลที่จำเป็น / Please fill required fields");return;}
+
+  // Validate position for Full Course
+  const isFullCourse = ["4C","4D"].includes(window.C_TYPE);
+  if(isFullCourse && !window.C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง / Please select position");return;}
+  if(isFullCourse && ["safety","firewatchman"].includes(window.C_POSITION) && !window.C_CERT_FILE){
+    showToast("⚠ กรุณาแนบใบประกาศนียบัตร / Please attach certificate");return;
+  }
 
   const quizEl=document.getElementById("c-quiz");
   const regId=genId("NBC-REG");
@@ -337,7 +379,18 @@ window.submitReg = async()=>{
       }
     }
 
-    const data={
+    // Upload cert if required
+    let certUrl = "";
+    if(window.C_CERT_FILE){
+      showToast("⏳ กำลังอัปโหลดใบ Cert...");
+      try{ const r = await uploadToCloudinary(window.C_CERT_FILE,"nw-ctms/certs"); certUrl=r.url; }
+      catch(e){ showToast("⚠ อัปโหลดใบ Cert ไม่สำเร็จ"); }
+    }
+
+    // Position color mapping
+    const posColorMap = { general:"#1F497D", safety:"#2E7D32", firewatchman:"#C2185B" };
+    const posLabelMap = { general:"พนักงานทั่วไป / General Worker", safety:"จป.วิชาชีพ / Safety Officer", firewatchman:"Fire Watchman" };
+    const regData = {
       id:regId, fn, ln, co,
       nw:document.getElementById("c-nw").value.trim(),
       idno, phone:document.getElementById("c-phone").value.trim(),
@@ -352,6 +405,10 @@ window.submitReg = async()=>{
       photo:photoUrl,
       nationality:window.C_NAT,
       isDriver:window.C_DRIVER,
+      position: window.C_POSITION || "general",
+      positionLabel: posLabelMap[window.C_POSITION||"general"] || "พนักงานทั่วไป / General Worker",
+      cardColor: posColorMap[window.C_POSITION||"general"] || "#1F497D",
+      certUrl,
       status:"pending",
       approvalStatus:null,
       cardIssued:false,
@@ -362,7 +419,7 @@ window.submitReg = async()=>{
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    await db.collection('registrations').doc(regId).set(data);
+    await db.collection('registrations').doc(regId).set(regData);
     document.getElementById("reg-ref").textContent=regId;
     document.getElementById("c-reg-form").style.display="none";
     document.getElementById("c-reg-ok").style.display="block";
@@ -375,7 +432,7 @@ window.submitReg = async()=>{
 
 window.resetC = ()=>{
   ["c-fn","c-ln","c-co","c-nw","c-id","c-phone","c-job","c-pdate"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  window.UPLOADED_FILES=[]; window.PHOTO_DATA=""; window.C_TYPE=""; window.C_NAT="thai"; window.C_DRIVER=false;
+  window.UPLOADED_FILES=[]; window.PHOTO_DATA=""; window.C_TYPE=""; window.C_NAT="thai"; window.C_DRIVER=false; window.C_POSITION=""; window.C_CERT_FILE=null;
   document.getElementById("file-list").innerHTML="";
   const pp=document.getElementById("photo-prev"); if(pp) pp.style.display="none";
   document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));
@@ -456,7 +513,7 @@ function renderGuardView(){
     return `<tr>
       <td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td>
       <td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
-      <td>${score} ${qb}</td>
+      <td>${score} ${qb} <button class="btn-sm" onclick="guardSetScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
       <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
       <td>
         <button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>
@@ -493,6 +550,18 @@ function renderGuardView(){
     </tr>`;
   }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ยังไม่มีประวัติ</td></tr>`;
 }
+
+window.guardSetScore = async(regId)=>{
+  const score=prompt("กรอกคะแนนสอบ Short Brief 0-100 / Enter quiz score (0-100):");
+  if(score===null) return;
+  const sc=parseFloat(score);
+  if(isNaN(sc)||sc<0||sc>100){showToast("⚠ คะแนนไม่ถูกต้อง กรุณากรอก 0-100");return;}
+  const pass=sc>=85;
+  try{
+    await db.collection('registrations').doc(regId).update({ quizScore:sc, quizPass:pass });
+    showToast(`✅ บันทึกคะแนน ${sc}% — ${pass?"Pass ✓ (≥85%)":"Fail ✗ (<85%)"}`);
+  }catch(e){ showToast("⚠ "+e.message); }
+};
 
 window.guardApprove = async(regId)=>{
   try{
@@ -724,52 +793,73 @@ window.viewDocs = (regId)=>{
 // ── PRINT FULL COURSE CARD ──
 window.printCard = (regId)=>{
   const r=window._allRegs.find(x=>x.id===regId); if(!r) return;
-  const typeColors={"4C":"linear-gradient(135deg,#1F497D,#C5940A)","4D":"linear-gradient(135deg,#1F497D,#00B5A8)"};
-  const grad=typeColors[r.type]||"linear-gradient(135deg,#1F497D,#00B5A8)";
-  const photoHTML=r.photo?`<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:1.5mm">`:`<div style="font-size:6mm;font-weight:500;color:rgba(255,255,255,.6)">${(r.fn||"").charAt(0)}${(r.ln||"").charAt(0)}</div>`;
-  const w=window.open("","_blank","width=400,height=320");
+
+  // Card color by position
+  const posColors = {
+    general: "linear-gradient(160deg,#1F497D 0%,#2a5a9e 100%)",
+    safety: "linear-gradient(160deg,#1B5E20 0%,#2E7D32 100%)",
+    firewatchman: "linear-gradient(160deg,#880E4F 0%,#C2185B 100%)"
+  };
+  const posLabels = {
+    general: "พนักงานทั่วไป / General Worker",
+    safety: "จป.วิชาชีพ / Safety Officer",
+    firewatchman: "Fire Watchman"
+  };
+  const grad = posColors[r.position||"general"] || posColors.general;
+  const posLabel = posLabels[r.position||"general"] || posLabels.general;
+  const photoHTML = r.photo
+    ? `<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover">`
+    : `<div style="font-size:10mm;font-weight:600;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;height:100%">${(r.fn||"").charAt(0)}${(r.ln||"").charAt(0)}</div>`;
+
+  const w=window.open("","_blank","width=300,height=500");
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
   <style>
-    @page{size:85.6mm 54mm;margin:0}
+    @page{size:52mm 84mm;margin:0}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    body{width:85.6mm;height:54mm;font-family:Arial,sans-serif}
-    .card{width:85.6mm;height:54mm;border-radius:4mm;background:${grad};color:white;padding:3.5mm 4mm;position:relative;overflow:hidden}
-    .bg1{position:absolute;width:52mm;height:52mm;border-radius:50%;background:rgba(255,255,255,.04);bottom:-16mm;right:-10mm}
-    .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2.5mm}
+    body{width:52mm;height:84mm;font-family:Arial,sans-serif;background:white}
+    .card{width:52mm;height:84mm;background:${grad};color:white;position:relative;overflow:hidden;display:flex;flex-direction:column}
+    .bg1{position:absolute;width:60mm;height:60mm;border-radius:50%;background:rgba(255,255,255,.05);bottom:-20mm;right:-15mm}
+    .bg2{position:absolute;width:30mm;height:30mm;border-radius:50%;background:rgba(255,255,255,.05);top:-10mm;left:-10mm}
+    .card-top{padding:3mm 3.5mm 2mm;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
     .logo{height:5mm;filter:brightness(0) invert(1)}
-    .pill{font-size:1.8mm;background:rgba(255,255,255,.2);padding:.8mm 2.5mm;border-radius:10mm}
-    .body{display:flex;align-items:flex-start;gap:2.5mm}
-    .photo{width:13mm;height:13mm;border-radius:2mm;background:rgba(255,255,255,.15);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:.4mm solid rgba(255,255,255,.3)}
-    .info{flex:1;min-width:0}
-    .name{font-size:3.2mm;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.5mm}
-    .company{font-size:2mm;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2mm}
-    .fields{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm}
-    .field{background:rgba(255,255,255,.1);border-radius:1mm;padding:1mm 1.5mm}
-    .fl{font-size:1.6mm;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3mm}
-    .fv{font-size:2.2mm;font-weight:500}
-    .bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:2mm}
-    .issuer{font-size:1.6mm;color:rgba(255,255,255,.45);line-height:1.4}
+    .type-pill{font-size:2mm;background:rgba(255,255,255,.2);padding:.6mm 2mm;border-radius:5mm;border:.2mm solid rgba(255,255,255,.3)}
+    .photo-wrap{display:flex;justify-content:center;margin:2mm 0;position:relative;z-index:1}
+    .photo{width:22mm;height:22mm;border-radius:50%;background:rgba(255,255,255,.2);overflow:hidden;border:1mm solid rgba(255,255,255,.4)}
+    .info{padding:0 3.5mm;position:relative;z-index:1;flex:1}
+    .name{font-size:3.8mm;font-weight:700;text-align:center;margin-bottom:1mm;line-height:1.2}
+    .company{font-size:2.2mm;color:rgba(255,255,255,.7);text-align:center;margin-bottom:2.5mm;line-height:1.3}
+    .pos-badge{background:rgba(255,255,255,.15);border:.3mm solid rgba(255,255,255,.3);border-radius:1mm;padding:1.5mm 2mm;text-align:center;font-size:2.2mm;font-weight:500;margin-bottom:2.5mm}
+    .divider{height:.2mm;background:rgba(255,255,255,.2);margin:0 3.5mm 2.5mm}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm;padding:0 3.5mm}
+    .field{background:rgba(255,255,255,.1);border-radius:1mm;padding:1.2mm 1.5mm}
+    .fl{font-size:1.8mm;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3mm}
+    .fv{font-size:2.4mm;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .field-full{grid-column:1/-1}
+    .card-bottom{padding:2mm 3.5mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
+    .issuer{font-size:1.6mm;color:rgba(255,255,255,.4);line-height:1.5}
+    .qr{width:8mm;height:8mm;background:rgba(255,255,255,.15);border-radius:1mm;display:flex;align-items:center;justify-content:center;font-size:6mm}
   </style></head><body>
-  <div class="card"><div class="bg1"></div>
-    <div class="top">
+  <div class="card">
+    <div class="bg1"></div><div class="bg2"></div>
+    <div class="card-top">
       <img src="${LOGO}" class="logo" alt="NatureWorks">
-      <div class="pill">${r.type} — ${r.typeName||""}</div>
+      <div class="type-pill">${r.type} — ${r.typeName||""}</div>
     </div>
-    <div class="body">
-      <div class="photo">${photoHTML}</div>
-      <div class="info">
-        <div class="name">${r.fn} ${r.ln}</div>
-        <div class="company">${r.co}</div>
-        <div class="fields">
-          <div class="field"><div class="fl">Card ID</div><div class="fv" style="font-size:1.8mm">${r.cardId||"—"}</div></div>
-          <div class="field"><div class="fl">ออกบัตร</div><div class="fv">${r.cardIssuedDate||"—"}</div></div>
-          <div class="field" style="grid-column:1/-1"><div class="fl">หมดอายุ / Expiry</div><div class="fv">${r.cardExpiry||"—"}</div></div>
-        </div>
-      </div>
+    <div class="photo-wrap"><div class="photo">${photoHTML}</div></div>
+    <div class="info">
+      <div class="name">${r.fn} ${r.ln}</div>
+      <div class="company">${r.co}</div>
+      <div class="pos-badge">${posLabel}</div>
     </div>
-    <div class="bottom">
+    <div class="divider"></div>
+    <div class="fields">
+      <div class="field"><div class="fl">Card ID</div><div class="fv" style="font-size:1.8mm">${r.cardId||"—"}</div></div>
+      <div class="field"><div class="fl">ออกบัตร</div><div class="fv">${r.cardIssuedDate||"—"}</div></div>
+      <div class="field field-full"><div class="fl">หมดอายุ / Expiry</div><div class="fv">${r.cardExpiry||"—"}</div></div>
+    </div>
+    <div class="card-bottom">
       <div class="issuer">NatureWorks Asia Pacific Limited<br>NTRAP Contractor ID Card</div>
-      <div style="font-size:5mm">▦</div>
+      <div class="qr">▦</div>
     </div>
   </div></body></html>`);
   w.document.close();
@@ -1218,6 +1308,29 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
             <div class="fg2"><label>เบอร์โทร / Phone No.</label><input id="c-phone" placeholder="0xx-xxx-xxxx"></div>
             <div class="fg2 fg2-full"><label>งาน / Job Title *</label><input id="c-job" placeholder="e.g. Lactic Acid Tank Repair"></div>
             <div class="fg2 fg2-full"><label>วันที่ต้องการอบรม / Preferred Date *</label><input type="date" id="c-pdate"></div>
+            <!-- POSITION - Full Course only -->
+            <div class="fg2 fg2-full" id="position-row" style="display:none">
+              <label>ตำแหน่ง / Position * <span style="font-size:10px;color:#888">(สำหรับ Full Course เท่านั้น / Full Course only)</span></label>
+              <select id="c-position" onchange="onPositionChange()">
+                <option value="">-- เลือกตำแหน่ง / Select Position --</option>
+                <option value="general">👷 พนักงานทั่วไป / General Worker (บัตรสีน้ำเงิน)</option>
+                <option value="safety">🦺 จป.วิชาชีพ / Professional Safety Officer (บัตรสีเขียว)</option>
+                <option value="firewatchman">🔥 Fire Watchman (บัตรสีชมพู)</option>
+              </select>
+            </div>
+            <!-- CERT UPLOAD - Safety Officer & Fire Watchman only -->
+            <div class="fg2 fg2-full" id="cert-row" style="display:none">
+              <div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i>
+                <span id="cert-alert-text">ต้องแนบใบประกาศนียบัตร / Certificate required</span>
+              </div>
+              <label>ใบประกาศนียบัตร / Certificate * <span style="font-size:10px;color:#A32D2D">(บังคับ / Required)</span></label>
+              <div class="upload-zone" onclick="document.getElementById('cert-in').click()" id="cert-zone">
+                <i class="ti ti-certificate"></i>
+                <p>คลิกเพื่อแนบใบ Cert / Click to attach Certificate (JPG, PNG, PDF)</p>
+              </div>
+              <input type="file" id="cert-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleCert(this)">
+              <div id="cert-file-list"></div>
+            </div>
           </div>
         </div>
         <!-- STEP 4: PHOTO -->
