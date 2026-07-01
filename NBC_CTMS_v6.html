@@ -148,10 +148,32 @@ window.showLogin = (role)=>{
 window.checkEmail = async()=>{
   const em=document.getElementById("login-email").value.trim().toLowerCase();
   if(!em){document.getElementById("email-err").textContent="กรุณากรอก Email";return;}
-  // Reload CFG from Firebase every time to get latest whitelist
-  await loadCFG();
-  const list=(window.LOGIN_ROLE==="guard"?window.CFG.guardEmails:window.CFG.ehsEmails).map(e=>e.toLowerCase());
-  if(!list.includes(em)){document.getElementById("email-err").textContent="Email นี้ไม่มีสิทธิ์เข้าถึงระบบ / Unauthorized email";return;}
+  
+  const btn=document.querySelector("#ls1 .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ กำลังตรวจสอบ...";}
+  
+  try{
+    // Always read fresh from Firestore
+    const snap = await db.collection('config').doc('ctms').get();
+    if(snap.exists()){
+      const data = snap.data();
+      window.CFG.guardEmails = data.guardEmails || window.CFG.guardEmails;
+      window.CFG.ehsEmails = data.ehsEmails || window.CFG.ehsEmails;
+      window.CFG.guardPIN = data.guardPIN || window.CFG.guardPIN;
+      window.CFG.ehsPIN = data.ehsPIN || window.CFG.ehsPIN;
+    }
+  }catch(e){ console.log("CFG load error:", e); }
+  
+  if(btn){btn.disabled=false;btn.textContent="ถัดไป / Next →";}
+  
+  const list=(window.LOGIN_ROLE==="guard"?window.CFG.guardEmails:window.CFG.ehsEmails).map(e=>e.toLowerCase().trim());
+  console.log("Checking email:", em, "against list:", list);
+  
+  if(!list.includes(em)){
+    document.getElementById("email-err").textContent="Email นี้ไม่มีสิทธิ์เข้าถึงระบบ / Unauthorized email";
+    return;
+  }
+  document.getElementById("email-err").textContent="";
   document.getElementById("login-email-show").textContent=em;
   document.getElementById("ls1").style.display="none";
   document.getElementById("ls2").style.display="block";
