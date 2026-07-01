@@ -155,7 +155,7 @@ window.checkEmail = async()=>{
   try{
     // Always read fresh from Firestore
     const snap = await db.collection('config').doc('ctms').get();
-    if(snap.exists()){
+    if(snap.exists){
       const data = snap.data();
       window.CFG.guardEmails = data.guardEmails || window.CFG.guardEmails;
       window.CFG.ehsEmails = data.ehsEmails || window.CFG.ehsEmails;
@@ -207,7 +207,7 @@ function enterPortal(){
 
 // ── LOAD CFG ──
 async function loadCFG(){
-  try{ const s=await db.collection('config').doc("ctms").get(); if(s.exists()) window.CFG={...window.CFG,...s.data()}; }catch(e){}
+  try{ const s=await db.collection('config').doc("ctms").get(); if(s.exists) window.CFG={...window.CFG,...s.data()}; }catch(e){}
 }
 async function saveCFG(){
   try{ await db.collection('config').doc("ctms").set(window.CFG); }catch(e){ showToast("⚠ บันทึก config ไม่สำเร็จ"); }
@@ -381,7 +381,7 @@ window.checkStatus = async()=>{
   try{
     let r=null;
     const snap=await db.collection('registrations').doc(q.toUpperCase()).get();
-    if(snap.exists()) r=snap.data();
+    if(snap.exists) r=snap.data();
     if(!r){
       const qs=await db.collection('registrations').where('idno','==',q).get();
       if(!qs.empty) r=qs.docs[0].data();
