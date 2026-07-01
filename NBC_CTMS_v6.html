@@ -145,10 +145,12 @@ window.showLogin = (role)=>{
   document.getElementById("ls2").style.display="none";
   showScreen("s-login");
 };
-window.checkEmail = ()=>{
+window.checkEmail = async()=>{
   const em=document.getElementById("login-email").value.trim().toLowerCase();
-  const list=(window.LOGIN_ROLE==="guard"?window.CFG.guardEmails:window.CFG.ehsEmails).map(e=>e.toLowerCase());
   if(!em){document.getElementById("email-err").textContent="กรุณากรอก Email";return;}
+  // Reload CFG from Firebase every time to get latest whitelist
+  await loadCFG();
+  const list=(window.LOGIN_ROLE==="guard"?window.CFG.guardEmails:window.CFG.ehsEmails).map(e=>e.toLowerCase());
   if(!list.includes(em)){document.getElementById("email-err").textContent="Email นี้ไม่มีสิทธิ์เข้าถึงระบบ / Unauthorized email";return;}
   document.getElementById("login-email-show").textContent=em;
   document.getElementById("ls1").style.display="none";
