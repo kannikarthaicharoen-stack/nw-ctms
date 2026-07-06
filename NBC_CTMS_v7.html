@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NatureWorks — Contractor Training System</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script>
+// Stub functions — replaced by full versions when Firebase loads
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  var el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+function showLogin(role){
+  window._pendingRole=role;
+  showScreen('s-login');
+  var t=document.getElementById('login-title');
+  if(t) t.textContent=role==='guard'?'Guard / รปภ. Login':'EHS Admin Login';
+  var ls1=document.getElementById('ls1');
+  var ls2=document.getElementById('ls2');
+  if(ls1) ls1.style.display='block';
+  if(ls2) ls2.style.display='none';
+}
+window.showScreen=showScreen;
+window.showLogin=showLogin;
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--nw-teal:#00B5A8;--nw-navy:#1F497D;--nw-gold:#C5940A}
