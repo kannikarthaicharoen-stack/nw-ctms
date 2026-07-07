@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NatureWorks — Contractor Training System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--nw-teal:#00B5A8;--nw-navy:#1F497D;--nw-gold:#C5940A}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+.home-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;gap:20px;background:linear-gradient(160deg,#f0f9f8,#eef3f9)}
+.role-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;width:100%;max-width:580px}
+.role-card{background:#fff;border:.5px solid #ddd;border-radius:12px;padding:22px 16px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s}
+.role-card:hover{border-color:var(--nw-teal);box-shadow:0 2px 12px rgba(0,181,168,.12)}
+.role-icon{width:48px;height:48px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.ri-c{background:#E0F7F6}.ri-g{background:#EEF3F9}.ri-e{background:#FAEEDA}
+.role-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.role-desc{font-size:11px;color:#888;line-height:1.4}
+.role-lock{font-size:10px;color:var(--nw-gold);margin-top:5px;display:flex;align-items:center;justify-content:center;gap:3px}
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;background:linear-gradient(160deg,#f0f9f8,#eef3f9)}
+.login-card{width:100%;max-width:360px;background:#fff;border:.5px solid #ddd;border-radius:16px;padding:28px 24px}
+.login-title{font-size:16px;font-weight:500;color:var(--nw-navy);text-align:center;margin:14px 0 4px}
+.login-sub{font-size:12px;color:#888;text-align:center;margin-bottom:20px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fg label{font-size:12px;font-weight:500;color:#555}
+.fg input{font-size:13px;padding:9px 12px;border-radius:8px;border:.5px solid #ccc;width:100%}
+.fg input:focus{outline:none;border-color:var(--nw-teal)}
+.pin-wrap{display:flex;gap:8px;justify-content:center;margin:4px 0}
+.pin-dot{width:36px;height:36px;border-radius:50%;border:2px solid #ccc;background:#f5f5f5;transition:all .2s}
+.pin-dot.filled{border-color:var(--nw-teal);background:var(--nw-teal)}
+.pin-dot.filled::after{content:"•";display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;height:100%}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.key-btn{background:#f5f5f5;border:.5px solid #ddd;border-radius:8px;padding:13px 8px;font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;color:#222}
+.key-btn:hover{background:#E0F7F6;border-color:var(--nw-teal);color:var(--nw-teal)}
+.key-btn:active{transform:scale(.95)}
+.login-err{font-size:12px;color:#A32D2D;text-align:center;min-height:18px;margin-top:8px}
+.login-back{font-size:12px;color:#888;text-align:center;margin-top:12px;cursor:pointer;text-decoration:underline}
+.topbar{background:var(--nw-navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;gap:10px}
+.tb-brand{display:flex;align-items:center;gap:10px;flex:1}
+.tb-logo{height:20px;filter:brightness(0) invert(1)}
+.tb-tag{font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);padding:2px 8px;border-radius:20px}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-av{width:26px;height:26px;border-radius:50%;background:var(--nw-teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.tb-logout{background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.25);color:#fff;padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer}
+.nav-tabs{background:#fff;border-bottom:.5px solid #e0e0e0;display:flex;padding:0 10px;overflow-x:auto}
+.nav-tab{padding:0 12px;height:42px;display:flex;align-items:center;gap:5px;font-size:12px;color:#666;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none}
+.nav-tab:hover{color:var(--nw-teal)}
+.nav-tab.active{color:var(--nw-teal);border-bottom:2px solid var(--nw-teal);font-weight:500}
+.content{padding:14px}
+.panel{background:#fff;border:.5px solid #e0e0e0;border-radius:12px;padding:14px;margin-bottom:14px}
+.panel-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.panel-title i{color:var(--nw-teal);font-size:15px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:500px){.form-grid{grid-column:1fr}}
+.fg2{display:flex;flex-direction:column;gap:4px}
+.fg2-full{grid-column:1/-1}
+.fg2 label{font-size:11px;font-weight:500;color:#555}
+.fg2 input,.fg2 select,.fg2 textarea{font-size:13px;padding:7px 10px;border-radius:7px;border:.5px solid #ccc;width:100%}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.type-opt{border:1.5px solid #ddd;border-radius:9px;padding:11px 10px;cursor:pointer;background:#f9f9f9;transition:all .15s}
+.type-opt:hover,.type-opt.sel{border-color:var(--nw-teal);background:#E0F7F6}
+.type-code{font-size:16px;font-weight:600;color:var(--nw-teal);display:block;margin-bottom:2px}
+.type-name{font-size:12px;font-weight:500;display:block;margin-bottom:2px}
+.type-desc{font-size:10px;color:#888;display:block}
+.nat-row{display:flex;gap:8px;margin-bottom:10px}
+.nat-btn{flex:1;padding:9px;border:1.5px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;background:#f9f9f9;font-size:12px;transition:all .15s}
+.nat-btn.sel{border-color:var(--nw-teal);background:#E0F7F6}
+.driver-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#FAEEDA;border:.5px solid #EF9F27;border-radius:8px;font-size:12px;margin-bottom:10px;cursor:pointer}
+.driver-row input{width:16px;height:16px;accent-color:var(--nw-teal)}
+.upload-zone{border:1.5px dashed #ccc;border-radius:7px;padding:16px;text-align:center;cursor:pointer;background:#f9f9f9}
+.upload-zone:hover{border-color:var(--nw-teal);background:#E0F7F6}
+.upload-zone i{font-size:24px;color:#aaa;display:block;margin-bottom:4px}
+.upload-zone p{font-size:11px;color:#aaa}
+.file-list{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.file-item{display:flex;align-items:center;gap:7px;padding:5px 9px;background:#f9f9f9;border-radius:5px;border:.5px solid #e0e0e0;font-size:12px}
+.fi-name{flex:1}.fi-rm{cursor:pointer;color:#aaa}.fi-rm:hover{color:#A32D2D}
+.doc-box{background:#E0F7F6;border:.5px solid var(--nw-teal);border-radius:7px;padding:10px 12px;margin-bottom:12px}
+.doc-box-t{font-size:11px;font-weight:500;color:#0F6E56;margin-bottom:6px}
+.doc-box ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.doc-box li{font-size:11px;color:#085041;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+.doc-box li i{color:var(--nw-teal);font-size:12px;flex-shrink:0;margin-top:1px}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-p{background:var(--nw-teal);color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-p:hover{background:#009a8e}
+.btn-s{background:#fff;color:#333;border:.5px solid #ccc;padding:8px 14px;border-radius:7px;font-size:12px;cursor:pointer}
+.btn-approve{background:#27500A;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:500;margin-right:3px}
+.btn-reject{background:#fff;color:#A32D2D;border:.5px solid #F09595;padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer}
+.btn-sm{background:#fff;color:#333;border:.5px solid #ccc;padding:3px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:3px}
+.btn-teal-sm{background:var(--nw-teal);color:#fff;border:none;padding:3px 8px;border-radius:5px;font-size:11px;cursor:pointer}
+.btn-unblock{background:var(--nw-gold);color:#fff;border:none;padding:3px 9px;border-radius:4px;font-size:11px;cursor:pointer}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.b-4a{background:#E0F7F6;color:#0F6E56}.b-4b{background:#EEF3F9;color:#1F497D}
+.b-4c{background:#FAEEDA;color:#854F0B}.b-4d{background:#EEEDFE;color:#3C3489}
+.b-pass{background:#EAF3DE;color:#3B6D11}.b-fail{background:#FCEBEB;color:#A32D2D}
+.b-pending{background:#FAEEDA;color:#854F0B}.b-approved{background:#EAF3DE;color:#3B6D11}
+.b-blocked{background:#FCEBEB;color:#A32D2D}.b-active{background:#E6F1FB;color:#185FA5}
+.b-expired{background:#FCEBEB;color:#A32D2D}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:14px}
+.stat{background:#f9f9f9;border:.5px solid #e0e0e0;border-radius:7px;padding:11px 12px}
+.stat-l{font-size:11px;color:#888;margin-bottom:2px}
+.stat-v{font-size:19px;font-weight:500}
+.sv-t{color:var(--nw-teal)}.sv-n{color:var(--nw-navy)}.sv-g{color:var(--nw-gold)}.sv-r{color:#A32D2D}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 9px;font-size:10px;font-weight:500;color:#888;border-bottom:.5px solid #e0e0e0;background:#f9f9f9;white-space:nowrap}
+.tbl td{padding:8px 9px;border-bottom:.5px solid #e0e0e0;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f9f9f9}
+.td-name{font-weight:500;font-size:12px}.td-sub{font-size:10px;color:#888}
+.search-bar{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:6px 9px;border-radius:7px;border:.5px solid #ccc;font-size:12px;background:#fff;color:#222}
+.search-bar input{flex:1;min-width:140px}
+.alert{padding:9px 12px;border-radius:7px;font-size:11px;margin-bottom:11px;display:flex;gap:7px;align-items:flex-start}
+.alert-warn{background:#FAEEDA;color:#854F0B;border:.5px solid #EF9F27}
+.alert-info{background:#E6F1FB;color:#185FA5;border:.5px solid #85B7EB}
+.alert-ok{background:#EAF3DE;color:#3B6D11;border:.5px solid #97C459}
+.alert-err{background:#FCEBEB;color:#A32D2D;border:.5px solid #F09595}
+.alert i{font-size:14px;flex-shrink:0;margin-top:1px}
+.divider{height:.5px;background:#e0e0e0;margin:12px 0}
+.hist-item{padding:7px 10px;border-radius:6px;background:#f9f9f9;border:.5px solid #e0e0e0;margin-bottom:5px;font-size:11px;display:flex;align-items:center;gap:7px}
+.hdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hd-g{background:#639922}.hd-r{background:#E24B4A}.hd-go{background:var(--nw-gold)}
+.success-wrap{text-align:center;padding:36px 16px}
+.success-icon{width:60px;height:60px;background:#EAF3DE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.success-icon i{font-size:30px;color:#3B6D11}
+.config-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f9f9f9;border-radius:6px;border:.5px solid #e0e0e0;margin-bottom:6px;font-size:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:#fff;border-radius:12px;padding:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title-text{font-size:14px;font-weight:500;color:var(--nw-navy)}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:#EAF3DE;color:#3B6D11;padding:3px 10px;border-radius:20px;border:.5px solid #97C459}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#3B6D11;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.toast{position:fixed;bottom:16px;right:16px;background:#1F497D;color:#fff;padding:9px 16px;border-radius:7px;font-size:12px;z-index:9999;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div class="home-wrap">
+    <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific</div>
+    <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
+    <div class="role-cards">
+      <div class="role-card" onclick="goContractor()">
+        <div class="role-icon ri-c">⛑️</div>
+        <div class="role-name">Contractor / Visitor</div>
+        <div class="role-desc">ลงทะเบียนเข้ารับการอบรม<br>Register for Safety Training</div>
+        <div class="role-lock" style="color:var(--nw-teal)">🔓 เปิดได้เลย</div>
+      </div>
+      <div class="role-card" onclick="doShowLogin('guard')">
+        <div class="role-icon ri-g">🛡️</div>
+        <div class="role-name">Guard / รปภ.</div>
+        <div class="role-desc">ตรวจสอบและออกบัตร<br>Verify & Issue Cards</div>
+        <div class="role-lock">🔒 ต้อง Login</div>
+      </div>
+      <div class="role-card" onclick="doShowLogin('ehs')">
+        <div class="role-icon ri-e">📋</div>
+        <div class="role-name">EHS Admin</div>
+        <div class="role-desc">จัดการข้อมูลและออกบัตร<br>Manage & Issue ID Cards</div>
+        <div class="role-lock">🔒 ต้อง Login</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="text-align:center"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:32px"></div>
+      <div class="login-title" id="login-title">Login</div>
+      <div class="login-sub">กรอก Email และ PIN เพื่อเข้าสู่ระบบ</div>
+      <div id="ls1">
+        <div class="fg"><label>Email Address</label><input type="email" id="login-email" placeholder="yourname@natureworkspla.com" autocomplete="off"></div>
+        <button class="btn-p" style="width:100%" onclick="doCheckEmail()">ถัดไป / Next →</button>
+        <div class="login-err" id="email-err"></div>
+      </div>
+      <div id="ls2" style="display:none">
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:#888;margin-bottom:2px">ยืนยันตัวตนสำหรับ</div>
+          <div style="font-size:13px;font-weight:500;color:var(--nw-navy)" id="login-email-show"></div>
+        </div>
+        <div style="text-align:center;margin-bottom:8px;font-size:12px;color:#555">กรอก PIN 6 หลัก</div>
+        <div class="pin-wrap">
+          <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div><div class="pin-dot" id="pd4"></div><div class="pin-dot" id="pd5"></div>
+        </div>
+        <div class="login-err" id="pin-err"></div>
+        <div class="pin-keypad">
+          <button class="key-btn" onclick="doPinKey('1')">1</button><button class="key-btn" onclick="doPinKey('2')">2</button><button class="key-btn" onclick="doPinKey('3')">3</button>
+          <button class="key-btn" onclick="doPinKey('4')">4</button><button class="key-btn" onclick="doPinKey('5')">5</button><button class="key-btn" onclick="doPinKey('6')">6</button>
+          <button class="key-btn" onclick="doPinKey('7')">7</button><button class="key-btn" onclick="doPinKey('8')">8</button><button class="key-btn" onclick="doPinKey('9')">9</button>
+          <button class="key-btn" style="font-size:12px;color:#888" onclick="doPinClear()">ล้าง</button>
+          <button class="key-btn" onclick="doPinKey('0')">0</button>
+          <button class="key-btn" onclick="doPinBack()"><i class="ti ti-backspace" style="font-size:16px"></i></button>
+        </div>
+        <div class="login-back" onclick="doBackToEmail()">← เปลี่ยน Email</div>
+      </div>
+    </div>
+    <div class="login-back" style="margin-top:14px" onclick="goHome()">← กลับหน้าหลัก</div>
+  </div>
+</div>
+
+<!-- CONTRACTOR -->
+<div id="s-contractor" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">Contractor Portal</span></div>
+    <button class="tb-logout" onclick="goHome()"><i class="ti ti-arrow-left"></i> หน้าหลัก</button>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="cTab('c-reg',this)"><i class="ti ti-clipboard-plus"></i> ลงทะเบียน</button>
+    <button class="nav-tab" onclick="cTab('c-status',this)"><i class="ti ti-eye"></i> ตรวจสอบสถานะ</button>
+  </div>
+  <div class="content">
+    <div id="c-reg">
+      <div id="c-reg-form">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-user-circle"></i> ข้อมูลเบื้องต้น</div>
+          <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px">สัญชาติ / Nationality *</div>
+          <div class="nat-row">
+            <div class="nat-btn sel" id="nat-thai" onclick="setNat('thai')">🇹🇭 คนไทย / Thai</div>
+            <div class="nat-btn" id="nat-foreign" onclick="setNat('foreign')">🌏 ต่างชาติ / Foreign</div>
+          </div>
+          <label class="driver-row">
+            <input type="checkbox" id="c-driver" onchange="toggleDriver()">
+            <span>🚛 พนักงานขับรถขนส่ง / Transport Driver — มีเอกสารเพิ่มเติม</span>
+          </label>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-list-check"></i> เลือกประเภทการอบรม *</div>
+          <div class="type-grid">
+            <div class="type-opt" onclick="selectType(this,'4A')"><span class="type-code">4A</span><span class="type-name">Onsite Short Brief</span><span class="type-desc">อบรม Onsite ที่ NatureWorks</span></div>
+            <div class="type-opt" onclick="selectType(this,'4B')"><span class="type-code">4B</span><span class="type-name">Online Short Brief</span><span class="type-desc">อบรมออนไลน์</span></div>
+            <div class="type-opt" onclick="selectType(this,'4C')"><span class="type-code">4C</span><span class="type-name">Onsite Full Course</span><span class="type-desc">อบรมเต็มหลักสูตร Onsite</span></div>
+            <div class="type-opt" onclick="selectType(this,'4D')"><span class="type-code">4D</span><span class="type-name">Online Full Course</span><span class="type-desc">อบรมเต็มหลักสูตรออนไลน์</span></div>
+          </div>
+          <div id="doc-list"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-user"></i> ข้อมูลส่วนตัว / Personal Information</div>
+          <div class="form-grid">
+            <div class="fg2"><label>ชื่อ / First Name *</label><input id="c-fn" placeholder="สมชาย / Somchai"></div>
+            <div class="fg2"><label>นามสกุล / Last Name *</label><input id="c-ln" placeholder="มั่นคง / Mankong"></div>
+            <div class="fg2"><label>บริษัท / Company *</label><input id="c-co" placeholder="ชื่อบริษัทเต็ม"></div>
+            <div class="fg2"><label>NW Contact Person *</label><input id="c-nw" placeholder="ชื่อพนักงาน NW"></div>
+            <div class="fg2"><label>เลขบัตร / ID Card or Passport *</label><input id="c-id" placeholder="x-xxxx-xxxxx-xx-x"></div>
+            <div class="fg2"><label>เบอร์โทร / Phone</label><input id="c-phone" placeholder="0xx-xxx-xxxx"></div>
+            <div class="fg2 fg2-full"><label>งาน / Job Title *</label><input id="c-job" placeholder="e.g. Lactic Acid Tank Repair"></div>
+            <div class="fg2 fg2-full" id="pdate-sb-row"><label>วันที่ต้องการอบรม / Preferred Training Date *</label><input type="date" id="c-pdate"></div>
+            <div class="fg2 fg2-full" id="pdate-fc-row" style="display:none">
+              <label>วันที่อบรม Full Course (ทุกวันจันทร์) / Training Date — Mondays only *</label>
+              <select id="c-pdate-fc"><option value="">-- เลือกวันจันทร์ / Select Monday --</option></select>
+              <div style="font-size:10px;color:#888;margin-top:4px">📌 ปิดรับลงทะเบียนรอบวันจันทร์ถัดไปทุกวันพฤหัสบดี 24:00 น. — หากลงทะเบียนหลังจากนั้น ระบบจะแสดงเฉพาะวันจันทร์ถัดไปให้เลือก</div>
+            </div>
+            <div class="fg2 fg2-full" id="position-row" style="display:none">
+              <label>ตำแหน่ง / Position * (Full Course)</label>
+              <select id="c-position" onchange="onPositionChange()">
+                <option value="">-- เลือกตำแหน่ง --</option>
+                <option value="general">👷 พนักงานทั่วไป / General Worker</option>
+                <option value="safety">🦺 จป.หัวหน้างาน / Safety Supervisor</option>
+                <option value="firewatchman">🔥 Fire Watchman</option>
+              </select>
+            </div>
+            <div class="fg2 fg2-full" id="cert-row" style="display:none">
+              <div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span id="cert-alert-text">ต้องแนบใบ Certificate</span></div>
+              <label>ใบ Certificate * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('cert-in').click()"><i class="ti ti-certificate"></i><p>คลิกเพื่อแนบใบ Cert (JPG, PNG, PDF)</p></div>
+              <input type="file" id="cert-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleCert(this)">
+              <div id="cert-file-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-camera"></i> รูปถ่ายสำหรับบัตร / Photo</div>
+          <div class="upload-zone" onclick="document.getElementById('photo-in').click()">
+            <i class="ti ti-camera" style="font-size:28px;color:#aaa;display:block;margin-bottom:6px"></i>
+            <p>คลิกถ่ายรูปหรือเลือกไฟล์ / Click to take photo<br><span style="font-size:10px">รูปหน้าตรง พื้นหลังขาว</span></p>
+          </div>
+          <input type="file" id="photo-in" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)">
+          <div id="photo-prev" style="display:none;margin-top:8px;text-align:center">
+            <img id="photo-img" style="width:80px;height:80px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal)">
+            <div style="font-size:10px;color:#888;margin-top:3px">รูปถ่าย ✓</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-paperclip"></i> แนบเอกสาร / Attach Documents</div>
+          <div class="upload-zone" onclick="document.getElementById('doc-in').click()"><i class="ti ti-upload"></i><p>คลิกเพื่อแนบเอกสาร (JPG, PNG, PDF)</p></div>
+          <input type="file" id="doc-in" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocs(this)">
+          <div class="file-list" id="file-list"></div>
+        </div>
+        <div id="type-content"></div>
+        <div class="btn-row">
+          <button class="btn-p" onclick="submitReg()"><i class="ti ti-send"></i> ส่งใบลงทะเบียน / Submit</button>
+          <button class="btn-s" onclick="resetC()">ล้างแบบฟอร์ม</button>
+        </div>
+      </div>
+      <div id="c-reg-ok" style="display:none">
+        <div class="success-wrap">
+          <div class="success-icon"><i class="ti ti-check"></i></div>
+          <div style="font-size:17px;font-weight:500;margin-bottom:6px">ลงทะเบียนสำเร็จ! / Complete!</div>
+          <div style="font-size:12px;color:#888;margin-bottom:4px">หมายเลขอ้างอิง</div>
+          <div id="reg-ref" style="font-size:19px;font-weight:500;color:var(--nw-teal);margin-bottom:8px"></div>
+          <div class="sync-badge" style="margin:0 auto 20px;width:fit-content"><div class="sync-dot"></div> Saved to Firebase ✓</div>
+          <button class="btn-p" onclick="resetC()">ลงทะเบียนรายใหม่</button>
+        </div>
+      </div>
+    </div>
+    <div id="c-status" style="display:none">
+      <div class="panel">
+        <div class="panel-title"><i class="ti ti-search"></i> ตรวจสอบสถานะ</div>
+        <div class="fg2" style="margin-bottom:10px"><label>หมายเลขอ้างอิง หรือ เลขบัตรประชาชน</label><input id="s-search" placeholder="NBC-REG-xxxx"></div>
+        <button class="btn-p" onclick="checkStatus()">ตรวจสอบ</button>
+        <div id="s-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUARD -->
+<div id="s-guard" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">Guard Portal</span></div>
+    <div class="tb-actions">
+      <div style="display:flex;align-items:center;gap:5px"><div class="tb-av" id="g-av">G</div><span id="g-nm" style="font-size:10px;color:rgba(255,255,255,.75);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <button class="tb-logout" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-l">รออนุมัติ</div><div class="stat-v sv-g" id="g-s1">—</div></div>
+      <div class="stat"><div class="stat-l">ออกบัตรวันนี้</div><div class="stat-v sv-n" id="g-s2">—</div></div>
+      <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="g-s3">—</div></div>
+    </div>
+    <div class="search-bar">
+      <input placeholder="ค้นหาชื่อ / บริษัท..." id="g-q" oninput="renderGuardView()">
+      <select id="g-fc" onchange="renderGuardView()"><option value="">ทุกบริษัท</option></select>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-file-check"></i> รายชื่อรออนุมัติ Short Brief <span class="sync-badge" style="margin-left:auto"><div class="sync-dot"></div> Live</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>คะแนน</th><th>เอกสาร</th><th>Action</th></tr></thead><tbody id="g-pending-tbody"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-id-badge"></i> รอออกบัตร (อนุมัติแล้ว)</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>สถานะ</th><th></th></tr></thead><tbody id="g-ready-tbody"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-history"></i> ประวัติออกบัตร</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>บริษัท</th><th>วันออก</th><th>หมดอายุ</th><th>สถานะ</th></tr></thead><tbody id="g-issued-tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- EHS -->
+<div id="s-ehs" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">EHS Admin</span></div>
+    <div class="tb-actions">
+      <div style="display:flex;align-items:center;gap:5px"><div class="tb-av" id="e-av" style="background:var(--nw-gold)">E</div><span id="e-nm" style="font-size:10px;color:rgba(255,255,255,.75);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <button class="tb-logout" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="eTab('e-dash',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="nav-tab" onclick="eTab('e-sb-sec',this)"><i class="ti ti-bolt"></i> Short Brief</button>
+    <button class="nav-tab" onclick="eTab('e-fc-sec',this)"><i class="ti ti-certificate"></i> Full Course</button>
+    <button class="nav-tab" onclick="eTab('e-sbreg',this)"><i class="ti ti-id-badge"></i> ทะเบียน SB</button>
+    <button class="nav-tab" onclick="eTab('e-db',this)"><i class="ti ti-database"></i> ทะเบียนทั้งหมด</button>
+    <button class="nav-tab" onclick="eTab('e-block',this)"><i class="ti ti-lock"></i> Block Log</button>
+    <button class="nav-tab" onclick="eTab('e-bl',this)"><i class="ti ti-ban"></i> Blacklist</button>
+    <button class="nav-tab" onclick="eTab('e-cfg',this)"><i class="ti ti-settings"></i> Config</button>
+  </div>
+  <div class="content">
+    <div id="e-dash">
+      <div class="stat-row">
+        <div class="stat"><div class="stat-l">ลงทะเบียนทั้งหมด</div><div class="stat-v sv-t" id="e-s1">—</div></div>
+        <div class="stat"><div class="stat-l">Full Course รอ Approve</div><div class="stat-v sv-g" id="e-s2">—</div></div>
+        <div class="stat"><div class="stat-l">บัตรออกแล้ว</div><div class="stat-v sv-n" id="e-s3">—</div></div>
+        <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="e-s4">—</div></div>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> กิจกรรมล่าสุด <span class="sync-badge" style="margin-left:auto"><div class="sync-dot"></div> Real-time</span></div><div id="e-activity"></div></div>
+    </div>
+    <div id="e-sb-sec" style="display:none">
+      <div class="search-bar"><input placeholder="ค้นหา..." id="esb-q" oninput="renderEHSShort()"></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-bolt"></i> Short Brief (4A/4B)</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-sb-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-fc-sec" style="display:none">
+      <div class="alert alert-info"><i class="ti ti-info-circle"></i><span>EHS เท่านั้นที่อนุมัติและ Generate บัตร Full Course ได้</span></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-certificate"></i> Full Course (4C/4D)</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ตำแหน่ง</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-fc-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-sbreg" style="display:none">
+      <div class="search-bar">
+        <input placeholder="ค้นหา..." id="sb-q" oninput="filterSB()">
+        <select id="sb-status" onchange="filterSB()"><option value="">ทุกสถานะ</option><option value="active">Active</option><option value="expired">หมดอายุ</option><option value="blocked">Blocked</option></select>
+        <button class="btn-s" onclick="exportSBCSV()"><i class="ti ti-download"></i> Export</button>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-l">Short Brief ทั้งหมด</div><div class="stat-v sv-t" id="sb-s1">—</div></div>
+        <div class="stat"><div class="stat-l">Active</div><div class="stat-v sv-n" id="sb-s2">—</div></div>
+        <div class="stat"><div class="stat-l">ใช้ครั้งที่ 2</div><div class="stat-v sv-g" id="sb-s3">—</div></div>
+        <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="sb-s4">—</div></div>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-id-badge"></i> ทะเบียน Short Brief</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>วันออกบัตร</th><th>หมดอายุ</th><th>สถานะบัตร</th><th>สถานะบุคคล</th></tr></thead><tbody id="sb-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-db" style="display:none">
+      <div class="search-bar">
+        <input placeholder="ค้นหา..." id="db-q" oninput="filterDB()">
+        <select id="db-t" onchange="filterDB()"><option value="">ทุก Type</option><option>4A</option><option>4B</option><option>4C</option><option>4D</option></select>
+        <select id="db-v" onchange="filterDB()"><option value="">Safety Record ทั้งหมด</option><option value="none">✅ ปกติ</option><option value="1st">⚠ 1st Warning</option><option value="2nd">⚠ 2nd Warning</option><option value="blacklist">⛔ Blacklist</option></select>
+        <button class="btn-s" onclick="exportCSV()"><i class="ti ti-download"></i> Export CSV</button>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-database"></i> ทะเบียนผู้รับเหมา NatureWorks</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>บริษัท</th><th>Type</th><th>วันที่</th><th>คะแนน</th><th>สถานะ</th><th>หมดอายุ</th><th>Safety Record</th><th>เอกสาร</th></tr></thead><tbody id="db-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-block" style="display:none">
+      <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><span>Short Brief สูงสุด 2 ครั้ง/ปี — EHS Admin เท่านั้นที่ปลด Block ได้</span></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-lock"></i> รายชื่อ Blocked</div><div id="block-list"></div></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> ประวัติปลด Block</div><div id="unblock-hist"></div></div>
+    </div>
+    <div id="e-bl" style="display:none">
+      <div class="alert alert-err"><i class="ti ti-ban"></i><span><b>ทะเบียน Blacklist</b> — ผู้รับเหมาที่กระทำผิดกฎ Safety ร้ายแรง ห้ามเข้าพื้นที่ / ห้ามลงทะเบียนใหม่ (แยกจาก Short Brief Block)</span></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-ban"></i> รายชื่อ Blacklist (Active)</div><div id="bl-list"></div></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> ประวัติปลด Blacklist</div><div id="bl-hist"></div></div>
+    </div>
+    <div id="e-cfg" style="display:none">
+      <div class="panel">
+        <div class="panel-title"><i class="ti ti-settings"></i> จัดการ Whitelist & PIN</div>
+        <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><span>PIN และ Whitelist บันทึกใน Firebase — มีผลทุกเครื่องทันที</span></div>
+        <div style="font-size:12px;font-weight:500;color:var(--nw-navy);margin-bottom:6px">Guard PIN: <span id="cfg-gp" style="font-family:monospace;background:#f5f5f5;padding:2px 8px;border-radius:4px;border:.5px solid #ddd"></span></div>
+        <div style="font-size:12px;font-weight:500;color:var(--nw-navy);margin-bottom:14px">EHS PIN: <span id="cfg-ep" style="font-family:monospace;background:#f5f5f5;padding:2px 8px;border-radius:4px;border:.5px solid #ddd"></span></div>
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="fg2"><label>เปลี่ยน Guard PIN</label><input type="password" id="cfg-gpin" maxlength="6" placeholder="xxxxxx"></div>
+          <div class="fg2"><label>เปลี่ยน EHS PIN</label><input type="password" id="cfg-epin" maxlength="6" placeholder="xxxxxx"></div>
+        </div>
+        <button class="btn-p" onclick="savePIN()" style="margin-bottom:16px">บันทึก PIN → Firebase</button>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)"><i class="ti ti-calendar-off"></i> ปิดรับลงทะเบียน Full Course (เลือกวันจันทร์ที่มี Event)</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">วันจันทร์ที่ถูกปิดจะไม่แสดงให้ผู้รับเหมาเลือกในหน้าลงทะเบียน</div>
+        <div id="cm-list"></div>
+        <div class="form-grid" style="margin-top:8px;margin-bottom:14px">
+          <div class="fg2"><label>เลือกวันจันทร์ที่ต้องการปิด</label><input type="date" id="cm-date"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addClosedMonday()">🚫 ปิดวันนี้</button></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--nw-navy)">Guard Whitelist</div>
+        <div id="guard-list"></div>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="fg2"><label>เพิ่ม Email Guard</label><input type="email" id="add-ge" placeholder="name@natureworkspla.com"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addEmail('guard')">+ เพิ่ม</button></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--nw-navy)">EHS Whitelist</div>
+        <div id="ehs-list"></div>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="fg2"><label>เพิ่ม Email EHS</label><input type="email" id="add-ee" placeholder="name@natureworkspla.com"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addEmail('ehs')">+ เพิ่ม</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title-text" id="modal-title">เอกสาร</div>
+      <span style="cursor:pointer;color:#888;font-size:18px" onclick="closeModal()"><i class="ti ti-x"></i></span>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE + MAIN JS (after all HTML) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// ── FIREBASE ──
+const firebaseConfig={apiKey:"AIzaSyCKASP9RLRFgvdsM98cgbK3gJQiYQDqFC4",authDomain:"nw-contractor-training.firebaseapp.com",projectId:"nw-contractor-training",storageBucket:"nw-contractor-training.firebasestorage.app",messagingSenderId:"543139137624",appId:"1:543139137624:web:04b331bd7187046352222d"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+// ── CLOUDINARY ──
+const CLD_CLOUD="zjtygb1h",CLD_PRESET="nw_ctms_unsigned";
+async function uploadFile(file,folder="nw-ctms"){
+  const fd=new FormData();fd.append("file",file);fd.append("upload_preset",CLD_PRESET);fd.append("folder",folder);
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/auto/upload`,{method:"POST",body:fd});
+  if(!res.ok)throw new Error("Upload failed");
+  const d=await res.json();return{url:d.secure_url,name:file.name,type:file.type};
+}
+async function uploadBase64(b64,name,folder="nw-ctms/photos"){
+  const fd=new FormData();fd.append("file",b64);fd.append("upload_preset",CLD_PRESET);fd.append("folder",folder);fd.append("public_id",name);
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`,{method:"POST",body:fd});
+  if(!res.ok)throw new Error("Photo upload failed");
+  const d=await res.json();return d.secure_url;
+}
+
+// ── STATE ──
+function isoLocal(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+const TODAY=isoLocal(new Date());
+const _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtCard(ds){if(!ds)return"—";const d=new Date(ds+"T00:00:00");if(isNaN(d))return ds;return `${d.getFullYear()}-${_MN[d.getMonth()]}-${String(d.getDate()).padStart(2,"0")}`;}
+function eligibleMondays(n=8){
+  const out=[],now=new Date();
+  let d=new Date(now);d.setHours(0,0,0,0);
+  do{d.setDate(d.getDate()+1);}while(d.getDay()!==1);
+  let guard=0;
+  while(out.length<n&&guard<40){
+    const iso=isoLocal(d);
+    const cutoff=new Date(d);cutoff.setDate(cutoff.getDate()-3);cutoff.setHours(0,0,0,0); // Friday 00:00 = หลังพฤหัส 24:00
+    if(now<cutoff&&!(CFG.closedMondays||[]).includes(iso))out.push(iso);
+    d.setDate(d.getDate()+7);guard++;
+  }
+  return out;
+}
+function populateFCDates(){
+  const sel=document.getElementById("c-pdate-fc");if(!sel)return;
+  sel.innerHTML=`<option value="">-- เลือกวันจันทร์ / Select Monday --</option>`+eligibleMondays(8).map(x=>`<option value="${x}">${fmtCard(x)} (วันจันทร์)</option>`).join("");
+}
+let SESSION={role:null,email:null};
+let CFG={guardEmails:["guard1@natureworks.com"],ehsEmails:["kannikar.thaicharoen@natureworkspla.com"],guardPIN:"112233",ehsPIN:"998877",closedMondays:[]};
+let LOGIN_ROLE="",PIN_VAL="";
+let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null;
+let UPLOADED=[],PHOTO_DATA="";
+let _allRegs=[],_sbRows=[],UNSUB=null;
+let _blSet=new Set(),_blDocs=[],UNSUB_BL=null;
+
+// ── UTILS ──
+function genId(p){return`${p}-${new Date().getFullYear()}-${Math.floor(Math.random()*9000+1000)}`;}
+function fmtDate(d){if(!d)return"—";try{return new Date(d).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});}catch(e){return d;}}
+function cardExpiry(issued){const d=new Date(issued),m=d.getMonth()+1,y=d.getFullYear();return m>=1&&m<=6?`${y}-12-31`:`${y+1}-06-30`;}
+let _tt;function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(_tt);_tt=setTimeout(()=>t.style.display="none",3500);}
+
+// ── NAV ──
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
+function goHome(){if(UNSUB){UNSUB();UNSUB=null;}SESSION={role:null,email:null};showScreen("s-home");}
+function goContractor(){showScreen("s-contractor");}
+function doLogout(){goHome();}
+function closeModal(){document.getElementById("modal").style.display="none";document.getElementById("modal-body").innerHTML="";}
+function showModal(title,html){document.getElementById("modal-title").textContent=title;document.getElementById("modal-body").innerHTML=html;document.getElementById("modal").style.display="flex";}
+
+// ── CFG ──
+async function loadCFG(){try{const s=await db.collection("config").doc("ctms").get();if(s.exists)CFG={...CFG,...s.data()};}catch(e){}populateFCDates();}
+async function saveCFG(){try{await db.collection("config").doc("ctms").set(CFG);}catch(e){showToast("⚠ บันทึก Config ไม่สำเร็จ");}}
+
+// ── LOGIN ──
+function doShowLogin(role){
+  LOGIN_ROLE=role;PIN_VAL="";
+  document.getElementById("login-title").textContent=role==="guard"?"Guard / รปภ. Login":"EHS Admin Login";
+  document.getElementById("login-email").value="";
+  document.getElementById("email-err").textContent="";
+  document.getElementById("pin-err").textContent="";
+  document.getElementById("ls1").style.display="block";
+  document.getElementById("ls2").style.display="none";
+  showScreen("s-login");
+}
+async function doCheckEmail(){
+  const em=document.getElementById("login-email").value.trim().toLowerCase();
+  if(!em){document.getElementById("email-err").textContent="กรุณากรอก Email";return;}
+  const btn=document.querySelector("#ls1 .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ ตรวจสอบ...";}
+  try{
+    const snap=await db.collection("config").doc("ctms").get();
+    if(snap.exists){const d=snap.data();if(d.guardEmails)CFG.guardEmails=d.guardEmails;if(d.ehsEmails)CFG.ehsEmails=d.ehsEmails;if(d.guardPIN)CFG.guardPIN=d.guardPIN;if(d.ehsPIN)CFG.ehsPIN=d.ehsPIN;}
+  }catch(e){}
+  if(btn){btn.disabled=false;btn.textContent="ถัดไป / Next →";}
+  const list=(LOGIN_ROLE==="guard"?CFG.guardEmails:CFG.ehsEmails).map(e=>e.toLowerCase().trim());
+  if(!list.includes(em)){document.getElementById("email-err").textContent="Email นี้ไม่มีสิทธิ์เข้าถึงระบบ / Unauthorized";return;}
+  document.getElementById("email-err").textContent="";
+  document.getElementById("login-email-show").textContent=em;
+  document.getElementById("ls1").style.display="none";
+  document.getElementById("ls2").style.display="block";
+  updatePinDots();
+}
+function doBackToEmail(){PIN_VAL="";updatePinDots();document.getElementById("ls1").style.display="block";document.getElementById("ls2").style.display="none";}
+function doPinKey(k){if(PIN_VAL.length>=6)return;PIN_VAL+=k;updatePinDots();if(PIN_VAL.length===6)setTimeout(verifyPIN,300);}
+function doPinBack(){if(PIN_VAL.length>0){PIN_VAL=PIN_VAL.slice(0,-1);updatePinDots();document.getElementById("pin-err").textContent="";}}
+function doPinClear(){PIN_VAL="";updatePinDots();document.getElementById("pin-err").textContent="";}
+function updatePinDots(){for(let i=0;i<6;i++)document.getElementById("pd"+i).classList.toggle("filled",i<PIN_VAL.length);}
+function verifyPIN(){
+  const correct=LOGIN_ROLE==="guard"?CFG.guardPIN:CFG.ehsPIN;
+  if(PIN_VAL===correct){SESSION={role:LOGIN_ROLE,email:document.getElementById("login-email").value.trim().toLowerCase()};enterPortal();}
+  else{document.getElementById("pin-err").textContent="PIN ไม่ถูกต้อง / Incorrect PIN";PIN_VAL="";updatePinDots();}
+}
+function enterPortal(){
+  const init=SESSION.email.substring(0,2).toUpperCase();
+  if(SESSION.role==="guard"){
+    showScreen("s-guard");
+    document.getElementById("g-av").textContent=init;
+    document.getElementById("g-nm").textContent=SESSION.email;
+    startGuardListener();
+  }else{
+    showScreen("s-ehs");
+    document.getElementById("e-av").textContent=init;
+    document.getElementById("e-nm").textContent=SESSION.email;
+    startEHSListener();
+    renderCFG();
+  }
+}
+
+// ── DOC LISTS ──
+const DOCS={
+  "4A":{thai:["1. สำเนาบัตรประชาชน เซ็นรับรองสำเนาด้วยตนเอง / Copy of ID Card signed by yourself","5. ประกันสังคม ม.33 (หรือ ม.40/ประกันอุบัติเหตุ) / Social Security Sec.33","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport with valid VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4B":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport with valid VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4C":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate 4 diseases","7. เอกสารผ่านการอบรม Safety 6 ชม. / Safety Training 6 hrs Certificate","8. เอกสาร จป.หัวหน้างาน (ถ้ามี) / Safety Supervisor Cert","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP ลงนาม+ประทับตรา / NTRAP Regulation signed+sealed"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport+VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4D":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","7. เอกสารผ่านการอบรม Safety 6 ชม. / Safety Training 6 hrs","8. เอกสาร จป.หัวหน้างาน (ถ้ามี) / Safety Supervisor Cert","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport+VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]}
+};
+
+function setNat(nat){C_NAT=nat;document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));document.getElementById("nat-"+nat).classList.add("sel");renderDocList();}
+function toggleDriver(){C_DRIVER=document.getElementById("c-driver").checked;renderDocList();}
+function renderDocList(){
+  if(!C_TYPE||!DOCS[C_TYPE])return;
+  const d=DOCS[C_TYPE],list=[...(d[C_NAT]||d.thai),...(C_DRIVER?d.driver:[])];
+  document.getElementById("doc-list").innerHTML=`<div class="doc-box"><div class="doc-box-t"><i class="ti ti-checklist"></i> เอกสารที่ต้องเตรียม / Required Documents — ${C_TYPE}</div><ul>${list.map(x=>`<li><i class="ti ti-circle-check"></i>${x}</li>`).join("")}</ul>${C_DRIVER?`<div style="margin-top:8px;padding:6px 10px;background:#FAEEDA;border-radius:5px;font-size:11px;color:#854F0B"><i class="ti ti-truck"></i> พนักงานขับรถ: ต้องแนบเอกสารข้อ 13 และ 14 เพิ่มเติม</div>`:""}</div>`;
+}
+
+function selectType(el,t){
+  document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));el.classList.add("sel");C_TYPE=t;
+  renderDocList();
+  const isFC=["4C","4D"].includes(t);
+  document.getElementById("position-row").style.display=isFC?"block":"none";
+  document.getElementById("pdate-sb-row").style.display=isFC?"none":"block";
+  document.getElementById("pdate-fc-row").style.display=isFC?"block":"none";
+  if(isFC)populateFCDates();
+  const dEl=document.getElementById("c-pdate");if(dEl)dEl.min=TODAY;
+  document.getElementById("cert-row").style.display="none";
+  document.getElementById("c-position").value="";C_POSITION="";C_CERT=null;
+  // Show content+quiz links
+  const contentUrls={"4A":"https://drive.google.com/drive/folders/1Tg50HqeihxuiTujBzn0xmYcJHyz_-WAa","4B":"https://drive.google.com/drive/folders/1Tg50HqeihxuiTujBzn0xmYcJHyz_-WAa"};
+  const quizUrls={"4A":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4B":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4C":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink","4D":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink"};
+  const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
+  document.getElementById("type-content").innerHTML=`
+    ${contentUrls[t]?`<div class="panel"><div class="panel-title"><i class="ti ti-book"></i> เนื้อหาการอบรม</div><div class="alert alert-info" style="margin-bottom:10px"><i class="ti ti-info-circle"></i><span>ขั้นตอนที่ 1: ศึกษาเนื้อหาก่อนทำแบบทดสอบ</span></div><a href="${contentUrls[t]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none"><i class="ti ti-brand-google-drive"></i> เปิดเนื้อหา</a></div>`:""}
+    <div class="panel"><div class="panel-title"><i class="ti ti-clipboard-text"></i> แบบทดสอบ</div>
+      <div class="alert alert-info" style="margin-bottom:10px"><i class="ti ti-info-circle"></i><span>${!isFC?"ขั้นตอนที่ 2: ทำแบบทดสอบ (คะแนนเต็ม "+MAX_SCORES[t]+" คะแนน ผ่าน 85%) แล้วกรอก Submission ID":"EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จ"}</span></div>
+      <a href="${quizUrls[t]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:12px"><i class="ti ti-external-link"></i> ทำแบบทดสอบ</a>
+      <div class="fg2"><label>Quiz Submission ID ${!isFC?"*":""}</label><input id="c-quiz" placeholder="กรอก ID หลังส่งแบบทดสอบ"></div>
+    </div>`;
+}
+
+function onPositionChange(){
+  C_POSITION=document.getElementById("c-position").value;
+  const needCert=["safety","firewatchman"].includes(C_POSITION);
+  document.getElementById("cert-row").style.display=needCert?"block":"none";
+  if(needCert){
+    const txt=C_POSITION==="safety"?"จป.หัวหน้างาน: ต้องแนบใบประกาศนียบัตร จป.":"Fire Watchman: ต้องแนบใบประกาศนียบัตร";
+    document.getElementById("cert-alert-text").textContent=txt;
+  }else{C_CERT=null;document.getElementById("cert-file-list").innerHTML="";}
+}
+function handleCert(input){const f=input.files[0];if(!f)return;C_CERT=f;document.getElementById("cert-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-certificate" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_CERT=null;document.getElementById('cert-file-list').innerHTML='';document.getElementById('cert-in').value=''"></i></div>`;}
+
+function handlePhoto(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    const img=new Image();img.onload=()=>{
+      const canvas=document.createElement("canvas");const MAX=300;let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);
+      let q=0.8,dataUrl=canvas.toDataURL("image/jpeg",q);
+      while(dataUrl.length>200000&&q>0.3){q-=0.1;dataUrl=canvas.toDataURL("image/jpeg",q);}
+      PHOTO_DATA=dataUrl;document.getElementById("photo-img").src=dataUrl;document.getElementById("photo-prev").style.display="block";
+    };img.src=e.target.result;
+  };r.readAsDataURL(f);
+}
+function handleDocs(input){Array.from(input.files).forEach(f=>{if(!UPLOADED.find(u=>u.name===f.name))UPLOADED.push(f);});renderFileList();}
+function renderFileList(){document.getElementById("file-list").innerHTML=UPLOADED.map((f,i)=>`<div class="file-item"><i class="ti ti-file" style="color:var(--nw-teal)"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="rmFile(${i})"></i></div>`).join("");}
+function rmFile(i){UPLOADED.splice(i,1);renderFileList();}
+
+async function submitReg(){
+  if(!C_TYPE){showToast("⚠ กรุณาเลือกประเภทการอบรม");return;}
+  const fn=document.getElementById("c-fn").value.trim(),ln=document.getElementById("c-ln").value.trim(),co=document.getElementById("c-co").value.trim(),idno=document.getElementById("c-id").value.trim(),job=document.getElementById("c-job").value.trim();
+  if(!fn||!ln||!co||!idno||!job){showToast("⚠ กรุณากรอกข้อมูลที่จำเป็น");return;}
+  const isFC=["4C","4D"].includes(C_TYPE);
+  const pdateVal=isFC?document.getElementById("c-pdate-fc").value:document.getElementById("c-pdate").value;
+  if(!pdateVal){showToast(isFC?"⚠ กรุณาเลือกวันจันทร์ที่ต้องการอบรม":"⚠ กรุณาเลือกวันที่ต้องการอบรม");return;}
+  if(!isFC&&pdateVal<TODAY){showToast("⚠ วันที่อบรมต้องไม่เป็นวันที่ผ่านมาแล้ว");return;}
+  if(isFC&&!eligibleMondays(8).includes(pdateVal)){showToast("⚠ วันจันทร์ที่เลือกปิดรับลงทะเบียนแล้ว กรุณาเลือกใหม่");populateFCDates();return;}
+  if(isFC&&!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
+  if(isFC&&["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
+  const btn=document.querySelector("#c-reg-form .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
+  try{
+    // ── BLACKLIST CHECK ──
+    const blSnap=await db.collection("blacklist").where("idno","==",idno).where("active","==",true).get();
+    if(!blSnap.empty){
+      showModal("⛔ ไม่สามารถลงทะเบียนได้",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>ไม่สามารถลงทะเบียนได้เนื่องจากติด Blacklist</b><br>Registration denied — this ID is blacklisted.</span></div><div style="font-size:12px;color:#555">หมายเลขบัตร <b>${idno}</b> ถูกระงับสิทธิ์การเข้าพื้นที่ NatureWorks เนื่องจากการกระทำผิดกฎความปลอดภัย<br><br>กรุณาติดต่อทีม EHS / Please contact the EHS team.</div>`);
+      if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
+      return;
+    }
+    const regId=genId("NBC-REG");
+    let photoUrl="";
+    if(PHOTO_DATA){try{photoUrl=await uploadBase64(PHOTO_DATA,regId+"_photo","nw-ctms/photos");}catch(e){showToast("⚠ รูปถ่ายอัปโหลดไม่สำเร็จ");}}
+    const docResults=[];
+    for(const f of UPLOADED){try{docResults.push(await uploadFile(f,"nw-ctms/docs"));}catch(e){docResults.push({url:"",name:f.name});}}
+    let certUrl="";
+    if(C_CERT){try{const cr=await uploadFile(C_CERT,"nw-ctms/certs");certUrl=cr.url;}catch(e){}}
+    const posLabels={general:"พนักงานทั่วไป / General Worker",safety:"จป.หัวหน้างาน / Safety Supervisor",firewatchman:"Fire Watchman"};
+    const posColors={general:"#1F497D",safety:"#2E7D32",firewatchman:"#C2185B"};
+    const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
+    const data={
+      id:regId,fn,ln,co,nw:document.getElementById("c-nw").value.trim(),idno,phone:document.getElementById("c-phone").value.trim(),
+      job,type:C_TYPE,isShort:["4A","4B"].includes(C_TYPE),
+      pdate:pdateVal,
+      quizSubmissionId:(document.getElementById("c-quiz")||{value:""}).value.trim(),
+      quizScore:null,quizPct:null,quizPass:null,quizScoreMax:MAX_SCORES[C_TYPE],
+      docs:docResults.map(d=>({name:d.name,url:d.url||""})),
+      photo:photoUrl,nationality:C_NAT,isDriver:C_DRIVER,
+      position:C_POSITION||"general",positionLabel:posLabels[C_POSITION||"general"]||"พนักงานทั่วไป",
+      cardColor:posColors[C_POSITION||"general"]||"#1F497D",certUrl,
+      status:"pending",approvalStatus:null,cardIssued:false,cardIssuedDate:null,cardExpiry:null,cardId:null,
+      violation:null,violationDate:null,violationBy:null,
+      shortBriefCount:0,created:TODAY,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await db.collection("registrations").doc(regId).set(data);
+    document.getElementById("reg-ref").textContent=regId;
+    document.getElementById("c-reg-form").style.display="none";
+    document.getElementById("c-reg-ok").style.display="block";
+  }catch(e){showToast("⚠ บันทึกไม่สำเร็จ: "+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}}
+}
+
+function resetC(){
+  ["c-fn","c-ln","c-co","c-nw","c-id","c-phone","c-job","c-pdate"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  UPLOADED=[];PHOTO_DATA="";C_TYPE="";C_NAT="thai";C_DRIVER=false;C_POSITION="";C_CERT=null;
+  document.getElementById("file-list").innerHTML="";
+  const pp=document.getElementById("photo-prev");if(pp)pp.style.display="none";
+  document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));
+  document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));
+  document.getElementById("nat-thai").classList.add("sel");
+  const cd=document.getElementById("c-driver");if(cd)cd.checked=false;
+  document.getElementById("doc-list").innerHTML="";
+  document.getElementById("type-content").innerHTML="";
+  document.getElementById("position-row").style.display="none";
+  document.getElementById("cert-row").style.display="none";
+  const fcSel=document.getElementById("c-pdate-fc");if(fcSel)fcSel.value="";
+  document.getElementById("pdate-sb-row").style.display="block";
+  document.getElementById("pdate-fc-row").style.display="none";
+  document.getElementById("c-reg-form").style.display="block";
+  document.getElementById("c-reg-ok").style.display="none";
+}
+function cTab(id,btn){["c-reg","c-status"].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display="none";});document.querySelectorAll("#s-contractor .nav-tab").forEach(t=>t.classList.remove("active"));document.getElementById(id).style.display="block";btn.classList.add("active");}
+
+async function checkStatus(){
+  const q=document.getElementById("s-search").value.trim();
+  const el=document.getElementById("s-result");
+  if(!q){showToast("⚠ กรุณากรอกหมายเลขอ้างอิง");return;}
+  el.innerHTML=`<div class="alert alert-info"><i class="ti ti-loader"></i> กำลังค้นหา...</div>`;
+  try{
+    let r=null;
+    const snap=await db.collection("registrations").doc(q.toUpperCase()).get();
+    if(snap.exists)r=snap.data();
+    if(!r){const qs=await db.collection("registrations").where("idno","==",q).get();if(!qs.empty)r=qs.docs[0].data();}
+    if(!r){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>ไม่พบข้อมูล</div>`;return;}
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass ✓</span>`:r.quizPass===false?`<span class="badge b-fail">Fail ✗</span>`:`<span class="badge b-pending">รอผล</span>`;
+    const sb=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติแล้ว</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอตรวจสอบ</span>`;
+    el.innerHTML=`<div class="panel" style="margin-top:0"><div class="panel-title"><i class="ti ti-user-check"></i> ผลการตรวจสอบ</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${r.cardExpiry}</div>`:""}</div></div>`;
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>${e.message}</div>`;}
+}
+
+// ── BLACKLIST LISTENER ──
+function startBLListener(){
+  if(UNSUB_BL)UNSUB_BL();
+  UNSUB_BL=db.collection("blacklist").onSnapshot(s=>{
+    _blDocs=s.docs.map(d=>({docId:d.id,...d.data()}));
+    _blSet=new Set(_blDocs.filter(x=>x.active).map(x=>x.idno));
+    if(SESSION.role==="ehs"){renderDB();renderEHSShort();renderEHSFull();loadBlacklistTab();}
+    if(SESSION.role==="guard")renderGuardView();
+  },err=>{});
+}
+
+// ── GUARD LISTENER ──
+function startGuardListener(){
+  if(UNSUB)UNSUB();
+  startBLListener();
+  UNSUB=db.collection("registrations").orderBy("createdAt","desc").onSnapshot(snap=>{_allRegs=snap.docs.map(d=>d.data());renderGuardView();},err=>showToast("⚠ "+err.message));
+}
+
+function renderGuardView(){
+  const all=_allRegs,shorts=all.filter(r=>r.isShort);
+  const q=(document.getElementById("g-q")||{value:""}).value.toLowerCase();
+  const fc=(document.getElementById("g-fc")||{value:""}).value;
+  document.getElementById("g-s1").textContent=shorts.filter(r=>!r.approvalStatus).length;
+  document.getElementById("g-s2").textContent=shorts.filter(r=>r.cardIssuedDate===TODAY).length;
+  document.getElementById("g-s3").textContent=all.filter(r=>r.status==="blocked").length;
+  const cos=[...new Set(shorts.map(r=>r.co))];
+  const sel=document.getElementById("g-fc"),cur=sel.value;
+  sel.innerHTML=`<option value="">ทุกบริษัท</option>`+cos.map(c=>`<option${c===cur?" selected":""}>${c}</option>`).join("");
+  const filt=r=>(r.fn+r.ln+r.co).toLowerCase().includes(q)&&(!fc||r.co===fc);
+  const pending=shorts.filter(r=>!r.approvalStatus&&filt(r));
+  document.getElementById("g-pending-tbody").innerHTML=pending.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอผล</span>`;
+    const docs=r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+      <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
+      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST — ปฏิเสธเท่านั้น</span> `:`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>`}<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
+  }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+  const ready=shorts.filter(r=>r.approvalStatus==="approved"&&!r.cardIssued&&filt(r));
+  document.getElementById("g-ready-tbody").innerHTML=ready.map(r=>`<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><span class="badge ${(r.shortBriefCount||0)>=1?"b-pending":"b-active"}">${(r.shortBriefCount||0)+1}/2</span></td><td><span class="badge b-approved">รอออกบัตร</span></td><td><button class="btn-approve" onclick="issueShortCard('${r.id}')"><i class="ti ti-id-badge"></i> ออกบัตรแล้ว</button></td></tr>`).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+  const issued=shorts.filter(r=>r.cardIssued);
+  document.getElementById("g-issued-tbody").innerHTML=issued.map(r=>{const exp=r.cardExpiry&&r.cardExpiry<TODAY;return`<tr><td class="td-name">${r.fn} ${r.ln}</td><td class="td-sub">${r.co}</td><td style="font-size:11px">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${exp?`<span class="badge b-expired">หมดอายุ</span>`:`<span class="badge b-active">Active</span>`}</td></tr>`;}).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ยังไม่มีประวัติ</td></tr>`;
+}
+
+async function setScore(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const max=r.isShort?30:50;
+  const raw=prompt(`กรอกคะแนนที่ได้ (เต็ม ${max} คะแนน):`);
+  if(raw===null)return;
+  const sc=parseFloat(raw);if(isNaN(sc)||sc<0||sc>max){showToast(`⚠ กรอก 0-${max}`);return;}
+  const pct=Math.round((sc/max)*100),pass=pct>=85;
+  try{await db.collection("registrations").doc(regId).update({quizScore:sc,quizScoreMax:max,quizPct:pct,quizPass:pass});showToast(`✅ ${sc}/${max} = ${pct}% — ${pass?"Pass ✓":"Fail ✗"}`);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+async function guardApprove(regId){try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY});showToast("✅ อนุมัติแล้ว");}catch(e){showToast("⚠ "+e.message);}}
+async function guardReject(regId){const reason=prompt("ระบุเหตุผล:");if(reason===null)return;try{await db.collection("registrations").doc(regId).update({approvalStatus:"rejected",rejectedBy:SESSION.email,rejectReason:reason});showToast("🚫 ปฏิเสธแล้ว");}catch(e){showToast("⚠ "+e.message);}}
+async function issueShortCard(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const cnt=(r.shortBriefCount||0)+1;
+  const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=exp.toISOString().slice(0,10);
+  const cardId=genId("NBC-SB");
+  try{
+    await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
+    if(cnt>=2){await db.collection("blockLog").add({regId,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
+    else{showToast(`✅ ออกบัตรแล้ว — หมดอายุ ${expiry}`);}
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── VIEW DOCS ──
+function viewDocs(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const photoHTML=r.photo?`<div style="text-align:center;margin-bottom:16px"><img src="${r.photo}" style="width:120px;height:120px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal);cursor:pointer" onclick="window.open('${r.photo}','_blank')"><div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย (คลิกขยาย)</div></div>`:`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block;margin-bottom:4px"></i>ไม่มีรูปถ่าย</div>`;
+  const docs=r.docs||[];
+  const docsHTML=docs.length?docs.map(d=>{const name=typeof d==="string"?d:d.name;const url=typeof d==="object"&&d.url?d.url:null;const icon=name.toLowerCase().endsWith(".pdf")?"ti-file-type-pdf":"ti-photo";return`<div class="file-item" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:var(--nw-teal)"></i><span class="fi-name">${name}</span></div>${url?`<div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}')"><i class="ti ti-download"></i> โหลด</button></div>`:`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}</div>`;}).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ</div>`;
+  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div><div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"พนักงานทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div></div>`);
+}
+async function dlFile(url,filename){try{showToast("⏳ กำลัง Download...");const res=await fetch(url);const blob=await res.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);showToast("✅ Download สำเร็จ");}catch(e){window.open(url,"_blank");}}
+
+// ── PRINT CARD ──
+function printCard(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  // แถบสีตามตำแหน่ง: ทั่วไป=ขาว, จป.หัวหน้างาน=เขียว, Fire Watchman=ชมพู
+  const band={general:{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"},safety:{bg:"#2E7D32",color:"#FFFFFF",border:"#2E7D32"},firewatchman:{bg:"#E85D9E",color:"#FFFFFF",border:"#E85D9E"}}[r.position||"general"]||{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"};
+  const photoHTML=r.photo?`<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover">`:`<div style="font-size:10mm;font-weight:600;color:#7FB3D3;display:flex;align-items:center;justify-content:center;height:100%">${(r.fn||"").charAt(0)}${(r.ln||"").charAt(0)}</div>`;
+  const LOGO="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png";
+  const qrData=`NBC|${r.cardId||r.id}|${r.idno||""}`;
+  const w=window.open("","_blank","width=520,height=760");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:A5;margin:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;background:#fff}
+.card{width:55mm;height:85mm;background:linear-gradient(165deg,#F2FAFD 0%,#D9EEF8 45%,#BFE2F2 100%);color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm}
+.bg1{position:absolute;width:62mm;height:62mm;border-radius:50%;background:rgba(0,181,168,.06);bottom:-22mm;right:-16mm}
+.card-top{padding:3mm 3.5mm 1.5mm;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.logo{height:5mm}
+.pill{font-size:2mm;background:#1F497D;color:#fff;padding:.7mm 2.2mm;border-radius:5mm;letter-spacing:.05em}
+.photo-wrap{display:flex;justify-content:center;margin:1.5mm 0;position:relative;z-index:1}
+.photo{width:21mm;height:21mm;border-radius:2mm;background:#E4F2F9;overflow:hidden;border:.8mm solid #fff;box-shadow:0 .5mm 1.5mm rgba(31,73,125,.15)}
+.info{padding:0 3.5mm;position:relative;z-index:1}
+.name{font-size:3.8mm;font-weight:700;text-align:center;margin-bottom:.8mm;line-height:1.2;color:#123A66}
+.company{font-size:2.2mm;color:#4A7396;text-align:center;margin-bottom:1.8mm}
+.pos-badge{background:${band.bg};color:${band.color};border:.35mm solid ${band.border};border-radius:1.2mm;padding:1.4mm 2mm;text-align:center;font-size:2.2mm;font-weight:700;margin-bottom:1.8mm;letter-spacing:.02em}
+.divline{height:.2mm;background:#A9D3E8;margin:0 3.5mm 1.8mm}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:1.3mm;padding:0 3.5mm;position:relative;z-index:1}
+.field{background:rgba(255,255,255,.75);border:.2mm solid #CBE4F1;border-radius:1mm;padding:1.1mm 1.4mm}
+.field-full{grid-column:1/-1}
+.fl{font-size:1.8mm;color:#6E93AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3mm}
+.fv{font-size:2.4mm;font-weight:600;color:#1F497D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-bottom{padding:1.8mm 3.5mm 2.5mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
+.issuer{font-size:1.6mm;color:#6E93AF;line-height:1.5}
+.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.8mm;width:13mm;height:13mm;display:flex;align-items:center;justify-content:center}
+#qr img,#qr canvas{width:11mm!important;height:11mm!important;display:block}
+</style></head><body>
+  <div class="card"><div class="bg1"></div>
+    <div class="card-top"><img src="${LOGO}" class="logo" alt="NW"><div class="pill">CONTRACTOR</div></div>
+    <div class="photo-wrap"><div class="photo">${photoHTML}</div></div>
+    <div class="info">
+      <div class="name">${r.fn} ${r.ln}</div>
+      <div class="company">${r.co}</div>
+      <div class="pos-badge">${r.positionLabel||"พนักงานทั่วไป / General Worker"}</div>
+    </div>
+    <div class="divline"></div>
+    <div class="fields">
+      <div class="field"><div class="fl">ออกบัตร / Issued</div><div class="fv" style="font-size:2.1mm">${fmtCard(r.cardIssuedDate)}</div></div>
+      <div class="field"><div class="fl">หมดอายุ / Expiry</div><div class="fv" style="font-size:2.1mm">${fmtCard(r.cardExpiry)}</div></div>
+      <div class="field field-full"><div class="fl">Card ID</div><div class="fv" style="font-size:2mm">${r.cardId||"—"}</div></div>
+    </div>
+    <div class="card-bottom">
+      <div class="issuer">NatureWorks Asia Pacific Limited<br>NTRAP Contractor ID Card</div>
+      <div class="qr-box"><div id="qr"></div></div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+<script>
+try{new QRCode(document.getElementById("qr"),{text:"${qrData}",width:44,height:44,correctLevel:QRCode.CorrectLevel.M});}catch(e){document.getElementById("qr").textContent="QR";}
+setTimeout(function(){window.focus();window.print();},600);
+<\/script>
+</body></html>`);
+  w.document.close();
+}
+
+// ── EHS LISTENER ──
+function startEHSListener(){
+  if(UNSUB)UNSUB();
+  startBLListener();
+  UNSUB=db.collection("registrations").orderBy("createdAt","desc").onSnapshot(snap=>{_allRegs=snap.docs.map(d=>d.data());renderEHSDash();renderEHSShort();renderEHSFull();renderSBReg();renderDB();},err=>showToast("⚠ "+err.message));
+  loadBlockLog();
+}
+
+function renderEHSDash(){
+  const all=_allRegs,fc=all.filter(r=>!r.isShort);
+  document.getElementById("e-s1").textContent=all.length;
+  document.getElementById("e-s2").textContent=fc.filter(r=>!r.approvalStatus).length;
+  document.getElementById("e-s3").textContent=all.filter(r=>r.cardIssued).length;
+  document.getElementById("e-s4").textContent=all.filter(r=>r.status==="blocked").length;
+  document.getElementById("e-activity").innerHTML=all.slice(0,6).map(r=>`<div class="hist-item"><div class="hdot ${r.approvalStatus==="approved"?"hd-g":r.approvalStatus==="rejected"?"hd-r":"hd-go"}"></div><div style="flex:1"><b>${r.fn} ${r.ln}</b> · ${r.co}<br><span style="font-size:10px;color:#888">${r.id} · <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></span></div><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></div>`).join("")||`<div style="color:#888;font-size:12px;padding:8px">ยังไม่มีกิจกรรม</div>`;
+}
+function renderEHSShort(){
+  const q=(document.getElementById("esb-q")||{value:""}).value.toLowerCase();
+  const rows=_allRegs.filter(r=>r.isShort&&(r.fn+r.ln+r.co).toLowerCase().includes(q));
+  document.getElementById("e-sb-tbody").innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
+    const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
+    const cardSt=r.cardIssued?`<span class="badge b-active">ออกบัตรแล้ว</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${ab}</td><td>${cardSt}</td>
+      <td>${!r.approvalStatus?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
+  }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+}
+function renderEHSFull(){
+  const rows=_allRegs.filter(r=>!r.isShort);
+  document.getElementById("e-fc-tbody").innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
+    const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
+    const cardSt=r.cardIssued?`<span class="badge b-active">จ่ายบัตรแล้ว</span>`:r.approvalStatus==="approved"?`<span class="badge b-pending">รอจ่ายบัตร</span>`:"—";
+    const isBL=_blSet.has(r.idno);
+    const can=!isBL&&r.quizPass===true&&r.docs&&r.docs.length>0&&!r.approvalStatus;
+    return `<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+      <td style="font-size:11px">${r.positionLabel||"—"}</td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${ab}</td><td>${cardSt}</td>
+      <td>${can?`<button class="btn-approve" onclick="ehsApproveFull('${r.id}')">✓ Approve</button>`:""}${!r.approvalStatus?`<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""}${!isBL&&r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueFullCard('${r.id}')">จ่ายบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button>${r.cardId?`<button class="btn-sm" onclick="printCard('${r.id}')"><i class="ti ti-printer"></i></button>`:""}</td></tr>`;
+  }).join("")||`<tr><td colspan="8" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
+}
+
+async function ehsApproveFull(regId){
+  const cardId=genId("NBC-FC");
+  try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY,cardId});showToast(`✅ Approved — Card ${cardId} พร้อมจ่ายเมื่อผู้รับเหมามาติดต่อ`);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+async function issueFullCard(regId){
+  const expiry=cardExpiry(TODAY);
+  try{await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,status:"active",issuedBy:SESSION.email});showToast(`✅ จ่ายบัตรแล้ว — หมดอายุ ${fmtCard(expiry)}`);printCard(regId);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+
+function renderSBReg(){
+  const rows=_allRegs.filter(r=>r.isShort);
+  const q=(document.getElementById("sb-q")||{value:""}).value.toLowerCase();
+  const sf=(document.getElementById("sb-status")||{value:""}).value;
+  const filtered=rows.filter(r=>{
+    const mq=(r.fn+r.ln+r.co).toLowerCase().includes(q);
+    let ms=true;if(sf==="active")ms=r.cardIssued&&r.cardExpiry>=TODAY&&r.status!=="blocked";else if(sf==="expired")ms=r.cardExpiry&&r.cardExpiry<TODAY;else if(sf==="blocked")ms=r.status==="blocked";
+    return mq&&ms;
+  }).sort((a,b)=>a.co.localeCompare(b.co));
+  document.getElementById("sb-s1").textContent=rows.length;
+  document.getElementById("sb-s2").textContent=rows.filter(r=>r.cardIssued&&r.cardExpiry>=TODAY&&r.status!=="blocked").length;
+  document.getElementById("sb-s3").textContent=rows.filter(r=>(r.shortBriefCount||0)===1).length;
+  document.getElementById("sb-s4").textContent=rows.filter(r=>r.status==="blocked").length;
+  _sbRows=filtered;
+  document.getElementById("sb-tbody").innerHTML=filtered.map(r=>{
+    const cnt=r.shortBriefCount||0;const exp=r.cardExpiry&&r.cardExpiry<TODAY;const blk=r.status==="blocked";
+    const cntB=cnt===0?`<span class="badge" style="background:#f5f5f5;color:#888">ยังไม่ใช้</span>`:cnt===1?`<span class="badge b-pending">1/2 ⚠</span>`:`<span class="badge b-fail">2/2 ครบ</span>`;
+    const cardSt=blk?`<span class="badge b-blocked">Blocked</span>`:r.cardIssued&&!exp?`<span class="badge b-active">Active</span>`:exp?`<span class="badge b-expired">หมดอายุ</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="text-align:center">${cntB}</td><td style="font-size:11px;color:#888">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${cardSt}</td><td>${blk?`<span class="badge b-blocked">Blocked</span>`:`<span class="badge b-approved">ปกติ</span>`}</td></tr>`;
+  }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
+}
+function filterSB(){renderSBReg();}
+
+function renderDB(){
+  const q=(document.getElementById("db-q")||{value:""}).value.toLowerCase();
+  const ft=(document.getElementById("db-t")||{value:""}).value;
+  const fv=(document.getElementById("db-v")||{value:""}).value;
+  const rows=_allRegs.filter(r=>{
+    const okQ=(r.fn+r.ln+r.co+r.idno).toLowerCase().includes(q)&&(!ft||r.type===ft);
+    const v=r.violation||"none";
+    const okV=!fv||(fv==="none"?v==="none":v===fv);
+    return okQ&&okV;
+  });
+  const el=document.getElementById("db-tbody");if(!el)return;
+  el.innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:r.quizScore+"%"):"—";
+    const v=r.violation||"";
+    const isBL=v==="blacklist"||_blSet.has(r.idno);
+    const vSel=`<select onchange="setViolation('${r.id}',this.value)" style="font-size:10px;padding:2px 4px;border:.5px solid ${isBL?"#A32D2D":"#ddd"};border-radius:4px;background:${isBL?"#FCEBEB":v?"#FAEEDA":"#fff"};color:${isBL?"#A32D2D":v?"#854F0B":"#555"}">
+      <option value=""${!v?" selected":""}>✅ ปกติ</option>
+      <option value="1st"${v==="1st"?" selected":""}>⚠ 1st Warning</option>
+      <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
+      <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
+    </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}`;
+    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td></tr>`;
+  }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
+}
+function filterDB(){renderDB();}
+
+function exportCSV(){
+  const all=_allRegs;
+  const hdr="ID,ชื่อ,นามสกุล,บริษัท,เลขบัตร,ประเภท,ตำแหน่ง,คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Safety Record";
+  const rows=all.map(r=>`${r.id},${r.fn},${r.ln},"${r.co}",${r.idno},${r.type},"${r.positionLabel||""}",${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):""},${r.quizPass===true?"Pass":r.quizPass===false?"Fail":""},${r.approvalStatus||"pending"},${r.cardIssuedDate||""},${r.cardExpiry||""},${r.violation==="blacklist"?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ"}`);
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_CTMS_${TODAY}.csv`;a.click();
+  showToast("📥 Export CSV สำเร็จ");
+}
+function exportSBCSV(){
+  const rows=_sbRows||[];const hdr="ชื่อ,นามสกุล,บริษัท,ประเภท,ครั้งที่,วันออกบัตร,หมดอายุ,สถานะ";
+  const data=rows.map(r=>{const exp=r.cardExpiry&&r.cardExpiry<TODAY;const cs=r.status==="blocked"?"Blocked":r.cardIssued&&!exp?"Active":exp?"หมดอายุ":"ยังไม่ออก";return`${r.fn},${r.ln},"${r.co}",${r.type},${r.shortBriefCount||0},${r.cardIssuedDate||""},${r.cardExpiry||""},${cs}`;});
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+data.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_ShortBrief_${TODAY}.csv`;a.click();
+  showToast("📥 Export Short Brief CSV สำเร็จ");
+}
+
+// ── SAFETY VIOLATION / BLACKLIST ──
+async function setViolation(regId,v){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  try{
+    if(v==="blacklist"){
+      const reason=prompt(`⛔ ระบุเหตุผลการ Blacklist:\n${r.fn} ${r.ln} (${r.co})`);
+      if(reason===null){renderDB();return;}
+      await db.collection("registrations").doc(regId).update({violation:"blacklist",violationDate:TODAY,violationBy:SESSION.email});
+      await db.collection("blacklist").add({idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,regId,reason:reason||"-",date:TODAY,by:SESSION.email,active:true});
+      showToast(`⛔ Blacklist แล้ว: ${r.fn} ${r.ln}`);
+    }else{
+      await db.collection("registrations").doc(regId).update({violation:v||null,violationDate:v?TODAY:null,violationBy:v?SESSION.email:null});
+      if((r.violation==="blacklist")||_blSet.has(r.idno)){
+        const bl=await db.collection("blacklist").where("idno","==",r.idno).where("active","==",true).get();
+        for(const d of bl.docs){await d.ref.update({active:false,removedBy:SESSION.email,removedDate:TODAY});}
+      }
+      showToast(v?`⚠ บันทึก ${v==="1st"?"1st Warning":"2nd Warning"}: ${r.fn} ${r.ln}`:`✅ ล้างสถานะ: ${r.fn} ${r.ln}`);
+    }
+  }catch(e){showToast("⚠ "+e.message);renderDB();}
+}
+function loadBlacklistTab(){
+  const act=_blDocs.filter(x=>x.active),hist=_blDocs.filter(x=>!x.active);
+  const el1=document.getElementById("bl-list"),el2=document.getElementById("bl-hist");
+  if(!el1)return;
+  el1.innerHTML=act.map(x=>`<div class="config-item"><i class="ti ti-ban" style="color:#A32D2D"></i><div style="flex:1"><div style="font-weight:600;font-size:12px">${x.name} <span style="font-weight:400;color:#888">— ${x.co}</span></div><div style="font-size:10px;color:#888">เลขบัตร: ${x.idno} | ${fmtCard(x.date)} | โดย ${x.by||"—"}</div><div style="font-size:11px;color:#A32D2D">เหตุผล: ${x.reason||"-"}</div></div><button class="btn-sm" onclick="unBlacklist('${x.docId}')" style="color:#185FA5">🔓 ปลด</button></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีรายชื่อ Blacklist</div>`;
+  el2.innerHTML=hist.map(x=>`<div class="config-item"><i class="ti ti-history" style="color:#888"></i><div style="flex:1"><div style="font-size:12px">${x.name} — ${x.co}</div><div style="font-size:10px;color:#888">Blacklist ${fmtCard(x.date)} → ปลดโดย ${x.removedBy||"—"} เมื่อ ${fmtCard(x.removedDate)}</div></div></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีประวัติ</div>`;
+}
+async function unBlacklist(docId){
+  const x=_blDocs.find(d=>d.docId===docId);if(!x)return;
+  if(!confirm(`ยืนยันปลด Blacklist: ${x.name}?`))return;
+  try{
+    await db.collection("blacklist").doc(docId).update({active:false,removedBy:SESSION.email,removedDate:TODAY});
+    if(x.regId){try{await db.collection("registrations").doc(x.regId).update({violation:"2nd",violationDate:TODAY,violationBy:SESSION.email});}catch(e){}}
+    showToast(`🔓 ปลด Blacklist: ${x.name}`);
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── CLOSED MONDAYS (Full Course) ──
+async function addClosedMonday(){
+  const v=document.getElementById("cm-date").value;
+  if(!v){showToast("⚠ กรุณาเลือกวันที่");return;}
+  const d=new Date(v+"T00:00:00");
+  if(d.getDay()!==1){showToast("⚠ ต้องเป็นวันจันทร์เท่านั้น");return;}
+  CFG.closedMondays=CFG.closedMondays||[];
+  if(CFG.closedMondays.includes(v)){showToast("⚠ วันนี้ถูกปิดอยู่แล้ว");return;}
+  CFG.closedMondays.push(v);CFG.closedMondays.sort();
+  await saveCFG();renderCFG();populateFCDates();
+  document.getElementById("cm-date").value="";
+  showToast(`🚫 ปิดรับลงทะเบียนวันจันทร์ ${fmtCard(v)}`);
+}
+async function removeClosedMonday(i){
+  const v=CFG.closedMondays[i];CFG.closedMondays.splice(i,1);
+  await saveCFG();renderCFG();populateFCDates();
+  showToast(`🔓 เปิดรับลงทะเบียน ${fmtCard(v)}`);
+}
+
+// ── BLOCK LOG ──
+async function loadBlockLog(){
+  try{
+    const snap=await db.collection("blockLog").get();
+    const active=snap.docs.map(d=>({...d.data(),_did:d.id})).filter(b=>b.active);
+    document.getElementById("block-list").innerHTML=active.length?active.map(b=>`<div class="hist-item"><div class="hdot hd-r"></div><div style="flex:1"><b>${b.name}</b> · ${b.co}<br><span style="font-size:10px;color:#888">${b.reason} · ${b.date}</span></div><button class="btn-unblock" onclick="unblock('${b._did}','${b.regId}','${b.name}')">ปลด Block</button></div>`).join(""):`<div style="color:#888;font-size:12px;padding:8px">ไม่มีรายการ Blocked</div>`;
+    const unSnap=await db.collection("unblockLog").orderBy("date","desc").get();
+    document.getElementById("unblock-hist").innerHTML=unSnap.docs.length?unSnap.docs.map(d=>{const u=d.data();return`<div class="hist-item"><div class="hdot hd-go"></div><div><b>${u.name}</b> · ปลด Block ${u.date}<br><span style="font-size:10px;color:#888">โดย: ${u.by}</span></div></div>`;}).join(""):`<div style="color:#888;font-size:12px;padding:8px">ยังไม่มีประวัติ</div>`;
+  }catch(e){}
+}
+async function unblock(docId,regId,name){
+  try{await db.collection("blockLog").doc(docId).update({active:false});await db.collection("registrations").doc(regId).update({status:"active",shortBriefCount:0});await db.collection("unblockLog").add({regId,name,date:TODAY,by:SESSION.email});showToast(`🔓 ปลด Block: ${name}`);loadBlockLog();}
+  catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── CONFIG ──
+function renderCFG(){
+  const cmEl=document.getElementById("cm-list");
+  if(cmEl)cmEl.innerHTML=(CFG.closedMondays||[]).map((d,i)=>`<div class="config-item"><i class="ti ti-calendar-off" style="color:#A32D2D"></i><span style="flex:1">${fmtCard(d)} (วันจันทร์)${d<TODAY?' <span style="color:#aaa;font-size:10px">— ผ่านมาแล้ว</span>':""}</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeClosedMonday(${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีวันจันทร์ที่ปิด</div>`;
+  document.getElementById("cfg-gp").textContent=CFG.guardPIN;
+  document.getElementById("cfg-ep").textContent=CFG.ehsPIN;
+  document.getElementById("guard-list").innerHTML=CFG.guardEmails.map((e,i)=>`<div class="config-item"><i class="ti ti-shield-check" style="color:var(--nw-navy)"></i><span style="flex:1">${e}</span><span class="badge b-active" style="font-size:9px">Guard</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeEmail('guard',${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ยังไม่มี email</div>`;
+  document.getElementById("ehs-list").innerHTML=CFG.ehsEmails.map((e,i)=>`<div class="config-item"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span style="flex:1">${e}</span><span class="badge b-pending" style="font-size:9px">EHS</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeEmail('ehs',${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ยังไม่มี email</div>`;
+}
+async function savePIN(){
+  const gp=document.getElementById("cfg-gpin").value.trim(),ep=document.getElementById("cfg-epin").value.trim();
+  if(gp&&!/^\d{4,6}$/.test(gp)){showToast("⚠ PIN ต้องเป็นตัวเลข 4-6 หลัก");return;}
+  if(ep&&!/^\d{4,6}$/.test(ep)){showToast("⚠ PIN ต้องเป็นตัวเลข 4-6 หลัก");return;}
+  if(gp)CFG.guardPIN=gp;if(ep)CFG.ehsPIN=ep;
+  await saveCFG();renderCFG();document.getElementById("cfg-gpin").value="";document.getElementById("cfg-epin").value="";showToast("✅ บันทึก PIN แล้ว");
+}
+async function addEmail(role){
+  const elId=role==="guard"?"add-ge":"add-ee";
+  const email=document.getElementById(elId).value.trim().toLowerCase();
+  if(!email||!/\S+@\S+\.\S+/.test(email)){showToast("⚠ Email ไม่ถูกต้อง");return;}
+  const list=role==="guard"?CFG.guardEmails:CFG.ehsEmails;
+  if(list.includes(email)){showToast("⚠ มีอยู่แล้ว");return;}
+  list.push(email);document.getElementById(elId).value="";await saveCFG();renderCFG();showToast(`✅ เพิ่ม ${email}`);
+}
+async function removeEmail(role,i){
+  const list=role==="guard"?CFG.guardEmails:CFG.ehsEmails;const e=list[i];list.splice(i,1);await saveCFG();renderCFG();showToast(`🗑 ลบ ${e}`);
+}
+
+function eTab(id,btn){
+  ["e-dash","e-sb-sec","e-fc-sec","e-sbreg","e-db","e-block","e-bl","e-cfg"].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display="none";});
+  document.querySelectorAll("#s-ehs .nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(id).style.display="block";btn.classList.add("active");
+  if(id==="e-block")loadBlockLog();if(id==="e-cfg")renderCFG();if(id==="e-sbreg")renderSBReg();if(id==="e-bl")loadBlacklistTab();if(id==="e-db")renderDB();
+}
+
+// ── INIT ──
+loadCFG();
+console.log("✅ NatureWorks CTMS v9 — Firebase connected");
+</script>
+</body>
+</html>
