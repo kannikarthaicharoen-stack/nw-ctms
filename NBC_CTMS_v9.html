@@ -538,7 +538,22 @@ let _allRegs=[],_sbRows=[],UNSUB=null;
 let _blSet=new Set(),_blDocs=[],UNSUB_BL=null;
 
 // ── UTILS ──
-function genId(p){return`${p}-${new Date().getFullYear()}-${Math.floor(Math.random()*9000+1000)}`;}
+async function genId(p){
+  const yr=new Date().getFullYear();
+  const ref=db.collection("counters").doc(`${p}-${yr}`);
+  try{
+    const seq=await db.runTransaction(async t=>{
+      const s=await t.get(ref);
+      const next=(s.exists?(s.data().seq||0):0)+1;
+      t.set(ref,{seq:next,prefix:p,year:yr},{merge:true});
+      return next;
+    });
+    return `${p}-${yr}-${String(seq).padStart(4,"0")}`;
+  }catch(e){
+    // fallback กรณี transaction ล้มเหลว — ใช้ timestamp กันซ้ำ
+    return `${p}-${yr}-T${Date.now().toString().slice(-6)}`;
+  }
+}
 function fmtDate(d){if(!d)return"—";try{return new Date(d).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});}catch(e){return d;}}
 function cardExpiry(issued){const d=new Date(issued),m=d.getMonth()+1,y=d.getFullYear();return m>=1&&m<=6?`${y}-12-31`:`${y+1}-06-30`;}
 let _tt;function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(_tt);_tt=setTimeout(()=>t.style.display="none",3500);}
@@ -699,7 +714,7 @@ async function submitReg(){
       if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
       return;
     }
-    const regId=genId("NBC-REG");
+    const regId=await genId("NBC-REG");
     let photoUrl="";
     if(PHOTO_DATA){try{photoUrl=await uploadBase64(PHOTO_DATA,regId+"_photo","nw-ctms/photos");}catch(e){showToast("⚠ รูปถ่ายอัปโหลดไม่สำเร็จ");}}
     const docResults=[];
@@ -830,7 +845,7 @@ async function issueShortCard(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
   const cnt=(r.shortBriefCount||0)+1;
   const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=exp.toISOString().slice(0,10);
-  const cardId=genId("NBC-SB");
+  const cardId=await genId("NBC-SB");
   try{
     await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
     if(cnt>=2){await db.collection("blockLog").add({regId,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
@@ -868,9 +883,9 @@ function printCard(regId){
 body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;background:#fff}
 .card{width:55mm;height:85mm;background:linear-gradient(165deg,#F2FAFD 0%,#D9EEF8 45%,#BFE2F2 100%);color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm}
 .bg1{position:absolute;width:62mm;height:62mm;border-radius:50%;background:rgba(0,181,168,.06);bottom:-22mm;right:-16mm}
-.card-top{padding:3mm 3.5mm 1.5mm;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
-.logo{height:5mm}
-.pill{font-size:2mm;background:#1F497D;color:#fff;padding:.7mm 2.2mm;border-radius:5mm;letter-spacing:.05em}
+.card-top{padding:3mm 3.5mm 1.5mm;display:flex;justify-content:space-between;align-items:center;gap:1.5mm;position:relative;z-index:1}
+.logo{height:4.5mm;max-width:28mm;object-fit:contain}
+.pill{font-size:1.9mm;background:#1F497D;color:#fff;padding:.7mm 2mm;border-radius:5mm;letter-spacing:.04em;white-space:nowrap;flex-shrink:0}
 .photo-wrap{display:flex;justify-content:center;margin:1.5mm 0;position:relative;z-index:1}
 .photo{width:21mm;height:21mm;border-radius:2mm;background:#E4F2F9;overflow:hidden;border:.8mm solid #fff;box-shadow:0 .5mm 1.5mm rgba(31,73,125,.15)}
 .info{padding:0 3.5mm;position:relative;z-index:1}
@@ -964,7 +979,7 @@ function renderEHSFull(){
 }
 
 async function ehsApproveFull(regId){
-  const cardId=genId("NBC-FC");
+  const cardId=await genId("NBC-FC");
   try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY,cardId});showToast(`✅ Approved — Card ${cardId} พร้อมจ่ายเมื่อผู้รับเหมามาติดต่อ`);}
   catch(e){showToast("⚠ "+e.message);}
 }
