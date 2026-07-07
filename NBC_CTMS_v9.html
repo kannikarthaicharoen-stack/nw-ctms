@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.4</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.5</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -715,6 +715,34 @@ async function submitReg(){
       if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
       return;
     }
+    // ── SHORT BRIEF: เช็คประวัติต่อบุคคล (เลขบัตรประชาชน) ──
+    let sbUsed=0;
+    if(!isFC){
+      const allSnap=await db.collection("registrations").where("idno","==",idno).get();
+      const yr=String(new Date().getFullYear());
+      const prev=allSnap.docs.map(d=>d.data()).filter(r=>r.isShort&&r.approvalStatus!=="rejected"&&String(r.created||"").startsWith(yr));
+      // 1) มีรายการค้างที่ยังไม่ออกบัตร → ห้ามลงซ้ำ
+      const dup=prev.find(r=>!r.cardIssued);
+      if(dup){
+        showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอทำแบบทดสอบ / รอตรวจ / รอออกบัตร<br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
+        return;
+      }
+      // 2) มีบัตรที่ยังไม่หมดอายุ → ใช้บัตรเดิม
+      const act=prev.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY&&r.status!=="blocked");
+      if(act){
+        showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Short Brief ที่ยังไม่หมดอายุ</b><br>An active Short Brief card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${act.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(act.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ</div>`);
+        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
+        return;
+      }
+      // 3) นับครั้งที่ใช้ไปแล้วปีนี้ (ต่อบุคคล)
+      sbUsed=prev.reduce((m,r)=>Math.max(m,r.cardIssued?Math.max(r.shortBriefCount||0,1):(r.shortBriefCount||0)),0);
+      if(sbUsed>=2){
+        showModal("⛔ ครบโควตา Short Brief",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>เลขบัตรประชาชนนี้ใช้ Short Brief ครบ 2 ครั้งในปีนี้แล้ว</b><br>Short Brief quota (2/year) has been used up.</span></div><div style="font-size:12px;color:#555">ไม่สามารถลงทะเบียน Short Brief ได้อีก — กรุณาลงทะเบียน <b>อบรม Full Course (4C/4D)</b> แทนค่ะ<br><br>หากมีข้อสงสัย กรุณาติดต่อทีม EHS</div>`);
+        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
+        return;
+      }
+    }
     const regId=await genId("NBC-REG");
     let photoUrl="";
     if(PHOTO_DATA){try{photoUrl=await uploadBase64(PHOTO_DATA,regId+"_photo","nw-ctms/photos");}catch(e){showToast("⚠ รูปถ่ายอัปโหลดไม่สำเร็จ");}}
@@ -737,7 +765,7 @@ async function submitReg(){
       cardColor:posColors[C_POSITION||"general"]||"#1F497D",certUrl,
       status:"pending",approvalStatus:null,cardIssued:false,cardIssuedDate:null,cardExpiry:null,cardId:null,
       violation:null,violationDate:null,violationBy:null,
-      shortBriefCount:0,created:TODAY,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      shortBriefCount:sbUsed,created:TODAY,createdAt:firebase.firestore.FieldValue.serverTimestamp()
     };
     await db.collection("registrations").doc(regId).set(data);
     document.getElementById("reg-ref").textContent=regId;
@@ -867,7 +895,7 @@ async function issueShortCard(regId){
   const cardId=await genId("NBC-SB");
   try{
     await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
-    if(cnt>=2){await db.collection("blockLog").add({regId,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
+    if(cnt>=2){await db.collection("blockLog").add({regId,idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
     else{showToast(`✅ ออกบัตรแล้ว — หมดอายุ ${expiry}`);}
   }catch(e){showToast("⚠ "+e.message);}
 }
@@ -883,7 +911,7 @@ function viewDocs(regId){
     const certName=`Certificate_${r.fn}_${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
     certHTML=r.certUrl?`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-gold)"><i class="ti ti-certificate"></i> ใบ Certificate (${r.positionLabel||""}):</div><div class="file-item" style="justify-content:space-between;margin-bottom:12px;border:1px solid #E8D9B0;background:#FFFDF5"><div style="display:flex;align-items:center;gap:7px"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span class="fi-name">${certName}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${r.certUrl}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${r.certUrl}','${certName}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span>ตำแหน่ง ${r.positionLabel||""} — ไม่พบใบ Certificate ในระบบ</span></div>`;
   }
-  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"พนักงานทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div></div>`);
+  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"พนักงานทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div><div><b>Safety Record:</b> ${_blSet.has(r.idno)?"⛔ Blacklist":r.violation==="1st"?"⚠ 1st Warning":r.violation==="2nd"?"⚠ 2nd Warning":"✅ ปกติ"}${r.violationReason?` — <span style="color:#A32D2D">${r.violationReason}</span>`:""}</div></div>`);
 }
 async function dlFile(url,filename){try{showToast("⏳ กำลัง Download...");const res=await fetch(url);const blob=await res.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);showToast("✅ Download สำเร็จ");}catch(e){window.open(url,"_blank");}}
 
@@ -1051,7 +1079,7 @@ function renderDB(){
       <option value="1st"${v==="1st"?" selected":""}>⚠ 1st Warning</option>
       <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
       <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
-    </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}`;
+    </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}${(v||isBL)&&(r.violationReason||isBL)?`<div style="font-size:9px;color:#A32D2D;margin-top:2px;max-width:130px;white-space:normal">${isBL?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}</div>`:""}`;
     return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td></tr>`;
   }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
 }
@@ -1059,8 +1087,8 @@ function filterDB(){renderDB();}
 
 function exportCSV(){
   const all=_allRegs;
-  const hdr="ID,ชื่อ,นามสกุล,บริษัท,เลขบัตร,ประเภท,ตำแหน่ง,คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Safety Record";
-  const rows=all.map(r=>`${r.id},${r.fn},${r.ln},"${r.co}",${r.idno},${r.type},"${r.positionLabel||""}",${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):""},${r.quizPass===true?"Pass":r.quizPass===false?"Fail":""},${r.approvalStatus||"pending"},${r.cardIssuedDate||""},${r.cardExpiry||""},${r.violation==="blacklist"?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ"}`);
+  const hdr="ID,ชื่อ,นามสกุล,บริษัท,เลขบัตร,ประเภท,ตำแหน่ง,คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Safety Record,เหตุผล";
+  const rows=all.map(r=>`${r.id},${r.fn},${r.ln},"${r.co}",${r.idno},${r.type},"${r.positionLabel||""}",${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):""},${r.quizPass===true?"Pass":r.quizPass===false?"Fail":""},${r.approvalStatus||"pending"},${r.cardIssuedDate||""},${r.cardExpiry||""},${_blSet.has(r.idno)?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ"},"${_blSet.has(r.idno)?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}"`);
   const blob=new Blob(["\uFEFF"+hdr+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_CTMS_${TODAY}.csv`;a.click();
   showToast("📥 Export CSV สำเร็จ");
@@ -1080,11 +1108,16 @@ async function setViolation(regId,v){
     if(v==="blacklist"){
       const reason=prompt(`⛔ ระบุเหตุผลการ Blacklist:\n${r.fn} ${r.ln} (${r.co})`);
       if(reason===null){renderDB();return;}
-      await db.collection("registrations").doc(regId).update({violation:"blacklist",violationDate:TODAY,violationBy:SESSION.email});
+      await db.collection("registrations").doc(regId).update({violation:"blacklist",violationDate:TODAY,violationBy:SESSION.email,violationReason:reason||"-"});
       await db.collection("blacklist").add({idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,regId,reason:reason||"-",date:TODAY,by:SESSION.email,active:true});
       showToast(`⛔ Blacklist แล้ว: ${r.fn} ${r.ln}`);
     }else{
-      await db.collection("registrations").doc(regId).update({violation:v||null,violationDate:v?TODAY:null,violationBy:v?SESSION.email:null});
+      let reason=null;
+      if(v){
+        reason=prompt(`⚠ ระบุเหตุผล ${v==="1st"?"1st Warning":"2nd Warning"}:\n${r.fn} ${r.ln} (${r.co})`);
+        if(reason===null){renderDB();return;}
+      }
+      await db.collection("registrations").doc(regId).update({violation:v||null,violationDate:v?TODAY:null,violationBy:v?SESSION.email:null,violationReason:v?(reason||"-"):null});
       if((r.violation==="blacklist")||_blSet.has(r.idno)){
         const bl=await db.collection("blacklist").where("idno","==",r.idno).where("active","==",true).get();
         for(const d of bl.docs){await d.ref.update({active:false,removedBy:SESSION.email,removedDate:TODAY});}
@@ -1181,7 +1214,7 @@ function eTab(id,btn){
 
 // ── INIT ──
 loadCFG();
-console.log("✅ NatureWorks CTMS v9.4 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.5 — Firebase connected");
 </script>
 </body>
 </html>
