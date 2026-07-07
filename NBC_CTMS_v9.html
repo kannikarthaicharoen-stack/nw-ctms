@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.2</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.4</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -304,7 +304,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
           <div style="font-size:17px;font-weight:500;margin-bottom:6px">ลงทะเบียนสำเร็จ! / Complete!</div>
           <div style="font-size:12px;color:#888;margin-bottom:4px">หมายเลขอ้างอิง</div>
           <div id="reg-ref" style="font-size:19px;font-weight:500;color:var(--nw-teal);margin-bottom:8px"></div>
-          <div class="sync-badge" style="margin:0 auto 20px;width:fit-content"><div class="sync-dot"></div> Saved to Firebase ✓</div>
+          <div class="sync-badge" style="margin:0 auto 16px;width:fit-content"><div class="sync-dot"></div> Saved to Firebase ✓</div>
+          <div id="ok-links"></div>
           <button class="btn-p" onclick="resetC()">ลงทะเบียนรายใหม่</button>
         </div>
       </div>
@@ -533,6 +534,12 @@ let SESSION={role:null,email:null};
 let CFG={guardEmails:["guard1@natureworks.com"],ehsEmails:["kannikar.thaicharoen@natureworkspla.com"],guardPIN:"112233",ehsPIN:"998877",closedMondays:[]};
 let LOGIN_ROLE="",PIN_VAL="";
 let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null;
+// ── ลิงก์เนื้อหา Short Brief (แยกตามสัญชาติ) ──
+const LESSON_URLS={
+  thai:"https://drive.google.com/file/d/1w2-xW9L7pmNBAj7Y9ZDPjrHk3kHBTc0K/view?usp=sharing",      // ลิงก์ 1: คนไทย
+  foreign:"https://drive.google.com/file/d/1pfDu4oPwyN5U7LEKXXrvWZQSq-GHqFsw/view?usp=sharing"    // ลิงก์ 2: ต่างชาติ
+};
+const QUIZ_URLS={"4A":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4B":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4C":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink","4D":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink"};
 let UPLOADED=[],PHOTO_DATA="";
 let _allRegs=[],_sbRows=[],UNSUB=null;
 let _blSet=new Set(),_blDocs=[],UNSUB_BL=null;
@@ -652,17 +659,11 @@ function selectType(el,t){
   const dEl=document.getElementById("c-pdate");if(dEl)dEl.min=TODAY;
   document.getElementById("cert-row").style.display="none";
   document.getElementById("c-position").value="";C_POSITION="";C_CERT=null;
-  // Show content+quiz links
-  const contentUrls={"4A":"https://drive.google.com/drive/folders/1Tg50HqeihxuiTujBzn0xmYcJHyz_-WAa","4B":"https://drive.google.com/drive/folders/1Tg50HqeihxuiTujBzn0xmYcJHyz_-WAa"};
-  const quizUrls={"4A":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4B":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4C":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink","4D":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink"};
+  // Show info panel (links appear AFTER submission for Short Brief)
   const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
-  document.getElementById("type-content").innerHTML=`
-    ${contentUrls[t]?`<div class="panel"><div class="panel-title"><i class="ti ti-book"></i> เนื้อหาการอบรม</div><div class="alert alert-info" style="margin-bottom:10px"><i class="ti ti-info-circle"></i><span>ขั้นตอนที่ 1: ศึกษาเนื้อหาก่อนทำแบบทดสอบ</span></div><a href="${contentUrls[t]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none"><i class="ti ti-brand-google-drive"></i> เปิดเนื้อหา</a></div>`:""}
-    <div class="panel"><div class="panel-title"><i class="ti ti-clipboard-text"></i> แบบทดสอบ</div>
-      <div class="alert alert-info" style="margin-bottom:10px"><i class="ti ti-info-circle"></i><span>${!isFC?"ขั้นตอนที่ 2: ทำแบบทดสอบ (คะแนนเต็ม "+MAX_SCORES[t]+" คะแนน ผ่าน 85%) แล้วกรอก Submission ID":"EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จ"}</span></div>
-      <a href="${quizUrls[t]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:12px"><i class="ti ti-external-link"></i> ทำแบบทดสอบ</a>
-      <div class="fg2"><label>Quiz Submission ID ${!isFC?"*":""}</label><input id="c-quiz" placeholder="กรอก ID หลังส่งแบบทดสอบ"></div>
-    </div>`;
+  document.getElementById("type-content").innerHTML=isFC
+    ?`<div class="panel"><div class="panel-title"><i class="ti ti-clipboard-text"></i> แบบทดสอบ / Quiz</div><div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จในวันอบรม (คะแนนเต็ม ${MAX_SCORES[t]} คะแนน เกณฑ์ผ่าน 85%)<br><span style="color:#888">EHS will provide the quiz after the training session is completed.</span></span></div></div>`
+    :`<div class="panel"><div class="panel-title"><i class="ti ti-book"></i> เนื้อหาการอบรม & แบบทดสอบ</div><div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span><b>หลังจากกดส่งใบลงทะเบียนแล้ว</b> ระบบจะแสดงลิงก์สำหรับเรียนเนื้อหาและทำแบบทดสอบให้ทันที (คะแนนเต็ม ${MAX_SCORES[t]} คะแนน เกณฑ์ผ่าน 85%)<br><span style="color:#888">Lesson & quiz links will appear right after you submit this registration.</span></span></div></div>`;
 }
 
 function onPositionChange(){
@@ -740,6 +741,23 @@ async function submitReg(){
     };
     await db.collection("registrations").doc(regId).set(data);
     document.getElementById("reg-ref").textContent=regId;
+    const okEl=document.getElementById("ok-links");
+    if(okEl){
+      if(data.isShort){
+        const natTH=C_NAT==="thai";
+        okEl.innerHTML=`<div class="panel" style="text-align:left;max-width:430px;margin:0 auto 18px">
+          <div class="panel-title"><i class="ti ti-book"></i> ขั้นตอนต่อไป — ต้องทำให้เสร็จ / Next Steps</div>
+          <div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span><b>อย่าเพิ่งปิดหน้านี้!</b> กรุณาเรียนเนื้อหาและทำแบบทดสอบให้เสร็จ มิฉะนั้นการลงทะเบียนจะไม่สมบูรณ์<br><span style="color:#888">Don't close this page — complete the lesson and quiz below.</span></span></div>
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)">ขั้นตอนที่ 1: เรียนเนื้อหา / Step 1: Study the lesson ${natTH?"(ภาษาไทย)":"(English)"}</div>
+          <a href="${natTH?LESSON_URLS.thai:LESSON_URLS.foreign}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px"><i class="ti ti-brand-google-drive"></i> เปิดเนื้อหา / Open Lesson</a>
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)">ขั้นตอนที่ 2: ทำแบบทดสอบ / Step 2: Take the quiz (ผ่าน 85%)</div>
+          <a href="${QUIZ_URLS[C_TYPE]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:12px"><i class="ti ti-clipboard-text"></i> ทำแบบทดสอบ / Take Quiz</a>
+          <div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>ทำแบบทดสอบเสร็จแล้ว EHS จะตรวจคะแนนและอนุมัติ — ติดตามผลได้ที่เมนู "ตรวจสอบสถานะ" ด้วยหมายเลขอ้างอิง <b>${regId}</b></span></div>
+        </div>`;
+      }else{
+        okEl.innerHTML=`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-calendar-event"></i><span>มาอบรม Full Course วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จค่ะ<br><span style="color:#888">Attend the training on the selected Monday. EHS will provide the quiz after the session.</span></span></div>`;
+      }
+    }
     document.getElementById("c-reg-form").style.display="none";
     document.getElementById("c-reg-ok").style.display="block";
   }catch(e){showToast("⚠ บันทึกไม่สำเร็จ: "+e.message);}
@@ -754,6 +772,7 @@ function resetC(){
   document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));
   document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));
   document.getElementById("nat-thai").classList.add("sel");
+  const okEl=document.getElementById("ok-links");if(okEl)okEl.innerHTML="";
   const cd=document.getElementById("c-driver");if(cd)cd.checked=false;
   document.getElementById("doc-list").innerHTML="";
   document.getElementById("type-content").innerHTML="";
@@ -1162,7 +1181,7 @@ function eTab(id,btn){
 
 // ── INIT ──
 loadCFG();
-console.log("✅ NatureWorks CTMS v9.2 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.4 — Firebase connected");
 </script>
 </body>
 </html>
