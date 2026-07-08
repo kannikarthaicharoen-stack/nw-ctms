@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.10</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.14</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -258,12 +258,13 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
             </div>
             <div class="fg2 fg2-full" id="email-row" style="display:none"><label>อีเมลสำหรับรับลิงก์ Online Class (4D) / Email for online class link *</label><input id="c-email" type="email" placeholder="name@example.com"></div>
             <div class="fg2 fg2-full" id="position-row" style="display:none">
-              <label>ตำแหน่ง / Position * (Full Course)</label>
+              <label>ตำแหน่ง / Position *</label>
               <select id="c-position" onchange="onPositionChange()">
                 <option value="">-- เลือกตำแหน่ง --</option>
                 <option value="general">👷 พนักงานทั่วไป / General Worker</option>
                 <option value="safety">🦺 จป.หัวหน้างาน / Safety Supervisor</option>
                 <option value="firewatchman">🔥 Fire Watchman</option>
+                <option value="driver">🚚 พนักงานขับรถขนส่ง / Transport Driver</option>
               </select>
             </div>
             <div class="fg2 fg2-full" id="cert-row" style="display:none">
@@ -272,6 +273,22 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
               <div class="upload-zone" onclick="document.getElementById('cert-in').click()"><i class="ti ti-certificate"></i><p>คลิกเพื่อแนบใบ Cert (JPG, PNG, PDF)</p></div>
               <input type="file" id="cert-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleCert(this)">
               <div id="cert-file-list"></div>
+            </div>
+            <div class="fg2 fg2-full" id="driver-row" style="display:none">
+              <div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>พนักงานขับรถขนส่ง: ต้องกรอกข้อมูลใบขับขี่ และแนบใบอนุญาตขับขี่ + ใบตรวจสภาพรถ</span></div>
+              <div class="form-grid" style="margin-bottom:8px">
+                <div class="fg2"><label>หมายเลขใบอนุญาตขับขี่ / License No. *</label><input id="c-dl-no" placeholder="เลขที่ใบขับขี่"></div>
+                <div class="fg2"><label>ประเภทรถที่ได้รับอนุญาต / Vehicle Type *</label><input id="c-dl-type" placeholder="เช่น รถบรรทุก 6 ล้อ, เทรลเลอร์"></div>
+                <div class="fg2"><label>วันหมดอายุใบขับขี่ / License Expiry *</label><input type="date" id="c-dl-exp"></div>
+              </div>
+              <label>แนบใบอนุญาตขับขี่ * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('dl-in').click()"><i class="ti ti-license"></i><p>คลิกเพื่อแนบใบขับขี่ (JPG, PNG, PDF)</p></div>
+              <input type="file" id="dl-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDL(this)">
+              <div id="dl-file-list"></div>
+              <label style="margin-top:10px;display:block">แนบใบตรวจสภาพรถ * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('vi-in').click()"><i class="ti ti-truck"></i><p>คลิกเพื่อแนบใบตรวจสภาพรถ (JPG, PNG, PDF)</p></div>
+              <input type="file" id="vi-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleVI(this)">
+              <div id="vi-file-list"></div>
             </div>
           </div>
         </div>
@@ -415,7 +432,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
         <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="sb-s4">—</div></div>
       </div>
       <div class="panel"><div class="panel-title"><i class="ti ti-id-badge"></i> ทะเบียน Short Brief</div>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>วันออกบัตร</th><th>หมดอายุ</th><th>สถานะบัตร</th><th>สถานะบุคคล</th></tr></thead><tbody id="sb-tbody"></tbody></table></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>วันออกบัตร</th><th>หมดอายุ</th><th>สถานะบัตร</th><th>สถานะบุคคล</th><th>QR</th></tr></thead><tbody id="sb-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="e-db" style="display:none">
@@ -539,7 +556,7 @@ function populateFCDates(){
 let SESSION={role:null,email:null};
 let CFG={guardEmails:["guard1@natureworks.com"],ehsEmails:["kannikar.thaicharoen@natureworkspla.com"],guardPIN:"112233",ehsPIN:"998877",closedMondays:[]};
 let LOGIN_ROLE="",PIN_VAL="";
-let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null;
+let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null,C_DL_FILE=null,C_VI_FILE=null;
 // ── ลิงก์เนื้อหา Short Brief (แยกตามสัญชาติ) ──
 const LESSON_URLS={
   thai:"https://drive.google.com/file/d/1w2-xW9L7pmNBAj7Y9ZDPjrHk3kHBTc0K/view?usp=sharing",      // ลิงก์ 1: คนไทย
@@ -650,15 +667,22 @@ function setNat(nat){C_NAT=nat;document.querySelectorAll(".nat-btn").forEach(b=>
 function toggleDriver(){C_DRIVER=document.getElementById("c-driver").checked;renderDocList();}
 function renderDocList(){
   if(!C_TYPE||!DOCS[C_TYPE])return;
-  const d=DOCS[C_TYPE],list=[...(d[C_NAT]||d.thai),...(C_DRIVER?d.driver:[])];
-  document.getElementById("doc-list").innerHTML=`<div class="doc-box"><div class="doc-box-t"><i class="ti ti-checklist"></i> เอกสารที่ต้องเตรียม / Required Documents — ${C_TYPE}</div><ul>${list.map(x=>`<li><i class="ti ti-circle-check"></i>${x}</li>`).join("")}</ul>${C_DRIVER?`<div style="margin-top:8px;padding:6px 10px;background:#FAEEDA;border-radius:5px;font-size:11px;color:#854F0B"><i class="ti ti-truck"></i> พนักงานขับรถ: ต้องแนบเอกสารข้อ 13 และ 14 เพิ่มเติม</div>`:""}</div>`;
+  const isDrv=C_DRIVER||C_POSITION==="driver";
+  const d=DOCS[C_TYPE],list=[...(d[C_NAT]||d.thai),...(isDrv?d.driver:[])];
+  document.getElementById("doc-list").innerHTML=`<div class="doc-box"><div class="doc-box-t"><i class="ti ti-checklist"></i> เอกสารที่ต้องเตรียม / Required Documents — ${C_TYPE}</div><ul>${list.map(x=>`<li><i class="ti ti-circle-check"></i>${x}</li>`).join("")}</ul>${isDrv?`<div style="margin-top:8px;padding:6px 10px;background:#FAEEDA;border-radius:5px;font-size:11px;color:#854F0B"><i class="ti ti-truck"></i> พนักงานขับรถ: ต้องแนบเอกสารข้อ 13 และ 14 เพิ่มเติม</div>`:""}</div>`;
 }
 
 function selectType(el,t){
   document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));el.classList.add("sel");C_TYPE=t;
   renderDocList();
   const isFC=["4C","4D"].includes(t);
-  document.getElementById("position-row").style.display=isFC?"block":"none";
+  document.getElementById("position-row").style.display="block";
+  const posSel=document.getElementById("c-position");
+  posSel.innerHTML=`<option value="">-- เลือกตำแหน่ง --</option><option value="general">👷 พนักงานทั่วไป / General Worker</option><option value="safety">🦺 จป.หัวหน้างาน / Safety Supervisor</option><option value="firewatchman">🔥 Fire Watchman</option><option value="driver">🚚 พนักงานขับรถขนส่ง / Transport Driver</option>`;
+  posSel.value="";C_POSITION="";C_CERT=null;C_DL_FILE=null;C_VI_FILE=null;
+  document.getElementById("cert-row").style.display="none";
+  document.getElementById("driver-row").style.display="none";
+  ["cert-file-list","dl-file-list","vi-file-list"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML="";});
   document.getElementById("pdate-sb-row").style.display=isFC?"none":"block";
   document.getElementById("pdate-fc-row").style.display=isFC?"block":"none";
   const emRow=document.getElementById("email-row");if(emRow)emRow.style.display=t==="4D"?"block":"none";
@@ -677,11 +701,16 @@ function onPositionChange(){
   C_POSITION=document.getElementById("c-position").value;
   const needCert=["safety","firewatchman"].includes(C_POSITION);
   document.getElementById("cert-row").style.display=needCert?"block":"none";
+  document.getElementById("driver-row").style.display=C_POSITION==="driver"?"block":"none";
   if(needCert){
     const txt=C_POSITION==="safety"?"จป.หัวหน้างาน: ต้องแนบใบประกาศนียบัตร จป.":"Fire Watchman: ต้องแนบใบประกาศนียบัตร";
     document.getElementById("cert-alert-text").textContent=txt;
   }else{C_CERT=null;document.getElementById("cert-file-list").innerHTML="";}
+  if(C_POSITION!=="driver"){C_DL_FILE=null;C_VI_FILE=null;const a=document.getElementById("dl-file-list"),b=document.getElementById("vi-file-list");if(a)a.innerHTML="";if(b)b.innerHTML="";}
+  renderDocList();
 }
+function handleDL(input){const f=input.files[0];if(!f)return;C_DL_FILE=f;document.getElementById("dl-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-license" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_DL_FILE=null;document.getElementById('dl-file-list').innerHTML='';document.getElementById('dl-in').value=''"></i></div>`;}
+function handleVI(input){const f=input.files[0];if(!f)return;C_VI_FILE=f;document.getElementById("vi-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-truck" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_VI_FILE=null;document.getElementById('vi-file-list').innerHTML='';document.getElementById('vi-in').value=''"></i></div>`;}
 function handleCert(input){const f=input.files[0];if(!f)return;C_CERT=f;document.getElementById("cert-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-certificate" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_CERT=null;document.getElementById('cert-file-list').innerHTML='';document.getElementById('cert-in').value=''"></i></div>`;}
 
 function handlePhoto(input){
@@ -710,10 +739,20 @@ async function submitReg(){
   if(!pdateVal){showToast(isFC?"⚠ กรุณาเลือกวันจันทร์ที่ต้องการอบรม":"⚠ กรุณาเลือกวันที่ต้องการอบรม");return;}
   if(!isFC&&pdateVal<TODAY){showToast("⚠ วันที่อบรมต้องไม่เป็นวันที่ผ่านมาแล้ว");return;}
   if(isFC&&!eligibleMondays(8).includes(pdateVal)){showToast("⚠ วันจันทร์ที่เลือกปิดรับลงทะเบียนแล้ว กรุณาเลือกใหม่");populateFCDates();return;}
-  if(isFC&&!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
+  if(!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
   const onlineEmail=(document.getElementById("c-email")||{value:""}).value.trim();
   if(C_TYPE==="4D"&&(!onlineEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(onlineEmail))){showToast("⚠ กรุณากรอกอีเมลสำหรับรับลิงก์ Online Class ให้ถูกต้อง");return;}
-  if(isFC&&["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
+  if(["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
+  let dlNo="",dlType="",dlExp="";
+  if(C_POSITION==="driver"){
+    dlNo=(document.getElementById("c-dl-no")||{value:""}).value.trim();
+    dlType=(document.getElementById("c-dl-type")||{value:""}).value.trim();
+    dlExp=(document.getElementById("c-dl-exp")||{value:""}).value;
+    if(!dlNo||!dlType||!dlExp){showToast("⚠ กรุณากรอกข้อมูลใบขับขี่ให้ครบ (เลขที่/ประเภทรถ/วันหมดอายุ)");return;}
+    if(dlExp<TODAY){showToast("⚠ ใบขับขี่หมดอายุแล้ว ไม่สามารถลงทะเบียนได้");return;}
+    if(!C_DL_FILE){showToast("⚠ กรุณาแนบใบอนุญาตขับขี่");return;}
+    if(!C_VI_FILE){showToast("⚠ กรุณาแนบใบตรวจสภาพรถ");return;}
+  }
   const btn=document.querySelector("#c-reg-form .btn-p");
   if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
   try{
@@ -780,10 +819,12 @@ async function submitReg(){
     if(PHOTO_DATA){try{photoUrl=await uploadBase64(PHOTO_DATA,regId+"_photo","nw-ctms/photos");}catch(e){showToast("⚠ รูปถ่ายอัปโหลดไม่สำเร็จ");}}
     const docResults=[];
     for(const f of UPLOADED){try{docResults.push(await uploadFile(f,"nw-ctms/docs"));}catch(e){docResults.push({url:"",name:f.name});}}
-    let certUrl="";
+    let certUrl="",dlUrl="",viUrl="";
     if(C_CERT){try{const cr=await uploadFile(C_CERT,"nw-ctms/certs");certUrl=cr.url;}catch(e){}}
-    const posLabels={general:"พนักงานทั่วไป / General Worker",safety:"จป.หัวหน้างาน / Safety Supervisor",firewatchman:"Fire Watchman"};
-    const posColors={general:"#1F497D",safety:"#2E7D32",firewatchman:"#C2185B"};
+    if(C_DL_FILE){try{const dr=await uploadFile(C_DL_FILE,"nw-ctms/certs");dlUrl=dr.url;}catch(e){}}
+    if(C_VI_FILE){try{const vr=await uploadFile(C_VI_FILE,"nw-ctms/certs");viUrl=vr.url;}catch(e){}}
+    const posLabels={general:"พนักงานทั่วไป / General Worker",safety:"จป.หัวหน้างาน / Safety Supervisor",firewatchman:"Fire Watchman",driver:"พนักงานขับรถขนส่ง / Transport Driver"};
+    const posColors={general:"#1F497D",safety:"#2E7D32",firewatchman:"#C2185B",driver:"#E0AC00"};
     const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
     const data={
       id:regId,fn,ln,co,nw:document.getElementById("c-nw").value.trim(),idno,phone:document.getElementById("c-phone").value.trim(),
@@ -793,6 +834,7 @@ async function submitReg(){
       quizScore:null,quizPct:null,quizPass:null,quizScoreMax:MAX_SCORES[C_TYPE],
       docs:docResults.map(d=>({name:d.name,url:d.url||""})),
       photo:photoUrl,nationality:C_NAT,isDriver:C_DRIVER,onlineEmail:C_TYPE==="4D"?onlineEmail:null,
+      dlNo:dlNo||null,dlVehicleType:dlType||null,dlExpiry:dlExp||null,dlUrl:dlUrl||null,viUrl:viUrl||null,
       position:C_POSITION||"general",positionLabel:posLabels[C_POSITION||"general"]||"พนักงานทั่วไป",
       cardColor:posColors[C_POSITION||"general"]||"#1F497D",certUrl,
       status:"pending",approvalStatus:null,cardIssued:false,cardIssuedDate:null,cardExpiry:null,cardId:null,
@@ -826,7 +868,10 @@ async function submitReg(){
 
 function resetC(){
   ["c-fn","c-ln","c-co","c-nw","c-id","c-phone","c-job","c-pdate"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  UPLOADED=[];PHOTO_DATA="";C_TYPE="";C_NAT="thai";C_DRIVER=false;C_POSITION="";C_CERT=null;
+  UPLOADED=[];PHOTO_DATA="";C_TYPE="";C_NAT="thai";C_DRIVER=false;C_POSITION="";C_CERT=null;C_DL_FILE=null;C_VI_FILE=null;
+  ["c-dl-no","c-dl-type","c-dl-exp"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["dl-file-list","vi-file-list"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML="";});
+  const drR=document.getElementById("driver-row");if(drR)drR.style.display="none";
   document.getElementById("file-list").innerHTML="";
   const pp=document.getElementById("photo-prev");if(pp)pp.style.display="none";
   document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));
@@ -954,7 +999,8 @@ async function issueShortCard(regId){
   try{
     await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
     if(cnt>=2){await db.collection("blockLog").add({regId,idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
-    else{showToast(`✅ ออกบัตรแล้ว — หมดอายุ ${expiry}`);}
+    else{showToast(`✅ ออกบัตรแล้ว — หมดอายุ ${fmtCard(expiry)}`);}
+    printSBQR(regId,cardId);
   }catch(e){showToast("⚠ "+e.message);}
 }
 
@@ -965,6 +1011,19 @@ function viewDocs(regId){
   const docs=r.docs||[];
   const docsHTML=docs.length?docs.map(d=>{const name=typeof d==="string"?d:d.name;const url=typeof d==="object"&&d.url?d.url:null;const icon=name.toLowerCase().endsWith(".pdf")?"ti-file-type-pdf":"ti-photo";return`<div class="file-item" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:var(--nw-teal)"></i><span class="fi-name">${name}</span></div>${url?`<div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}')"><i class="ti ti-download"></i> โหลด</button></div>`:`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}</div>`;}).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ</div>`;
   let certHTML="";
+  if(r.position==="driver"){
+    const box=(url,name,icon)=>url?`<div class="file-item" style="justify-content:space-between;margin-bottom:8px;border:1px solid #EED9A0;background:#FFFBEF"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:#C5940A"></i><span class="fi-name">${name}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}${url.toLowerCase().includes(".pdf")?".pdf":".jpg"}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>ไม่พบ${name}ในระบบ</span></div>`;
+    const dlExpired=r.dlExpiry&&r.dlExpiry<TODAY;
+    certHTML=`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:#C5940A"><i class="ti ti-truck"></i> ข้อมูลพนักงานขับรถขนส่ง:</div>
+      <div style="font-size:12px;background:#FFFBEF;border:1px solid #EED9A0;border-radius:8px;padding:10px;margin-bottom:10px;display:grid;gap:5px">
+        <div><b>เลขที่ใบขับขี่:</b> ${r.dlNo||"—"}</div>
+        <div><b>ประเภทรถที่ได้รับอนุญาต:</b> ${r.dlVehicleType||"—"}</div>
+        <div><b>ใบขับขี่หมดอายุ:</b> ${fmtCard(r.dlExpiry)} ${dlExpired?'<span class="badge b-fail">หมดอายุแล้ว!</span>':""}</div>
+      </div>
+      ${box(r.dlUrl,"ใบอนุญาตขับขี่","ti-license")}
+      ${box(r.viUrl,"ใบตรวจสภาพรถ","ti-truck")}
+      <div style="margin-bottom:12px"></div>`;
+  }
   if(["safety","firewatchman"].includes(r.position)){
     const certName=`Certificate_${r.fn}_${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
     certHTML=r.certUrl?`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-gold)"><i class="ti ti-certificate"></i> ใบ Certificate (${r.positionLabel||""}):</div><div class="file-item" style="justify-content:space-between;margin-bottom:12px;border:1px solid #E8D9B0;background:#FFFDF5"><div style="display:flex;align-items:center;gap:7px"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span class="fi-name">${certName}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${r.certUrl}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${r.certUrl}','${certName}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span>ตำแหน่ง ${r.positionLabel||""} — ไม่พบใบ Certificate ในระบบ</span></div>`;
@@ -977,10 +1036,13 @@ async function dlFile(url,filename){try{showToast("⏳ กำลัง Download.
 function printCard(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
   // แถบสีตามตำแหน่ง: ทั่วไป=ขาว, จป.หัวหน้างาน=เขียว, Fire Watchman=ชมพู
-  const band={general:{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"},safety:{bg:"#2E7D32",color:"#FFFFFF",border:"#2E7D32"},firewatchman:{bg:"#E85D9E",color:"#FFFFFF",border:"#E85D9E"}}[r.position||"general"]||{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"};
+  // แถบสี: ทั่วไป=ขาว, จป.หัวหน้างาน=เขียว, Fire Watchman=ชมพู, พนักงานขับรถขนส่ง=เหลือง
+  const band={general:{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"},safety:{bg:"#2E7D32",color:"#FFFFFF",border:"#2E7D32"},firewatchman:{bg:"#E85D9E",color:"#FFFFFF",border:"#E85D9E"},driver:{bg:"#F5C518",color:"#5B4400",border:"#DFAE00"}}[r.position||"general"]||{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"};
   const photoHTML=r.photo?`<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover">`:`<div style="font-size:10mm;font-weight:600;color:#7FB3D3;display:flex;align-items:center;justify-content:center;height:100%">${(r.fn||"").charAt(0)}${(r.ln||"").charAt(0)}</div>`;
   const LOGO="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png";
-  const qrData=`NBC|${r.cardId||r.id}|${r.idno||""}`;
+  // รหัสตำแหน่งใน QR สำหรับระบบ Gate Pass Control (GPC): DRV = พนักงานขับรถขนส่ง
+  const POS_CODE={general:"GEN",safety:"SAF",firewatchman:"FWM",driver:"DRV"};
+  const qrData=`NBC|${r.cardId||r.id}|${r.idno||""}|${POS_CODE[r.position||"general"]||"GEN"}`;
   const w=window.open("","_blank","width=520,height=760");
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
 @page{size:A5;margin:0}
@@ -1031,6 +1093,57 @@ body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-it
 <script>
 try{new QRCode(document.getElementById("qr"),{text:"${qrData}",width:44,height:44,correctLevel:QRCode.CorrectLevel.M});}catch(e){document.getElementById("qr").textContent="QR";}
 setTimeout(function(){window.focus();window.print();},600);
+<\/script>
+</body></html>`);
+  w.document.close();
+}
+
+// ── SHORT BRIEF QR OVERLAY (พิมพ์ QR ทับเอกสาร A5) ──
+async function saveQRPos(prof,x,y,s){CFG.qrPosProfiles=CFG.qrPosProfiles||{};CFG.qrPosProfiles[prof]={x,y,s};try{await saveCFG();}catch(e){}}
+function getQRPos(prof){return (CFG.qrPosProfiles&&CFG.qrPosProfiles[prof])||CFG.qrPos||{x:118,y:8,s:24};}
+function printSBQR(regId,freshCardId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const POS_CODE={general:"GEN",safety:"SAF",firewatchman:"FWM",driver:"DRV"};
+  const qrData=`NBC|${freshCardId||r.cardId||r.id}|${r.idno||""}|${POS_CODE[r.position||"general"]||"GEN"}`;
+  const defProf=SESSION.role==="guard"?"guard":"ehs";
+  const profiles={ehs:getQRPos("ehs"),guard:getQRPos("guard")};
+  const pos=profiles[defProf];
+  const w=window.open("","_blank","width=560,height=820");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:A5;margin:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Arial,sans-serif}
+.sheet{width:148mm;height:210mm;position:relative;margin:0 auto;background:#fff}
+@media screen{.sheet{border:1px dashed #bbb;background:repeating-linear-gradient(45deg,#fdfdfd,#fdfdfd 8px,#f7f7f7 8px,#f7f7f7 16px)}}
+#qrbox{position:absolute;background:#fff;padding:1mm}
+#qr img,#qr canvas{display:block;width:100%!important;height:100%!important}
+.ctl{padding:10px;background:#F2F8FC;border-bottom:1px solid #CBE4F1;font-size:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ctl label{display:flex;align-items:center;gap:4px;font-weight:600;color:#1F497D}
+.ctl input{width:58px;padding:4px;border:1px solid #CBE4F1;border-radius:5px;text-align:center}
+.ctl button{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600}
+.b1{background:#00B5A8;color:#fff}.b2{background:#1F497D;color:#fff}
+@media print{.ctl{display:none}}
+</style></head><body>
+<div class="ctl">
+  <label>เครื่องพิมพ์ <select id="prof" onchange="loadProf()" style="padding:4px;border:1px solid #CBE4F1;border-radius:5px">
+    <option value="ehs"${defProf==="ehs"?" selected":""}>🏢 EHS Office</option>
+    <option value="guard"${defProf==="guard"?" selected":""}>🛡 ป้อม รปภ.</option>
+  </select></label>
+  <label>X <input type="number" id="px" value="${pos.x}" onchange="upd()"> mm</label>
+  <label>Y <input type="number" id="py" value="${pos.y}" onchange="upd()"> mm</label>
+  <label>ขนาด <input type="number" id="ps" value="${pos.s}" onchange="upd()"> mm</label>
+  <button class="b2" onclick="window.opener.saveQRPos(prof.value,+px.value,+py.value,+ps.value);alert('บันทึกตำแหน่งของ '+(prof.value==='guard'?'ป้อม รปภ.':'EHS Office')+' แล้ว')">💾 บันทึกตำแหน่ง</button>
+  <button class="b1" onclick="window.print()">🖨 พิมพ์ QR</button>
+  <span style="color:#888">ใส่กระดาษ A5 แบบฟอร์มลงเครื่องพิมพ์ แล้วสั่งพิมพ์ทับ — QR: ${r.fn} ${r.ln} (${(r.cardId||freshCardId||"")})</span>
+</div>
+<div class="sheet"><div id="qrbox"><div id="qr"></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+<script>
+const PROFILES=${JSON.stringify(profiles)};
+function upd(){const b=document.getElementById("qrbox");b.style.left=px.value+"mm";b.style.top=py.value+"mm";b.style.width=ps.value+"mm";b.style.height=ps.value+"mm";}
+function loadProf(){const p=PROFILES[prof.value];px.value=p.x;py.value=p.y;ps.value=p.s;upd();}
+upd();
+try{new QRCode(document.getElementById("qr"),{text:"${qrData}",width:220,height:220,correctLevel:QRCode.CorrectLevel.M});}catch(e){document.getElementById("qr").textContent="QR ERROR";}
 <\/script>
 </body></html>`);
   w.document.close();
@@ -1116,8 +1229,8 @@ function renderSBReg(){
     const cnt=r.shortBriefCount||0;const exp=r.cardExpiry&&r.cardExpiry<TODAY;const blk=r.status==="blocked";
     const cntB=cnt===0?`<span class="badge" style="background:#f5f5f5;color:#888">ยังไม่ใช้</span>`:cnt===1?`<span class="badge b-pending">1/2 ⚠</span>`:`<span class="badge b-fail">2/2 ครบ</span>`;
     const cardSt=blk?`<span class="badge b-blocked">Blocked</span>`:r.cardIssued&&!exp?`<span class="badge b-active">Active</span>`:exp?`<span class="badge b-expired">หมดอายุ</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
-    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="text-align:center">${cntB}</td><td style="font-size:11px;color:#888">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${cardSt}</td><td>${blk?`<span class="badge b-blocked">Blocked</span>`:`<span class="badge b-approved">ปกติ</span>`}</td></tr>`;
-  }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="text-align:center">${cntB}</td><td style="font-size:11px;color:#888">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${cardSt}</td><td>${blk?`<span class="badge b-blocked">Blocked</span>`:`<span class="badge b-approved">ปกติ</span>`}</td><td>${r.cardIssued?`<button class="btn-sm" onclick="printSBQR('${r.id}')" title="พิมพ์ QR ทับเอกสาร A5"><i class="ti ti-qrcode"></i> QR</button>`:""}</td></tr>`;
+  }).join("")||`<tr><td colspan="8" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
 }
 function filterSB(){renderSBReg();}
 
@@ -1301,7 +1414,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.10 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.14 — Firebase connected");
 </script>
 </body>
 </html>
