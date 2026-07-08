@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.7</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.9</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -256,6 +256,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
               <select id="c-pdate-fc"><option value="">-- เลือกวันจันทร์ / Select Monday --</option></select>
               <div style="font-size:10px;color:#888;margin-top:4px">📌 ปิดรับลงทะเบียนรอบวันจันทร์ถัดไปทุกวันพฤหัสบดี 24:00 น. — หากลงทะเบียนหลังจากนั้น ระบบจะแสดงเฉพาะวันจันทร์ถัดไปให้เลือก</div>
             </div>
+            <div class="fg2 fg2-full" id="email-row" style="display:none"><label>อีเมลสำหรับรับลิงก์ Online Class (4D) / Email for online class link *</label><input id="c-email" type="email" placeholder="name@example.com"></div>
             <div class="fg2 fg2-full" id="position-row" style="display:none">
               <label>ตำแหน่ง / Position * (Full Course)</label>
               <select id="c-position" onchange="onPositionChange()">
@@ -420,11 +421,11 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     <div id="e-db" style="display:none">
       <div class="search-bar">
         <input placeholder="ค้นหา..." id="db-q" oninput="filterDB()">
-        <select id="db-t" onchange="filterDB()"><option value="">ทุก Type</option><option>4A</option><option>4B</option><option>4C</option><option>4D</option></select>
+        <select id="db-t" onchange="filterDB()"><option value="">ทุก Type</option><option>4C</option><option>4D</option></select>
         <select id="db-v" onchange="filterDB()"><option value="">Safety Record ทั้งหมด</option><option value="none">✅ ปกติ</option><option value="1st">⚠ 1st Warning</option><option value="2nd">⚠ 2nd Warning</option><option value="blacklist">⛔ Blacklist</option></select>
         <button class="btn-s" onclick="exportCSV()"><i class="ti ti-download"></i> Export CSV</button>
       </div>
-      <div class="panel"><div class="panel-title"><i class="ti ti-database"></i> ทะเบียนผู้รับเหมา NatureWorks</div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-database"></i> ทะเบียนผู้รับเหมา NatureWorks (Full Course — อนุมัติแล้วเท่านั้น)</div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>บริษัท</th><th>Type</th><th>วันที่</th><th>คะแนน</th><th>สถานะ</th><th>หมดอายุ</th><th>Safety Record</th><th>เอกสาร</th></tr></thead><tbody id="db-tbody"></tbody></table></div>
       </div>
     </div>
@@ -660,6 +661,7 @@ function selectType(el,t){
   document.getElementById("position-row").style.display=isFC?"block":"none";
   document.getElementById("pdate-sb-row").style.display=isFC?"none":"block";
   document.getElementById("pdate-fc-row").style.display=isFC?"block":"none";
+  const emRow=document.getElementById("email-row");if(emRow)emRow.style.display=t==="4D"?"block":"none";
   if(isFC)populateFCDates();
   const dEl=document.getElementById("c-pdate");if(dEl)dEl.min=TODAY;
   document.getElementById("cert-row").style.display="none";
@@ -709,6 +711,8 @@ async function submitReg(){
   if(!isFC&&pdateVal<TODAY){showToast("⚠ วันที่อบรมต้องไม่เป็นวันที่ผ่านมาแล้ว");return;}
   if(isFC&&!eligibleMondays(8).includes(pdateVal)){showToast("⚠ วันจันทร์ที่เลือกปิดรับลงทะเบียนแล้ว กรุณาเลือกใหม่");populateFCDates();return;}
   if(isFC&&!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
+  const onlineEmail=(document.getElementById("c-email")||{value:""}).value.trim();
+  if(C_TYPE==="4D"&&(!onlineEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(onlineEmail))){showToast("⚠ กรุณากรอกอีเมลสำหรับรับลิงก์ Online Class ให้ถูกต้อง");return;}
   if(isFC&&["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
   const btn=document.querySelector("#c-reg-form .btn-p");
   if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
@@ -788,7 +792,7 @@ async function submitReg(){
       quizSubmissionId:(document.getElementById("c-quiz")||{value:""}).value.trim(),
       quizScore:null,quizPct:null,quizPass:null,quizScoreMax:MAX_SCORES[C_TYPE],
       docs:docResults.map(d=>({name:d.name,url:d.url||""})),
-      photo:photoUrl,nationality:C_NAT,isDriver:C_DRIVER,
+      photo:photoUrl,nationality:C_NAT,isDriver:C_DRIVER,onlineEmail:C_TYPE==="4D"?onlineEmail:null,
       position:C_POSITION||"general",positionLabel:posLabels[C_POSITION||"general"]||"พนักงานทั่วไป",
       cardColor:posColors[C_POSITION||"general"]||"#1F497D",certUrl,
       status:"pending",approvalStatus:null,cardIssued:false,cardIssuedDate:null,cardExpiry:null,cardId:null,
@@ -829,6 +833,8 @@ function resetC(){
   document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));
   document.getElementById("nat-thai").classList.add("sel");
   const okEl=document.getElementById("ok-links");if(okEl)okEl.innerHTML="";
+  const emR=document.getElementById("email-row");if(emR)emR.style.display="none";
+  const emI=document.getElementById("c-email");if(emI)emI.value="";
   const cd=document.getElementById("c-driver");if(cd)cd.checked=false;
   document.getElementById("doc-list").innerHTML="";
   document.getElementById("type-content").innerHTML="";
@@ -1119,7 +1125,7 @@ function renderDB(){
   const q=(document.getElementById("db-q")||{value:""}).value.toLowerCase();
   const ft=(document.getElementById("db-t")||{value:""}).value;
   const fv=(document.getElementById("db-v")||{value:""}).value;
-  const rows=_allRegs.filter(r=>{
+  const rows=_allRegs.filter(r=>!r.isShort&&r.approvalStatus==="approved").filter(r=>{
     const okQ=(r.fn+r.ln+r.co+r.idno).toLowerCase().includes(q)&&(!ft||r.type===ft);
     const v=r.violation||"none";
     const okV=!fv||(fv==="none"?v==="none":v===fv);
@@ -1142,7 +1148,8 @@ function renderDB(){
 function filterDB(){renderDB();}
 
 function exportCSV(){
-  const all=_allRegs;
+  const all=_allRegs.filter(r=>!r.isShort&&r.approvalStatus==="approved");
+  if(!all.length){showToast("⚠ ไม่มีข้อมูลในทะเบียน");return;}
   const hdr="ID,ชื่อ,นามสกุล,บริษัท,เลขบัตร,ประเภท,ตำแหน่ง,คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Safety Record,เหตุผล";
   const rows=all.map(r=>`${r.id},${r.fn},${r.ln},"${r.co}",${r.idno},${r.type},"${r.positionLabel||""}",${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):""},${r.quizPass===true?"Pass":r.quizPass===false?"Fail":""},${r.approvalStatus||"pending"},${r.cardIssuedDate||""},${r.cardExpiry||""},${_blSet.has(r.idno)?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ"},"${_blSet.has(r.idno)?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}"`);
   const blob=new Blob(["\uFEFF"+hdr+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
@@ -1294,7 +1301,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.7 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.9 — Firebase connected");
 </script>
 </body>
 </html>
