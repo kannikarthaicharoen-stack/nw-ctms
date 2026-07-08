@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.5</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.7</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -313,7 +313,12 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     <div id="c-status" style="display:none">
       <div class="panel">
         <div class="panel-title"><i class="ti ti-search"></i> ตรวจสอบสถานะ</div>
-        <div class="fg2" style="margin-bottom:10px"><label>หมายเลขอ้างอิง หรือ เลขบัตรประชาชน</label><input id="s-search" placeholder="NBC-REG-xxxx"></div>
+        <div class="fg2" style="margin-bottom:8px">
+          <label>หมายเลขอ้างอิง — กรอกเฉพาะตัวเลข 4 ตัวท้าย (ค้นได้สูงสุด 10 หมายเลขพร้อมกัน)</label>
+          <div id="ref-rows" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+          <button type="button" class="btn-sm" style="margin-top:6px" onclick="addRefRow()"><i class="ti ti-plus"></i> เพิ่มหมายเลข</button>
+        </div>
+        <div class="fg2" style="margin-bottom:10px"><label>หรือ ค้นด้วยเลขบัตรประชาชน / Passport</label><input id="s-search" placeholder="เลขบัตรประชาชน 13 หลัก"></div>
         <button class="btn-p" onclick="checkStatus()">ตรวจสอบ</button>
         <div id="s-result" style="margin-top:12px"></div>
       </div>
@@ -392,8 +397,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     </div>
     <div id="e-fc-sec" style="display:none">
       <div class="alert alert-info"><i class="ti ti-info-circle"></i><span>EHS เท่านั้นที่อนุมัติและ Generate บัตร Full Course ได้</span></div>
-      <div class="panel"><div class="panel-title"><i class="ti ti-certificate"></i> Full Course (4C/4D)</div>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ตำแหน่ง</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-fc-tbody"></tbody></table></div>
+      <div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center"><span><i class="ti ti-certificate"></i> Full Course (4C/4D)</span><button class="btn-s" onclick="exportFCCSV()"><i class="ti ti-download"></i> Export CSV</button></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>วันอบรม</th><th>Type</th><th>ชื่อ / บริษัท</th><th>Register No.</th><th>ตำแหน่ง</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-fc-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="e-sbreg" style="display:none">
@@ -715,32 +720,55 @@ async function submitReg(){
       if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
       return;
     }
-    // ── SHORT BRIEF: เช็คประวัติต่อบุคคล (เลขบัตรประชาชน) ──
+    // ── ตรวจประวัติต่อบุคคล (เลขบัตรประชาชน) ──
     let sbUsed=0;
-    if(!isFC){
+    {
       const allSnap=await db.collection("registrations").where("idno","==",idno).get();
+      const allNR=allSnap.docs.map(d=>d.data()).filter(r=>r.approvalStatus!=="rejected");
       const yr=String(new Date().getFullYear());
-      const prev=allSnap.docs.map(d=>d.data()).filter(r=>r.isShort&&r.approvalStatus!=="rejected"&&String(r.created||"").startsWith(yr));
-      // 1) มีรายการค้างที่ยังไม่ออกบัตร → ห้ามลงซ้ำ
-      const dup=prev.find(r=>!r.cardIssued);
-      if(dup){
-        showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอทำแบบทดสอบ / รอตรวจ / รอออกบัตร<br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
-        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
-        return;
-      }
-      // 2) มีบัตรที่ยังไม่หมดอายุ → ใช้บัตรเดิม
-      const act=prev.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY&&r.status!=="blocked");
-      if(act){
-        showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Short Brief ที่ยังไม่หมดอายุ</b><br>An active Short Brief card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${act.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(act.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ</div>`);
-        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
-        return;
-      }
-      // 3) นับครั้งที่ใช้ไปแล้วปีนี้ (ต่อบุคคล)
-      sbUsed=prev.reduce((m,r)=>Math.max(m,r.cardIssued?Math.max(r.shortBriefCount||0,1):(r.shortBriefCount||0)),0);
-      if(sbUsed>=2){
-        showModal("⛔ ครบโควตา Short Brief",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>เลขบัตรประชาชนนี้ใช้ Short Brief ครบ 2 ครั้งในปีนี้แล้ว</b><br>Short Brief quota (2/year) has been used up.</span></div><div style="font-size:12px;color:#555">ไม่สามารถลงทะเบียน Short Brief ได้อีก — กรุณาลงทะเบียน <b>อบรม Full Course (4C/4D)</b> แทนค่ะ<br><br>หากมีข้อสงสัย กรุณาติดต่อทีม EHS</div>`);
-        if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
-        return;
+      const stopBtn=()=>{if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}};
+      const LOST_NOTE=`<br><br>📌 <b>กรณีบัตรหาย</b> กรุณาติดต่อแผนก EHS เพื่อขอออกบัตรใหม่ / If the card is lost, please contact EHS to reissue.`;
+      if(!isFC){
+        const sbAll=allNR.filter(r=>r.isShort);
+        // 1) มีรายการ Short Brief ค้างที่ยังไม่ออกบัตร
+        const dup=sbAll.find(r=>!r.cardIssued);
+        if(dup){
+          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอทำแบบทดสอบ / รอตรวจ / รอออกบัตร<br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+          stopBtn();return;
+        }
+        // 2) มีบัตร Short Brief ที่ยังไม่หมดอายุ
+        const act=sbAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY&&r.status!=="blocked");
+        if(act){
+          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Short Brief ที่ยังไม่หมดอายุ</b><br>An active Short Brief card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${act.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(act.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
+          stopBtn();return;
+        }
+        // 3) โควตา 2 ครั้ง/ปี
+        const sbYear=sbAll.filter(r=>String(r.created||"").startsWith(yr));
+        sbUsed=sbYear.reduce((m,r)=>Math.max(m,r.cardIssued?Math.max(r.shortBriefCount||0,1):(r.shortBriefCount||0)),0);
+        if(sbUsed>=2){
+          showModal("⛔ ครบโควตา Short Brief",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>เลขบัตรประชาชนนี้ใช้ Short Brief ครบ 2 ครั้งในปีนี้แล้ว</b><br>Short Brief quota (2/year) has been used up.</span></div><div style="font-size:12px;color:#555">ไม่สามารถลงทะเบียน Short Brief ได้อีก — กรุณาลงทะเบียน <b>อบรม Full Course (4C/4D)</b> แทนค่ะ<br><br>หากมีข้อสงสัย กรุณาติดต่อทีม EHS</div>`);
+          stopBtn();return;
+        }
+      }else{
+        const sbPend=allNR.find(r=>r.isShort&&!r.cardIssued);
+        const fcAll=allNR.filter(r=>!r.isShort);
+        // 1) มี Short Brief ค้างที่ยังไม่ออกบัตร → ห้ามลง Full Course
+        if(sbPend){
+          showModal("⚠ มี Short Brief ค้างอยู่",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ที่ยังไม่เสร็จสิ้น</b><br>A pending Short Brief registration exists for this ID.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${sbPend.id}</b><br><br>ต้องดำเนินการ Short Brief ให้เสร็จ (ออกบัตรแล้ว) ก่อน จึงจะลงทะเบียน Full Course ได้ค่ะ<br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ"</div>`);
+          stopBtn();return;
+        }
+        // 2) มี Full Course ค้าง → ห้ามลงซ้ำ
+        const fcDup=fcAll.find(r=>!r.cardIssued);
+        if(fcDup){
+          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Full Course ค้างอยู่แล้ว</b><br>This ID already has a pending Full Course registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${fcDup.id}</b><br>วันอบรม: <b>${fmtCard(fcDup.pdate)}</b><br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+          stopBtn();return;
+        }
+        // 3) มีบัตร Full Course ที่ยังไม่หมดอายุ
+        const fcAct=fcAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY);
+        if(fcAct){
+          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Full Course ที่ยังไม่หมดอายุ</b><br>An active Full Course card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${fcAct.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(fcAct.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
+          stopBtn();return;
+        }
       }
     }
     const regId=await genId("NBC-REG");
@@ -814,20 +842,40 @@ function resetC(){
 }
 function cTab(id,btn){["c-reg","c-status"].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display="none";});document.querySelectorAll("#s-contractor .nav-tab").forEach(t=>t.classList.remove("active"));document.getElementById(id).style.display="block";btn.classList.add("active");}
 
+function refPrefix(){return `NBC-REG-${new Date().getFullYear()}-`;}
+function addRefRow(){
+  const box=document.getElementById("ref-rows");if(!box)return;
+  if(box.children.length>=10){showToast("⚠ ค้นได้สูงสุดครั้งละ 10 หมายเลข");return;}
+  const row=document.createElement("div");
+  row.style.cssText="display:flex;align-items:center;gap:6px";
+  row.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--nw-navy);background:#EFF6FB;border:1px solid #CBE4F1;border-radius:6px;padding:7px 10px;white-space:nowrap">${refPrefix()}</span><input class="ref-4" maxlength="4" inputmode="numeric" placeholder="0001" style="width:76px;text-align:center;letter-spacing:2px" oninput="this.value=this.value.replace(/\\D/g,'')"><i class="ti ti-x" style="cursor:pointer;color:#bbb" onclick="if(document.getElementById('ref-rows').children.length>1)this.parentElement.remove()"></i>`;
+  box.appendChild(row);
+}
+function statusCard(r,label){
+  if(!r)return `<div class="alert alert-err" style="margin-bottom:8px"><i class="ti ti-x"></i>${label} — ไม่พบข้อมูล</div>`;
+  const qb=r.quizPass===true?`<span class="badge b-pass">Pass ✓</span>`:r.quizPass===false?`<span class="badge b-fail">Fail ✗</span>`:`<span class="badge b-pending">รอผล</span>`;
+  const sb=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติแล้ว</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอตรวจสอบ</span>`;
+  return `<div class="panel" style="margin:0 0 10px"><div style="font-size:11px;color:#888;margin-bottom:6px">${label}</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span>${r.pdate&&!r.isShort?` &nbsp;<b>วันอบรม:</b> ${fmtCard(r.pdate)}`:""}</div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${fmtCard(r.cardExpiry)}</div>`:""}</div></div>`;
+}
 async function checkStatus(){
-  const q=document.getElementById("s-search").value.trim();
   const el=document.getElementById("s-result");
-  if(!q){showToast("⚠ กรุณากรอกหมายเลขอ้างอิง");return;}
+  const nums=[...new Set([...document.querySelectorAll(".ref-4")].map(i=>i.value.trim()).filter(v=>v))].slice(0,10);
+  const idq=document.getElementById("s-search").value.trim();
+  if(!nums.length&&!idq){showToast("⚠ กรุณากรอกหมายเลขอ้างอิง หรือเลขบัตรประชาชน");return;}
   el.innerHTML=`<div class="alert alert-info"><i class="ti ti-loader"></i> กำลังค้นหา...</div>`;
   try{
-    let r=null;
-    const snap=await db.collection("registrations").doc(q.toUpperCase()).get();
-    if(snap.exists)r=snap.data();
-    if(!r){const qs=await db.collection("registrations").where("idno","==",q).get();if(!qs.empty)r=qs.docs[0].data();}
-    if(!r){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>ไม่พบข้อมูล</div>`;return;}
-    const qb=r.quizPass===true?`<span class="badge b-pass">Pass ✓</span>`:r.quizPass===false?`<span class="badge b-fail">Fail ✗</span>`:`<span class="badge b-pending">รอผล</span>`;
-    const sb=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติแล้ว</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอตรวจสอบ</span>`;
-    el.innerHTML=`<div class="panel" style="margin-top:0"><div class="panel-title"><i class="ti ti-user-check"></i> ผลการตรวจสอบ</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${r.cardExpiry}</div>`:""}</div></div>`;
+    let out="";
+    for(const n of nums){
+      const ref=refPrefix()+n.padStart(4,"0");
+      const snap=await db.collection("registrations").doc(ref).get();
+      out+=statusCard(snap.exists?snap.data():null,ref);
+    }
+    if(idq){
+      const qs=await db.collection("registrations").where("idno","==",idq).get();
+      if(qs.empty)out+=statusCard(null,`เลขบัตร ${idq}`);
+      else qs.docs.forEach(d=>{const r=d.data();out+=statusCard(r,r.id||d.id);});
+    }
+    el.innerHTML=out||`<div class="alert alert-err"><i class="ti ti-x"></i>ไม่พบข้อมูล</div>`;
   }catch(e){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>${e.message}</div>`;}
 }
 
@@ -864,11 +912,11 @@ function renderGuardView(){
   document.getElementById("g-pending-tbody").innerHTML=pending.map(r=>{
     const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
     const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอผล</span>`;
-    const docs=r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`;
+    const docs=(r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`)+(!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:"");
     return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
       <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
       <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
-      <td>${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST — ปฏิเสธเท่านั้น</span> `:`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>`}<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
+      <td>${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST — ปฏิเสธเท่านั้น</span> `:(!r.photo||!(r.docs&&r.docs.length))?`<span class="badge b-fail">เอกสารไม่ครบ — ปฏิเสธเท่านั้น</span> `:`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>`}<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
   }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
   const ready=shorts.filter(r=>r.approvalStatus==="approved"&&!r.cardIssued&&filt(r));
   document.getElementById("g-ready-tbody").innerHTML=ready.map(r=>`<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><span class="badge ${(r.shortBriefCount||0)>=1?"b-pending":"b-active"}">${(r.shortBriefCount||0)+1}/2</span></td><td><span class="badge b-approved">รอออกบัตร</span></td><td><button class="btn-approve" onclick="issueShortCard('${r.id}')"><i class="ti ti-id-badge"></i> ออกบัตรแล้ว</button></td></tr>`).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
@@ -886,12 +934,16 @@ async function setScore(regId){
   try{await db.collection("registrations").doc(regId).update({quizScore:sc,quizScoreMax:max,quizPct:pct,quizPass:pass});showToast(`✅ ${sc}/${max} = ${pct}% — ${pass?"Pass ✓":"Fail ✗"}`);}
   catch(e){showToast("⚠ "+e.message);}
 }
-async function guardApprove(regId){try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY});showToast("✅ อนุมัติแล้ว");}catch(e){showToast("⚠ "+e.message);}}
+async function guardApprove(regId){
+  const r=_allRegs.find(x=>x.id===regId);
+  if(r&&(!r.photo||!(r.docs&&r.docs.length))){showToast("⛔ ไม่มีรูปถ่าย/เอกสารแนบ — อนุมัติไม่ได้ กดปฏิเสธเท่านั้น");return;}
+  try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY});showToast("✅ อนุมัติแล้ว");}catch(e){showToast("⚠ "+e.message);}}
 async function guardReject(regId){const reason=prompt("ระบุเหตุผล:");if(reason===null)return;try{await db.collection("registrations").doc(regId).update({approvalStatus:"rejected",rejectedBy:SESSION.email,rejectReason:reason});showToast("🚫 ปฏิเสธแล้ว");}catch(e){showToast("⚠ "+e.message);}}
 async function issueShortCard(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  if(!r.photo||!(r.docs&&r.docs.length)){showToast("⛔ ไม่มีรูปถ่าย/เอกสารแนบ — ออกบัตรไม่ได้");return;}
   const cnt=(r.shortBriefCount||0)+1;
-  const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=exp.toISOString().slice(0,10);
+  const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=isoLocal(exp);
   const cardId=await genId("NBC-SB");
   try{
     await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
@@ -1003,26 +1055,30 @@ function renderEHSShort(){
     const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
     const cardSt=r.cardIssued?`<span class="badge b-active">ออกบัตรแล้ว</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
     return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
       <td>${ab}</td><td>${cardSt}</td>
       <td>${!r.approvalStatus?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
   }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
 }
 function renderEHSFull(){
-  const rows=_allRegs.filter(r=>!r.isShort);
+  const rows=_allRegs.filter(r=>!r.isShort).sort((a,b)=>
+    (a.pdate||"9999").localeCompare(b.pdate||"9999")||
+    (a.type||"").localeCompare(b.type||"")||
+    (a.co||"").localeCompare(b.co||"")||
+    (a.id||"").localeCompare(b.id||""));
   document.getElementById("e-fc-tbody").innerHTML=rows.map(r=>{
     const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
     const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
     const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
     const cardSt=r.cardIssued?`<span class="badge b-active">จ่ายบัตรแล้ว</span>`:r.approvalStatus==="approved"?`<span class="badge b-pending">รอจ่ายบัตร</span>`:"—";
     const isBL=_blSet.has(r.idno);
-    const can=!isBL&&r.quizPass===true&&r.docs&&r.docs.length>0&&!r.approvalStatus;
-    return `<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+    const can=!isBL&&r.quizPass===true&&r.docs&&r.docs.length>0&&!!r.photo&&!r.approvalStatus;
+    return `<tr${isBL?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}</div><div class="td-sub">${r.co}</div></td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
       <td style="font-size:11px">${r.positionLabel||"—"}</td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มี</span>`} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
       <td>${ab}</td><td>${cardSt}</td>
       <td>${can?`<button class="btn-approve" onclick="ehsApproveFull('${r.id}')">✓ Approve</button>`:""}${!r.approvalStatus?`<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""}${!isBL&&r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueFullCard('${r.id}')">จ่ายบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button>${r.cardId?`<button class="btn-sm" onclick="printCard('${r.id}')"><i class="ti ti-printer"></i></button>`:""}</td></tr>`;
-  }).join("")||`<tr><td colspan="8" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
+  }).join("")||`<tr><td colspan="10" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
 }
 
 async function ehsApproveFull(regId){
@@ -1092,6 +1148,29 @@ function exportCSV(){
   const blob=new Blob(["\uFEFF"+hdr+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_CTMS_${TODAY}.csv`;a.click();
   showToast("📥 Export CSV สำเร็จ");
+}
+function exportFCCSV(){
+  const rows=_allRegs.filter(r=>!r.isShort).sort((a,b)=>
+    (a.pdate||"9999").localeCompare(b.pdate||"9999")||
+    (a.type||"").localeCompare(b.type||"")||
+    (a.co||"").localeCompare(b.co||"")||
+    (a.id||"").localeCompare(b.id||""));
+  if(!rows.length){showToast("⚠ ไม่มีข้อมูล Full Course");return;}
+  const esc=v=>`"${String(v==null?"":v).replace(/"/g,'""')}"`;
+  const hdr="วันอบรม,Type,Register No.,ชื่อ,นามสกุล,บริษัท,เลขบัตรประชาชน,สัญชาติ,ตำแหน่ง,พนักงานขับรถ,อีเมล Online Class (4D),คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Card ID,Safety Record,เหตุผล";
+  const data=rows.map(r=>[
+    r.pdate||"",r.type||"",r.id||"",r.fn||"",r.ln||"",r.co||"",r.idno||"",
+    r.nationality==="thai"?"ไทย":"ต่างชาติ",r.positionLabel||"",r.isDriver?"ใช่":"ไม่ใช่",
+    r.onlineEmail||"",
+    r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):"",
+    r.quizPass===true?"Pass":r.quizPass===false?"Fail":"",
+    r.approvalStatus||"pending",r.cardIssuedDate||"",r.cardExpiry||"",r.cardId||"",
+    _blSet.has(r.idno)?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ",
+    _blSet.has(r.idno)?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")
+  ].map(esc).join(","));
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+data.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_FullCourse_${TODAY}.csv`;a.click();
+  showToast("📥 Export Full Course CSV สำเร็จ");
 }
 function exportSBCSV(){
   const rows=_sbRows||[];const hdr="ชื่อ,นามสกุล,บริษัท,ประเภท,ครั้งที่,วันออกบัตร,หมดอายุ,สถานะ";
@@ -1214,7 +1293,8 @@ function eTab(id,btn){
 
 // ── INIT ──
 loadCFG();
-console.log("✅ NatureWorks CTMS v9.5 — Firebase connected");
+addRefRow();
+console.log("✅ NatureWorks CTMS v9.7 — Firebase connected");
 </script>
 </body>
 </html>
