@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.15</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.17</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -1015,10 +1015,10 @@ function viewDocs(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
   const photoHTML=r.photo?`<div style="text-align:center;margin-bottom:16px"><img src="${r.photo}" style="width:120px;height:120px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal);cursor:pointer" onclick="window.open('${r.photo}','_blank')"><div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย (คลิกขยาย)</div></div>`:`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block;margin-bottom:4px"></i>ไม่มีรูปถ่าย</div>`;
   const docs=r.docs||[];
-  const docsHTML=docs.length?docs.map(d=>{const name=typeof d==="string"?d:d.name;const url=typeof d==="object"&&d.url?d.url:null;const icon=name.toLowerCase().endsWith(".pdf")?"ti-file-type-pdf":"ti-photo";return`<div class="file-item" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:var(--nw-teal)"></i><span class="fi-name">${name}</span></div>${url?`<div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}')"><i class="ti ti-download"></i> โหลด</button></div>`:`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}</div>`;}).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ</div>`;
+  const docsHTML=docs.length?docs.map((d,i)=>{const name=typeof d==="string"?d:d.name;const url=typeof d==="object"&&d.url?d.url:null;const icon=name.toLowerCase().endsWith(".pdf")?"ti-file-type-pdf":"ti-photo";const dot=name.lastIndexOf(".");const dlName=`Attachment${docs.length>1?i+1:""}_${r.fn} ${r.ln}${dot>0?name.slice(dot):""}`;return`<div class="file-item" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:var(--nw-teal)"></i><span class="fi-name">${name}</span></div>${url?`<div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${dlName}')"><i class="ti ti-download"></i> โหลด</button></div>`:`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}</div>`;}).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ</div>`;
   let certHTML="";
   if(r.position==="driver"){
-    const box=(url,name,icon)=>url?`<div class="file-item" style="justify-content:space-between;margin-bottom:8px;border:1px solid #EED9A0;background:#FFFBEF"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:#C5940A"></i><span class="fi-name">${name}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}${url.toLowerCase().includes(".pdf")?".pdf":".jpg"}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>ไม่พบ${name}ในระบบ</span></div>`;
+    const box=(url,name,icon)=>url?`<div class="file-item" style="justify-content:space-between;margin-bottom:8px;border:1px solid #EED9A0;background:#FFFBEF"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:#C5940A"></i><span class="fi-name">${name}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}_${r.fn} ${r.ln}${url.toLowerCase().includes(".pdf")?".pdf":".jpg"}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>ไม่พบ${name}ในระบบ</span></div>`;
     const dlExpired=r.dlExpiry&&r.dlExpiry<TODAY;
     certHTML=`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:#C5940A"><i class="ti ti-truck"></i> ข้อมูลพนักงานขับรถขนส่ง:</div>
       <div style="font-size:12px;background:#FFFBEF;border:1px solid #EED9A0;border-radius:8px;padding:10px;margin-bottom:10px;display:grid;gap:5px">
@@ -1031,7 +1031,7 @@ function viewDocs(regId){
       <div style="margin-bottom:12px"></div>`;
   }
   if(["safety","firewatchman"].includes(r.position)){
-    const certName=`Certificate_${r.fn}_${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
+    const certName=`${r.position==="safety"?"Safety Certificate":"Watchman Certificate"}_${r.fn} ${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
     certHTML=r.certUrl?`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-gold)"><i class="ti ti-certificate"></i> ใบ Certificate (${r.positionLabel||""}):</div><div class="file-item" style="justify-content:space-between;margin-bottom:12px;border:1px solid #E8D9B0;background:#FFFDF5"><div style="display:flex;align-items:center;gap:7px"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span class="fi-name">${certName}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${r.certUrl}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${r.certUrl}','${certName}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span>ตำแหน่ง ${r.positionLabel||""} — ไม่พบใบ Certificate ในระบบ</span></div>`;
   }
   showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"พนักงานทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div><div><b>Safety Record:</b> ${_blSet.has(r.idno)?"⛔ Blacklist":r.violation==="1st"?"⚠ 1st Warning":r.violation==="2nd"?"⚠ 2nd Warning":"✅ ปกติ"}${r.violationReason?` — <span style="color:#A32D2D">${r.violationReason}</span>`:""}</div></div>`);
@@ -1420,7 +1420,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.15 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.17 — Firebase connected");
 </script>
 </body>
 </html>
