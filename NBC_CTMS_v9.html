@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.17</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.19</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -970,7 +970,7 @@ function renderGuardView(){
     const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
     const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอผล</span>`;
     const docs=(r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`)+(!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:"");
-    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
       <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
       <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
       <td>${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST — ปฏิเสธเท่านั้น</span> `:(!r.photo||!(r.docs&&r.docs.length))?`<span class="badge b-fail">เอกสารไม่ครบ — ปฏิเสธเท่านั้น</span> `:`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>`}<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
@@ -1054,7 +1054,21 @@ function printCard(regId){
 @page{size:A5;margin:0}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;background:#fff}
+.sheet{width:110mm;height:85mm;display:flex;flex-direction:row;position:relative;outline:.2mm dashed #999}
+.fold{position:absolute;left:55mm;top:-4mm;bottom:-4mm;border-left:.2mm dashed #999;z-index:5}
+.fold::after{content:"✂ พับ / fold";position:absolute;top:-3.6mm;left:1mm;font-size:2.2mm;color:#999;white-space:nowrap}
 .card{width:55mm;height:85mm;background:linear-gradient(165deg,#F2FAFD 0%,#D9EEF8 45%,#BFE2F2 100%);color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm}
+.cardback{width:55mm;height:85mm;background:#fff;color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm;padding:2.5mm 3mm}
+.wb-title{font-size:2.6mm;font-weight:700;color:#185FA5;text-align:center;line-height:1.3;margin-bottom:1.8mm}
+.wb-row{display:flex;align-items:center;gap:1.8mm;margin-bottom:1.6mm}
+.wb-dot{width:5.5mm;height:5.5mm;border-radius:50%;flex-shrink:0;border:.2mm solid rgba(0,0,0,.15)}
+.wb-txt{font-size:2.3mm;line-height:1.35;flex:1}
+.wb-txt b{color:#C5940A}
+.wb-line{border-bottom:.25mm dotted #E0A400;height:3mm;margin-top:.4mm}
+.wb-sign{border-top:.2mm solid #A9D3E8;padding-top:1.6mm;margin-top:auto}
+.wb-sign .lbl{font-size:2.1mm;color:#185FA5;line-height:1.35;margin-bottom:1mm}
+.sig-row{display:flex;align-items:flex-end;gap:1.5mm;font-size:2.2mm;margin-bottom:1.4mm;font-weight:600;color:#1F497D}
+.sig-row .dots{flex:1;border-bottom:.25mm dotted #888;height:3.4mm}
 .bg1{position:absolute;width:62mm;height:62mm;border-radius:50%;background:rgba(0,181,168,.06);bottom:-22mm;right:-16mm}
 .card-top{padding:3mm 3.5mm 1.5mm;display:flex;justify-content:space-between;align-items:center;gap:1.5mm;position:relative;z-index:1}
 .logo{height:4.5mm;max-width:28mm;object-fit:contain}
@@ -1076,6 +1090,7 @@ body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-it
 .qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.8mm;width:13mm;height:13mm;display:flex;align-items:center;justify-content:center}
 #qr img,#qr canvas{width:11mm!important;height:11mm!important;display:block}
 </style></head><body>
+  <div class="sheet"><div class="fold"></div>
   <div class="card"><div class="bg1"></div>
     <div class="card-top"><img src="${LOGO}" class="logo" alt="NW"><div class="pill">CONTRACTOR</div></div>
     <div class="photo-wrap"><div class="photo">${photoHTML}</div></div>
@@ -1094,6 +1109,18 @@ body{width:148mm;height:210mm;font-family:Arial,sans-serif;display:flex;align-it
       <div class="issuer">NatureWorks Asia Pacific Limited<br>NTRAP Contractor ID Card</div>
       <div class="qr-box"><div id="qr"></div></div>
     </div>
+  </div>
+  <div class="cardback">
+    <div class="wb-title">แจ้งเตือนกรณีไม่ปฏิบัติตามข้อกำหนด<br>Warning Notice for Non-Compliance</div>
+    <div class="wb-row"><div class="wb-dot" style="background:#FFE100"></div><div class="wb-txt"><b>ครั้งที่ 1 1st</b> &nbsp;ผู้เตือน By<div class="wb-line"></div></div></div>
+    <div class="wb-row"><div class="wb-dot" style="background:#F7941D"></div><div class="wb-txt"><b>ครั้งที่ 2 2nd</b> &nbsp;ผู้เตือน By<div class="wb-line"></div></div></div>
+    <div class="wb-row"><div class="wb-dot" style="background:#E31E24"></div><div class="wb-txt" style="color:#E31E24;font-weight:700">สิ้นสุดการจ้างงาน<br>Termination</div></div>
+    <div class="wb-sign">
+      <div class="lbl">ลงชื่อข้าพเจ้ารับทราบและตกลงปฏิบัติตามข้อกำหนดที่ระบุไว้ข้างต้น<br>Sign for acknowledge and agree to comply with the requirements:</div>
+      <div class="sig-row"><span>ลงชื่อ Sign:</span><span class="dots"></span></div>
+      <div class="sig-row"><span>วันที่ Date:</span><span class="dots"></span></div>
+    </div>
+  </div>
   </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
 <script>
@@ -1420,7 +1447,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.17 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.19 — Firebase connected");
 </script>
 </body>
 </html>
