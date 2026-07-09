@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.24</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.25</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -3403,7 +3403,9 @@ body{font-family:Arial,sans-serif;margin:0;background:#fff}
 .fv{font-size:2.4mm;font-weight:600;color:#1F497D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card-bottom{padding:1.8mm 3.5mm 2.5mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
 .issuer{font-size:1.6mm;color:#6E93AF;line-height:1.5}
-.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.8mm;width:13mm;height:13mm;display:flex;align-items:center;justify-content:center}
+.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.6mm;width:16mm;height:16mm;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.qr-box>div{width:100%;height:100%;display:flex}
+.qr-box svg{width:100%;height:100%;display:block}
 #qr img,#qr canvas{width:11mm!important;height:11mm!important;display:block}
 </style></head><body>
 <div class="hint">🖨 ตั้งค่าพิมพ์: กระดาษ <b>A5</b> | Scale = <b>100% / Actual size</b> (ห้ามใช้ Fit to page) | ขนาดบัตรหลังพับ = 55×85 มม.</div>
@@ -3425,7 +3427,7 @@ body{font-family:Arial,sans-serif;margin:0;background:#fff}
     </div>
     <div class="card-bottom">
       <div class="issuer">NatureWorks Asia Pacific Limited<br>NTRAP Contractor ID Card</div>
-      <div class="qr-box">${qrImg?`<div style="width:11mm;height:11mm">${qrImg}</div>`:`<div style="font-size:2mm;color:#A32D2D">QR ERROR</div>`}</div>
+      <div class="qr-box">${qrImg?`<div>${qrImg}</div>`:`<div style="font-size:2mm;color:#A32D2D">QR ERROR</div>`}</div>
     </div>
   </div>
   <div class="cardback">
@@ -3765,7 +3767,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.24 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.25 — Firebase connected");
 </script>
 </body>
 </html>
