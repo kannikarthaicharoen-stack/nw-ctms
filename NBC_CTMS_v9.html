@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.25</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.26</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -3389,24 +3389,23 @@ body{font-family:Arial,sans-serif;margin:0;background:#fff}
 .card-top{padding:2.5mm 3.5mm 1mm;display:flex;justify-content:space-between;align-items:center;gap:1.5mm;position:relative;z-index:1}
 .logo{height:4.5mm;max-width:28mm;object-fit:contain}
 .pill{font-size:1.9mm;background:#1F497D;color:#fff;padding:.7mm 2mm;border-radius:5mm;letter-spacing:.04em;white-space:nowrap;flex-shrink:0}
-.photo-wrap{display:flex;justify-content:center;margin:1mm 0 1.2mm;position:relative;z-index:1}
-.photo{width:30mm;height:30mm;border-radius:2mm;background:#E4F2F9;overflow:hidden;border:.8mm solid #fff;box-shadow:0 .5mm 1.5mm rgba(31,73,125,.15)}
+.photo-wrap{display:flex;justify-content:center;margin:.8mm 0 1mm;position:relative;z-index:1}
+.photo{width:27mm;height:27mm;border-radius:2mm;background:#E4F2F9;overflow:hidden;border:.8mm solid #fff;box-shadow:0 .5mm 1.5mm rgba(31,73,125,.15)}
 .info{padding:0 3.5mm;position:relative;z-index:1}
 .name{font-size:3.8mm;font-weight:700;text-align:center;margin-bottom:.8mm;line-height:1.2;color:#123A66}
-.company{font-size:2.2mm;color:#4A7396;text-align:center;margin-bottom:1.8mm}
-.pos-badge{background:${band.bg};color:${band.color};border:.35mm solid ${band.border};border-radius:1.2mm;padding:1.4mm 2mm;text-align:center;font-size:2.2mm;font-weight:700;margin-bottom:1.8mm;letter-spacing:.02em}
-.divline{height:.2mm;background:#A9D3E8;margin:0 3.5mm 1.8mm}
+.company{font-size:2.2mm;color:#4A7396;text-align:center;margin-bottom:1.4mm}
+.pos-badge{background:${band.bg};color:${band.color};border:.35mm solid ${band.border};border-radius:1.2mm;padding:1.2mm 2mm;text-align:center;font-size:2.2mm;font-weight:700;margin-bottom:1.4mm;letter-spacing:.02em}
+.divline{height:.2mm;background:#A9D3E8;margin:0 3.5mm 1.4mm}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:1.3mm;padding:0 3.5mm;position:relative;z-index:1}
-.field{background:rgba(255,255,255,.75);border:.2mm solid #CBE4F1;border-radius:1mm;padding:1.1mm 1.4mm}
+.field{background:rgba(255,255,255,.75);border:.2mm solid #CBE4F1;border-radius:1mm;padding:.9mm 1.4mm}
 .field-full{grid-column:1/-1}
 .fl{font-size:1.8mm;color:#6E93AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3mm}
 .fv{font-size:2.4mm;font-weight:600;color:#1F497D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.card-bottom{padding:1.8mm 3.5mm 2.5mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
+.card-bottom{padding:1.2mm 3.5mm 1.6mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
 .issuer{font-size:1.6mm;color:#6E93AF;line-height:1.5}
-.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.6mm;width:16mm;height:16mm;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.5mm;width:14mm;height:14mm;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
 .qr-box>div{width:100%;height:100%;display:flex}
 .qr-box svg{width:100%;height:100%;display:block}
-#qr img,#qr canvas{width:11mm!important;height:11mm!important;display:block}
 </style></head><body>
 <div class="hint">🖨 ตั้งค่าพิมพ์: กระดาษ <b>A5</b> | Scale = <b>100% / Actual size</b> (ห้ามใช้ Fit to page) | ขนาดบัตรหลังพับ = 55×85 มม.</div>
 <div class="wrap">
@@ -3767,7 +3766,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.25 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.26 — Firebase connected");
 </script>
 </body>
 </html>
