@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.26</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.27</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -162,6 +162,16 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
         <div class="role-name">EHS Admin</div>
         <div class="role-desc">จัดการข้อมูลและออกบัตร<br>Manage & Issue ID Cards</div>
         <div class="role-lock">🔒 ต้อง Login</div>
+      </div>
+    </div>
+    <div style="max-width:820px;margin:14px auto 0;background:#FFF9E6;border:1px solid #F0DCA0;border-left:4px solid var(--nw-gold);border-radius:10px;padding:14px 18px;text-align:left">
+      <div style="display:flex;align-items:flex-start;gap:9px">
+        <span style="font-size:18px;line-height:1.2">📌</span>
+        <div style="font-size:13px;line-height:1.7;color:#5C4A12">
+          <b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน</b><br>
+          กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ และแนบในระบบให้เรียบร้อยขณะลงทะเบียน โดย<b>ไม่ต้องส่งอีเมลถึงแผนกความปลอดภัยอีก</b> — หากเอกสารไม่ครบ ระบบจะปฏิเสธการลงทะเบียนและท่านจะไม่สามารถเข้ารับการอบรมได้
+          <div style="margin-top:7px;color:#8A7A45;font-size:12px;line-height:1.6;font-style:italic">Please prepare all required documents and attach them during registration — there is no need to email the Safety Department. Incomplete submissions will be rejected and you will not be able to attend the training.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -3766,7 +3776,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.26 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.27 — Firebase connected");
 </script>
 </body>
 </html>
