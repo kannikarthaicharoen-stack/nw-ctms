@@ -142,7 +142,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.27</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.28</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -3183,7 +3183,8 @@ async function submitReg(){
           <div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>ทำแบบทดสอบเสร็จแล้ว EHS จะตรวจคะแนนและอนุมัติ — ติดตามผลได้ที่เมนู "ตรวจสอบสถานะ" ด้วยหมายเลขอ้างอิง <b>${regId}</b></span></div>
         </div>`;
       }else{
-        okEl.innerHTML=`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-calendar-event"></i><span>มาอบรม Full Course วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จค่ะ<br><span style="color:#888">Attend the training on the selected Monday. EHS will provide the quiz after the session.</span></span></div>`;
+        const is4D=data.type==="4D";
+        okEl.innerHTML=`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-calendar-event"></i><span>มาอบรม Full Course วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จค่ะ<br><span style="color:#888">Attend the training on the selected Monday. EHS will provide the quiz after the session.</span></span></div>${is4D?`<div class="alert alert-warn" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-mail"></i><span>สำหรับอบรมออนไลน์ (4D): แผนกความปลอดภัย (EHS) จะส่งลิงก์เข้าอบรมไปที่อีเมล <b>${data.onlineEmail||"-"}</b> ก่อนถึงวันอบรม กรุณาตรวจสอบกล่องจดหมายของท่าน<br><span style="color:#888">For online training (4D): EHS will send the class link to <b>${data.onlineEmail||"-"}</b> before the training date. Please check your inbox.</span></span></div>`:""}`;
       }
     }
     document.getElementById("c-reg-form").style.display="none";
@@ -3776,7 +3777,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.27 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.28 — Firebase connected");
 </script>
 </body>
 </html>
