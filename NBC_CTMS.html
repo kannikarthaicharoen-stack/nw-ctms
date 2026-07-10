@@ -1,0 +1,3785 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NatureWorks — Contractor Training System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--nw-teal:#00B5A8;--nw-navy:#1F497D;--nw-gold:#C5940A}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+.home-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;gap:20px;background:linear-gradient(160deg,#f0f9f8,#eef3f9)}
+.role-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;width:100%;max-width:580px}
+.role-card{background:#fff;border:.5px solid #ddd;border-radius:12px;padding:22px 16px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s}
+.role-card:hover{border-color:var(--nw-teal);box-shadow:0 2px 12px rgba(0,181,168,.12)}
+.role-icon{width:48px;height:48px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.ri-c{background:#E0F7F6}.ri-g{background:#EEF3F9}.ri-e{background:#FAEEDA}
+.role-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.role-desc{font-size:11px;color:#888;line-height:1.4}
+.role-lock{font-size:10px;color:var(--nw-gold);margin-top:5px;display:flex;align-items:center;justify-content:center;gap:3px}
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;background:linear-gradient(160deg,#f0f9f8,#eef3f9)}
+.login-card{width:100%;max-width:360px;background:#fff;border:.5px solid #ddd;border-radius:16px;padding:28px 24px}
+.login-title{font-size:16px;font-weight:500;color:var(--nw-navy);text-align:center;margin:14px 0 4px}
+.login-sub{font-size:12px;color:#888;text-align:center;margin-bottom:20px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fg label{font-size:12px;font-weight:500;color:#555}
+.fg input{font-size:13px;padding:9px 12px;border-radius:8px;border:.5px solid #ccc;width:100%}
+.fg input:focus{outline:none;border-color:var(--nw-teal)}
+.pin-wrap{display:flex;gap:8px;justify-content:center;margin:4px 0}
+.pin-dot{width:36px;height:36px;border-radius:50%;border:2px solid #ccc;background:#f5f5f5;transition:all .2s}
+.pin-dot.filled{border-color:var(--nw-teal);background:var(--nw-teal)}
+.pin-dot.filled::after{content:"•";display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;height:100%}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.key-btn{background:#f5f5f5;border:.5px solid #ddd;border-radius:8px;padding:13px 8px;font-size:18px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;color:#222}
+.key-btn:hover{background:#E0F7F6;border-color:var(--nw-teal);color:var(--nw-teal)}
+.key-btn:active{transform:scale(.95)}
+.login-err{font-size:12px;color:#A32D2D;text-align:center;min-height:18px;margin-top:8px}
+.login-back{font-size:12px;color:#888;text-align:center;margin-top:12px;cursor:pointer;text-decoration:underline}
+.topbar{background:var(--nw-navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;gap:10px}
+.tb-brand{display:flex;align-items:center;gap:10px;flex:1}
+.tb-logo{height:20px;filter:brightness(0) invert(1)}
+.tb-tag{font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);padding:2px 8px;border-radius:20px}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-av{width:26px;height:26px;border-radius:50%;background:var(--nw-teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.tb-logout{background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.25);color:#fff;padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer}
+.nav-tabs{background:#fff;border-bottom:.5px solid #e0e0e0;display:flex;padding:0 10px;overflow-x:auto}
+.nav-tab{padding:0 12px;height:42px;display:flex;align-items:center;gap:5px;font-size:12px;color:#666;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none}
+.nav-tab:hover{color:var(--nw-teal)}
+.nav-tab.active{color:var(--nw-teal);border-bottom:2px solid var(--nw-teal);font-weight:500}
+.content{padding:14px}
+.panel{background:#fff;border:.5px solid #e0e0e0;border-radius:12px;padding:14px;margin-bottom:14px}
+.panel-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.panel-title i{color:var(--nw-teal);font-size:15px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:500px){.form-grid{grid-column:1fr}}
+.fg2{display:flex;flex-direction:column;gap:4px}
+.fg2-full{grid-column:1/-1}
+.fg2 label{font-size:11px;font-weight:500;color:#555}
+.fg2 input,.fg2 select,.fg2 textarea{font-size:13px;padding:7px 10px;border-radius:7px;border:.5px solid #ccc;width:100%}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.type-opt{border:1.5px solid #ddd;border-radius:9px;padding:11px 10px;cursor:pointer;background:#f9f9f9;transition:all .15s}
+.type-opt:hover,.type-opt.sel{border-color:var(--nw-teal);background:#E0F7F6}
+.type-code{font-size:16px;font-weight:600;color:var(--nw-teal);display:block;margin-bottom:2px}
+.type-name{font-size:12px;font-weight:500;display:block;margin-bottom:2px}
+.type-desc{font-size:10px;color:#888;display:block}
+.nat-row{display:flex;gap:8px;margin-bottom:10px}
+.nat-btn{flex:1;padding:9px;border:1.5px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;background:#f9f9f9;font-size:12px;transition:all .15s}
+.nat-btn.sel{border-color:var(--nw-teal);background:#E0F7F6}
+.driver-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#FAEEDA;border:.5px solid #EF9F27;border-radius:8px;font-size:12px;margin-bottom:10px;cursor:pointer}
+.driver-row input{width:16px;height:16px;accent-color:var(--nw-teal)}
+.upload-zone{border:1.5px dashed #ccc;border-radius:7px;padding:16px;text-align:center;cursor:pointer;background:#f9f9f9}
+.upload-zone:hover{border-color:var(--nw-teal);background:#E0F7F6}
+.upload-zone i{font-size:24px;color:#aaa;display:block;margin-bottom:4px}
+.upload-zone p{font-size:11px;color:#aaa}
+.file-list{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.file-item{display:flex;align-items:center;gap:7px;padding:5px 9px;background:#f9f9f9;border-radius:5px;border:.5px solid #e0e0e0;font-size:12px}
+.fi-name{flex:1}.fi-rm{cursor:pointer;color:#aaa}.fi-rm:hover{color:#A32D2D}
+.doc-box{background:#E0F7F6;border:.5px solid var(--nw-teal);border-radius:7px;padding:10px 12px;margin-bottom:12px}
+.doc-box-t{font-size:11px;font-weight:500;color:#0F6E56;margin-bottom:6px}
+.doc-box ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.doc-box li{font-size:11px;color:#085041;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+.doc-box li i{color:var(--nw-teal);font-size:12px;flex-shrink:0;margin-top:1px}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-p{background:var(--nw-teal);color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-p:hover{background:#009a8e}
+.btn-s{background:#fff;color:#333;border:.5px solid #ccc;padding:8px 14px;border-radius:7px;font-size:12px;cursor:pointer}
+.btn-approve{background:#27500A;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:500;margin-right:3px}
+.btn-reject{background:#fff;color:#A32D2D;border:.5px solid #F09595;padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer}
+.btn-sm{background:#fff;color:#333;border:.5px solid #ccc;padding:3px 8px;border-radius:5px;font-size:11px;cursor:pointer;margin-left:3px}
+.btn-teal-sm{background:var(--nw-teal);color:#fff;border:none;padding:3px 8px;border-radius:5px;font-size:11px;cursor:pointer}
+.btn-unblock{background:var(--nw-gold);color:#fff;border:none;padding:3px 9px;border-radius:4px;font-size:11px;cursor:pointer}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.b-4a{background:#E0F7F6;color:#0F6E56}.b-4b{background:#EEF3F9;color:#1F497D}
+.b-4c{background:#FAEEDA;color:#854F0B}.b-4d{background:#EEEDFE;color:#3C3489}
+.b-pass{background:#EAF3DE;color:#3B6D11}.b-fail{background:#FCEBEB;color:#A32D2D}
+.b-pending{background:#FAEEDA;color:#854F0B}.b-approved{background:#EAF3DE;color:#3B6D11}
+.b-blocked{background:#FCEBEB;color:#A32D2D}.b-active{background:#E6F1FB;color:#185FA5}
+.b-expired{background:#FCEBEB;color:#A32D2D}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:14px}
+.stat{background:#f9f9f9;border:.5px solid #e0e0e0;border-radius:7px;padding:11px 12px}
+.stat-l{font-size:11px;color:#888;margin-bottom:2px}
+.stat-v{font-size:19px;font-weight:500}
+.sv-t{color:var(--nw-teal)}.sv-n{color:var(--nw-navy)}.sv-g{color:var(--nw-gold)}.sv-r{color:#A32D2D}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 9px;font-size:10px;font-weight:500;color:#888;border-bottom:.5px solid #e0e0e0;background:#f9f9f9;white-space:nowrap}
+.tbl td{padding:8px 9px;border-bottom:.5px solid #e0e0e0;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f9f9f9}
+.td-name{font-weight:500;font-size:12px}.td-sub{font-size:10px;color:#888}
+.search-bar{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:6px 9px;border-radius:7px;border:.5px solid #ccc;font-size:12px;background:#fff;color:#222}
+.search-bar input{flex:1;min-width:140px}
+.alert{padding:9px 12px;border-radius:7px;font-size:11px;margin-bottom:11px;display:flex;gap:7px;align-items:flex-start}
+.alert-warn{background:#FAEEDA;color:#854F0B;border:.5px solid #EF9F27}
+.alert-info{background:#E6F1FB;color:#185FA5;border:.5px solid #85B7EB}
+.alert-ok{background:#EAF3DE;color:#3B6D11;border:.5px solid #97C459}
+.alert-err{background:#FCEBEB;color:#A32D2D;border:.5px solid #F09595}
+.alert i{font-size:14px;flex-shrink:0;margin-top:1px}
+.divider{height:.5px;background:#e0e0e0;margin:12px 0}
+.hist-item{padding:7px 10px;border-radius:6px;background:#f9f9f9;border:.5px solid #e0e0e0;margin-bottom:5px;font-size:11px;display:flex;align-items:center;gap:7px}
+.hdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hd-g{background:#639922}.hd-r{background:#E24B4A}.hd-go{background:var(--nw-gold)}
+.success-wrap{text-align:center;padding:36px 16px}
+.success-icon{width:60px;height:60px;background:#EAF3DE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.success-icon i{font-size:30px;color:#3B6D11}
+.config-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f9f9f9;border-radius:6px;border:.5px solid #e0e0e0;margin-bottom:6px;font-size:12px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:#fff;border-radius:12px;padding:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title-text{font-size:14px;font-weight:500;color:var(--nw-navy)}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:#EAF3DE;color:#3B6D11;padding:3px 10px;border-radius:20px;border:.5px solid #97C459}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#3B6D11;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.toast{position:fixed;bottom:16px;right:16px;background:#1F497D;color:#fff;padding:9px 16px;border-radius:7px;font-size:12px;z-index:9999;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div class="home-wrap">
+    <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.29</span></div>
+    <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
+    <div class="role-cards">
+      <div class="role-card" onclick="goContractor()">
+        <div class="role-icon ri-c">⛑️</div>
+        <div class="role-name">Contractor / Visitor</div>
+        <div class="role-desc">ลงทะเบียนเข้ารับการอบรม<br>Register for Safety Training</div>
+        <div class="role-lock" style="color:var(--nw-teal)">🔓 เปิดได้เลย</div>
+      </div>
+      <div class="role-card" onclick="doShowLogin('guard')">
+        <div class="role-icon ri-g">🛡️</div>
+        <div class="role-name">Guard / รปภ.</div>
+        <div class="role-desc">ตรวจสอบและออกบัตร<br>Verify & Issue Cards</div>
+        <div class="role-lock">🔒 ต้อง Login</div>
+      </div>
+      <div class="role-card" onclick="doShowLogin('ehs')">
+        <div class="role-icon ri-e">📋</div>
+        <div class="role-name">EHS Admin</div>
+        <div class="role-desc">จัดการข้อมูลและออกบัตร<br>Manage & Issue ID Cards</div>
+        <div class="role-lock">🔒 ต้อง Login</div>
+      </div>
+    </div>
+    <div style="max-width:820px;margin:14px auto 0;background:#FFF9E6;border:1px solid #F0DCA0;border-left:4px solid var(--nw-gold);border-radius:10px;padding:14px 18px;text-align:left">
+      <div style="display:flex;align-items:flex-start;gap:9px">
+        <span style="font-size:18px;line-height:1.2">📌</span>
+        <div style="font-size:13px;line-height:1.7;color:#5C4A12">
+          <b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน</b><br>
+          กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ และแนบในระบบให้เรียบร้อยขณะลงทะเบียน โดย<b>ไม่ต้องส่งอีเมลถึงแผนกความปลอดภัยอีก</b> — หากเอกสารไม่ครบ ระบบจะปฏิเสธการลงทะเบียนและท่านจะไม่สามารถเข้ารับการอบรมได้
+          <div style="margin-top:7px;color:#8A7A45;font-size:12px;line-height:1.6;font-style:italic">Please prepare all required documents and attach them during registration — there is no need to email the Safety Department. Incomplete submissions will be rejected and you will not be able to attend the training.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="text-align:center"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:32px"></div>
+      <div class="login-title" id="login-title">Login</div>
+      <div class="login-sub">กรอก Email และ PIN เพื่อเข้าสู่ระบบ</div>
+      <div id="ls1">
+        <div class="fg"><label>Email Address</label><input type="email" id="login-email" placeholder="yourname@natureworkspla.com" autocomplete="off"></div>
+        <button class="btn-p" style="width:100%" onclick="doCheckEmail()">ถัดไป / Next →</button>
+        <div class="login-err" id="email-err"></div>
+      </div>
+      <div id="ls2" style="display:none">
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:#888;margin-bottom:2px">ยืนยันตัวตนสำหรับ</div>
+          <div style="font-size:13px;font-weight:500;color:var(--nw-navy)" id="login-email-show"></div>
+        </div>
+        <div style="text-align:center;margin-bottom:8px;font-size:12px;color:#555">กรอก PIN 6 หลัก</div>
+        <div class="pin-wrap">
+          <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div><div class="pin-dot" id="pd4"></div><div class="pin-dot" id="pd5"></div>
+        </div>
+        <div class="login-err" id="pin-err"></div>
+        <div class="pin-keypad">
+          <button class="key-btn" onclick="doPinKey('1')">1</button><button class="key-btn" onclick="doPinKey('2')">2</button><button class="key-btn" onclick="doPinKey('3')">3</button>
+          <button class="key-btn" onclick="doPinKey('4')">4</button><button class="key-btn" onclick="doPinKey('5')">5</button><button class="key-btn" onclick="doPinKey('6')">6</button>
+          <button class="key-btn" onclick="doPinKey('7')">7</button><button class="key-btn" onclick="doPinKey('8')">8</button><button class="key-btn" onclick="doPinKey('9')">9</button>
+          <button class="key-btn" style="font-size:12px;color:#888" onclick="doPinClear()">ล้าง</button>
+          <button class="key-btn" onclick="doPinKey('0')">0</button>
+          <button class="key-btn" onclick="doPinBack()"><i class="ti ti-backspace" style="font-size:16px"></i></button>
+        </div>
+        <div class="login-back" onclick="doBackToEmail()">← เปลี่ยน Email</div>
+      </div>
+    </div>
+    <div class="login-back" style="margin-top:14px" onclick="goHome()">← กลับหน้าหลัก</div>
+  </div>
+</div>
+
+<!-- CONTRACTOR -->
+<div id="s-contractor" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">Contractor Portal</span></div>
+    <button class="tb-logout" onclick="goHome()"><i class="ti ti-arrow-left"></i> หน้าหลัก</button>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="cTab('c-reg',this)"><i class="ti ti-clipboard-plus"></i> ลงทะเบียน</button>
+    <button class="nav-tab" onclick="cTab('c-status',this)"><i class="ti ti-eye"></i> ตรวจสอบสถานะ</button>
+  </div>
+  <div class="content">
+    <div id="c-reg">
+      <div id="c-reg-form">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-user-circle"></i> ข้อมูลเบื้องต้น</div>
+          <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px">สัญชาติ / Nationality *</div>
+          <div class="nat-row">
+            <div class="nat-btn sel" id="nat-thai" onclick="setNat('thai')">🇹🇭 คนไทย / Thai</div>
+            <div class="nat-btn" id="nat-foreign" onclick="setNat('foreign')">🌏 ต่างชาติ / Foreign</div>
+          </div>
+          <label class="driver-row">
+            <input type="checkbox" id="c-driver" onchange="toggleDriver()">
+            <span>🚛 พนักงานขับรถขนส่ง / Transport Driver — มีเอกสารเพิ่มเติม</span>
+          </label>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-list-check"></i> เลือกประเภทการอบรม *</div>
+          <div class="type-grid">
+            <div class="type-opt" onclick="selectType(this,'4A')"><span class="type-code">4A</span><span class="type-name">Onsite Short Brief</span><span class="type-desc">อบรม Onsite ที่ NatureWorks</span></div>
+            <div class="type-opt" onclick="selectType(this,'4B')"><span class="type-code">4B</span><span class="type-name">Online Short Brief</span><span class="type-desc">อบรมออนไลน์</span></div>
+            <div class="type-opt" onclick="selectType(this,'4C')"><span class="type-code">4C</span><span class="type-name">Onsite Full Course</span><span class="type-desc">อบรมเต็มหลักสูตร Onsite</span></div>
+            <div class="type-opt" onclick="selectType(this,'4D')"><span class="type-code">4D</span><span class="type-name">Online Full Course</span><span class="type-desc">อบรมเต็มหลักสูตรออนไลน์</span></div>
+          </div>
+          <div id="doc-list"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-user"></i> ข้อมูลส่วนตัว / Personal Information</div>
+          <div class="form-grid">
+            <div class="fg2"><label>ชื่อ / First Name *</label><input id="c-fn" placeholder="สมชาย / Somchai"></div>
+            <div class="fg2"><label>นามสกุล / Last Name *</label><input id="c-ln" placeholder="มั่นคง / Mankong"></div>
+            <div class="fg2"><label>บริษัท / Company *</label><input id="c-co" placeholder="ชื่อบริษัทเต็ม"></div>
+            <div class="fg2"><label>NW Contact Person *</label><input id="c-nw" placeholder="ชื่อพนักงาน NW"></div>
+            <div class="fg2"><label>เลขบัตร / ID Card or Passport *</label><input id="c-id" placeholder="x-xxxx-xxxxx-xx-x"></div>
+            <div class="fg2"><label>เบอร์โทร / Phone</label><input id="c-phone" placeholder="0xx-xxx-xxxx"></div>
+            <div class="fg2 fg2-full"><label>งาน / Job Title *</label><input id="c-job" placeholder="e.g. Lactic Acid Tank Repair"></div>
+            <div class="fg2 fg2-full" id="pdate-sb-row"><label>วันที่ต้องการอบรม / Preferred Training Date *</label><input type="date" id="c-pdate"></div>
+            <div class="fg2 fg2-full" id="pdate-fc-row" style="display:none">
+              <label>วันที่อบรม Full Course (ทุกวันจันทร์) / Training Date — Mondays only *</label>
+              <select id="c-pdate-fc"><option value="">-- เลือกวันจันทร์ / Select Monday --</option></select>
+              <div style="font-size:10px;color:#888;margin-top:4px">📌 ปิดรับลงทะเบียนรอบวันจันทร์ถัดไปทุกวันพฤหัสบดี 24:00 น. — หากลงทะเบียนหลังจากนั้น ระบบจะแสดงเฉพาะวันจันทร์ถัดไปให้เลือก</div>
+            </div>
+            <div class="fg2 fg2-full" id="email-row" style="display:none"><label>อีเมลสำหรับรับลิงก์ Online Class (4D) / Email for online class link *</label><input id="c-email" type="email" placeholder="name@example.com"></div>
+            <div class="fg2 fg2-full" id="position-row" style="display:none">
+              <label>ตำแหน่ง / Position *</label>
+              <select id="c-position" onchange="onPositionChange()">
+                <option value="">-- เลือกตำแหน่ง --</option>
+                <option value="general">👷 พนักงานทั่วไป / General Worker</option>
+                <option value="safety">🦺 จป.หัวหน้างาน / Safety Supervisor</option>
+                <option value="firewatchman">🔥 Fire Watchman</option>
+                <option value="driver">🚚 พนักงานขับรถขนส่ง / Transport Driver</option>
+              </select>
+            </div>
+            <div class="fg2 fg2-full" id="cert-row" style="display:none">
+              <div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span id="cert-alert-text">ต้องแนบใบ Certificate</span></div>
+              <label>ใบ Certificate * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('cert-in').click()"><i class="ti ti-certificate"></i><p>คลิกเพื่อแนบใบ Cert (JPG, PNG, PDF)</p></div>
+              <input type="file" id="cert-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleCert(this)">
+              <div id="cert-file-list"></div>
+            </div>
+            <div class="fg2 fg2-full" id="driver-row" style="display:none">
+              <div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>พนักงานขับรถขนส่ง: ต้องกรอกข้อมูลใบขับขี่ และแนบใบอนุญาตขับขี่ + ใบตรวจสภาพรถ</span></div>
+              <div class="form-grid" style="margin-bottom:8px">
+                <div class="fg2"><label>หมายเลขใบอนุญาตขับขี่ / License No. *</label><input id="c-dl-no" placeholder="เลขที่ใบขับขี่"></div>
+                <div class="fg2"><label>ประเภทรถที่ได้รับอนุญาต / Vehicle Type *</label><input id="c-dl-type" placeholder="เช่น รถบรรทุก 6 ล้อ, เทรลเลอร์"></div>
+                <div class="fg2"><label>วันหมดอายุใบขับขี่ / License Expiry *</label><input type="date" id="c-dl-exp"></div>
+              </div>
+              <label>แนบใบอนุญาตขับขี่ * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('dl-in').click()"><i class="ti ti-license"></i><p>คลิกเพื่อแนบใบขับขี่ (JPG, PNG, PDF)</p></div>
+              <input type="file" id="dl-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDL(this)">
+              <div id="dl-file-list"></div>
+              <label style="margin-top:10px;display:block">แนบใบตรวจสภาพรถ * (บังคับ)</label>
+              <div class="upload-zone" onclick="document.getElementById('vi-in').click()"><i class="ti ti-truck"></i><p>คลิกเพื่อแนบใบตรวจสภาพรถ (JPG, PNG, PDF)</p></div>
+              <input type="file" id="vi-in" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleVI(this)">
+              <div id="vi-file-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-camera"></i> รูปถ่ายสำหรับบัตร / Photo</div>
+          <div class="upload-zone" onclick="document.getElementById('photo-in').click()">
+            <i class="ti ti-camera" style="font-size:28px;color:#aaa;display:block;margin-bottom:6px"></i>
+            <p>คลิกถ่ายรูปหรือเลือกไฟล์ / Click to take photo<br><span style="font-size:10px">รูปหน้าตรง พื้นหลังขาว</span></p>
+          </div>
+          <input type="file" id="photo-in" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)">
+          <div id="photo-prev" style="display:none;margin-top:8px;text-align:center">
+            <img id="photo-img" style="width:80px;height:80px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal)">
+            <div style="font-size:10px;color:#888;margin-top:3px">รูปถ่าย ✓</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-paperclip"></i> แนบเอกสาร / Attach Documents</div>
+          <div class="upload-zone" onclick="document.getElementById('doc-in').click()"><i class="ti ti-upload"></i><p>คลิกเพื่อแนบเอกสาร (JPG, PNG, PDF)</p></div>
+          <input type="file" id="doc-in" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleDocs(this)">
+          <div class="file-list" id="file-list"></div>
+        </div>
+        <div id="type-content"></div>
+        <div class="btn-row">
+          <button class="btn-p" onclick="submitReg()"><i class="ti ti-send"></i> ส่งใบลงทะเบียน / Submit</button>
+          <button class="btn-s" onclick="resetC()">ล้างแบบฟอร์ม</button>
+        </div>
+      </div>
+      <div id="c-reg-ok" style="display:none">
+        <div class="success-wrap">
+          <div class="success-icon"><i class="ti ti-check"></i></div>
+          <div style="font-size:17px;font-weight:500;margin-bottom:6px">ลงทะเบียนสำเร็จ! / Complete!</div>
+          <div style="font-size:12px;color:#888;margin-bottom:4px">หมายเลขอ้างอิง</div>
+          <div id="reg-ref" style="font-size:19px;font-weight:500;color:var(--nw-teal);margin-bottom:8px"></div>
+          <div class="sync-badge" style="margin:0 auto 16px;width:fit-content"><div class="sync-dot"></div> Saved to Firebase ✓</div>
+          <div id="ok-links"></div>
+          <button class="btn-p" onclick="resetC()">ลงทะเบียนรายใหม่</button>
+        </div>
+      </div>
+    </div>
+    <div id="c-status" style="display:none">
+      <div class="panel">
+        <div class="panel-title"><i class="ti ti-search"></i> ตรวจสอบสถานะ</div>
+        <div class="fg2" style="margin-bottom:8px">
+          <label>หมายเลขอ้างอิง — กรอกเฉพาะตัวเลข 4 ตัวท้าย (ค้นได้สูงสุด 10 หมายเลขพร้อมกัน)</label>
+          <div id="ref-rows" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+          <button type="button" class="btn-sm" style="margin-top:6px" onclick="addRefRow()"><i class="ti ti-plus"></i> เพิ่มหมายเลข</button>
+        </div>
+        <div class="fg2" style="margin-bottom:10px"><label>หรือ ค้นด้วยเลขบัตรประชาชน / Passport</label><input id="s-search" placeholder="เลขบัตรประชาชน 13 หลัก"></div>
+        <button class="btn-p" onclick="checkStatus()">ตรวจสอบ</button>
+        <div id="s-result" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUARD -->
+<div id="s-guard" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">Guard Portal</span></div>
+    <div class="tb-actions">
+      <div style="display:flex;align-items:center;gap:5px"><div class="tb-av" id="g-av">G</div><span id="g-nm" style="font-size:10px;color:rgba(255,255,255,.75);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <button class="tb-logout" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-l">รออนุมัติ</div><div class="stat-v sv-g" id="g-s1">—</div></div>
+      <div class="stat"><div class="stat-l">ออกบัตรวันนี้</div><div class="stat-v sv-n" id="g-s2">—</div></div>
+      <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="g-s3">—</div></div>
+    </div>
+    <div class="search-bar">
+      <input placeholder="ค้นหาชื่อ / บริษัท..." id="g-q" oninput="renderGuardView()">
+      <select id="g-fc" onchange="renderGuardView()"><option value="">ทุกบริษัท</option></select>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-file-check"></i> รายชื่อรออนุมัติ Short Brief <span class="sync-badge" style="margin-left:auto"><div class="sync-dot"></div> Live</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>คะแนน</th><th>เอกสาร</th><th>Action</th></tr></thead><tbody id="g-pending-tbody"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-id-badge"></i> รอออกบัตร (อนุมัติแล้ว)</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>สถานะ</th><th></th></tr></thead><tbody id="g-ready-tbody"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><i class="ti ti-history"></i> ประวัติออกบัตร</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>บริษัท</th><th>วันออก</th><th>หมดอายุ</th><th>สถานะ</th></tr></thead><tbody id="g-issued-tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- EHS -->
+<div id="s-ehs" class="screen">
+  <div class="topbar">
+    <div class="tb-brand"><img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" class="tb-logo" alt="NW"><span class="tb-tag">EHS Admin</span></div>
+    <div class="tb-actions">
+      <div style="display:flex;align-items:center;gap:5px"><div class="tb-av" id="e-av" style="background:var(--nw-gold)">E</div><span id="e-nm" style="font-size:10px;color:rgba(255,255,255,.75);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+      <button class="tb-logout" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="eTab('e-dash',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="nav-tab" onclick="eTab('e-sb-sec',this)"><i class="ti ti-bolt"></i> Short Brief</button>
+    <button class="nav-tab" onclick="eTab('e-fc-sec',this)"><i class="ti ti-certificate"></i> Full Course</button>
+    <button class="nav-tab" onclick="eTab('e-sbreg',this)"><i class="ti ti-id-badge"></i> ทะเบียน SB</button>
+    <button class="nav-tab" onclick="eTab('e-db',this)"><i class="ti ti-database"></i> ทะเบียนทั้งหมด</button>
+    <button class="nav-tab" onclick="eTab('e-block',this)"><i class="ti ti-lock"></i> Block Log</button>
+    <button class="nav-tab" onclick="eTab('e-bl',this)"><i class="ti ti-ban"></i> Blacklist</button>
+    <button class="nav-tab" onclick="eTab('e-cfg',this)"><i class="ti ti-settings"></i> Config</button>
+  </div>
+  <div class="content">
+    <div id="e-dash">
+      <div class="stat-row">
+        <div class="stat"><div class="stat-l">ลงทะเบียนทั้งหมด</div><div class="stat-v sv-t" id="e-s1">—</div></div>
+        <div class="stat"><div class="stat-l">Full Course รอ Approve</div><div class="stat-v sv-g" id="e-s2">—</div></div>
+        <div class="stat"><div class="stat-l">บัตรออกแล้ว</div><div class="stat-v sv-n" id="e-s3">—</div></div>
+        <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="e-s4">—</div></div>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> กิจกรรมล่าสุด <span class="sync-badge" style="margin-left:auto"><div class="sync-dot"></div> Real-time</span></div><div id="e-activity"></div></div>
+    </div>
+    <div id="e-sb-sec" style="display:none">
+      <div class="search-bar"><input placeholder="ค้นหา..." id="esb-q" oninput="renderEHSShort()"></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-bolt"></i> Short Brief (4A/4B)</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-sb-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-fc-sec" style="display:none">
+      <div class="alert alert-info"><i class="ti ti-info-circle"></i><span>EHS เท่านั้นที่อนุมัติและ Generate บัตร Full Course ได้</span></div>
+      <div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center"><span><i class="ti ti-certificate"></i> Full Course (4C/4D)</span><button class="btn-s" onclick="exportFCCSV()"><i class="ti ti-download"></i> Export CSV</button></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>วันอบรม</th><th>Type</th><th>ชื่อ / บริษัท</th><th>Register No.</th><th>ตำแหน่ง</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-fc-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-sbreg" style="display:none">
+      <div class="search-bar">
+        <input placeholder="ค้นหา..." id="sb-q" oninput="filterSB()">
+        <select id="sb-status" onchange="filterSB()"><option value="">ทุกสถานะ</option><option value="active">Active</option><option value="expired">หมดอายุ</option><option value="blocked">Blocked</option></select>
+        <button class="btn-s" onclick="exportSBCSV()"><i class="ti ti-download"></i> Export</button>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-l">Short Brief ทั้งหมด</div><div class="stat-v sv-t" id="sb-s1">—</div></div>
+        <div class="stat"><div class="stat-l">Active</div><div class="stat-v sv-n" id="sb-s2">—</div></div>
+        <div class="stat"><div class="stat-l">ใช้ครั้งที่ 2</div><div class="stat-v sv-g" id="sb-s3">—</div></div>
+        <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="sb-s4">—</div></div>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-id-badge"></i> ทะเบียน Short Brief</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>ครั้งที่</th><th>วันออกบัตร</th><th>หมดอายุ</th><th>สถานะบัตร</th><th>สถานะบุคคล</th><th>QR</th></tr></thead><tbody id="sb-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-db" style="display:none">
+      <div class="search-bar">
+        <input placeholder="ค้นหา..." id="db-q" oninput="filterDB()">
+        <select id="db-t" onchange="filterDB()"><option value="">ทุก Type</option><option>4C</option><option>4D</option></select>
+        <select id="db-v" onchange="filterDB()"><option value="">Safety Record ทั้งหมด</option><option value="none">✅ ปกติ</option><option value="1st">⚠ 1st Warning</option><option value="2nd">⚠ 2nd Warning</option><option value="blacklist">⛔ Blacklist</option></select>
+        <button class="btn-s" onclick="exportCSV()"><i class="ti ti-download"></i> Export CSV</button>
+      </div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-database"></i> ทะเบียนผู้รับเหมา NatureWorks (Full Course — อนุมัติแล้วเท่านั้น)</div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ</th><th>บริษัท</th><th>Type</th><th>วันที่</th><th>คะแนน</th><th>สถานะ</th><th>หมดอายุ</th><th>Safety Record</th><th>เอกสาร</th></tr></thead><tbody id="db-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="e-block" style="display:none">
+      <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><span>Short Brief สูงสุด 2 ครั้ง/ปี — EHS Admin เท่านั้นที่ปลด Block ได้</span></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-lock"></i> รายชื่อ Blocked</div><div id="block-list"></div></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> ประวัติปลด Block</div><div id="unblock-hist"></div></div>
+    </div>
+    <div id="e-bl" style="display:none">
+      <div class="alert alert-err"><i class="ti ti-ban"></i><span><b>ทะเบียน Blacklist</b> — ผู้รับเหมาที่กระทำผิดกฎ Safety ร้ายแรง ห้ามเข้าพื้นที่ / ห้ามลงทะเบียนใหม่ (แยกจาก Short Brief Block)</span></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-ban"></i> รายชื่อ Blacklist (Active)</div><div id="bl-list"></div></div>
+      <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> ประวัติปลด Blacklist</div><div id="bl-hist"></div></div>
+    </div>
+    <div id="e-cfg" style="display:none">
+      <div class="panel">
+        <div class="panel-title"><i class="ti ti-settings"></i> จัดการ Whitelist & PIN</div>
+        <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i><span>PIN และ Whitelist บันทึกใน Firebase — มีผลทุกเครื่องทันที</span></div>
+        <div style="font-size:12px;font-weight:500;color:var(--nw-navy);margin-bottom:6px">Guard PIN: <span id="cfg-gp" style="font-family:monospace;background:#f5f5f5;padding:2px 8px;border-radius:4px;border:.5px solid #ddd"></span></div>
+        <div style="font-size:12px;font-weight:500;color:var(--nw-navy);margin-bottom:14px">EHS PIN: <span id="cfg-ep" style="font-family:monospace;background:#f5f5f5;padding:2px 8px;border-radius:4px;border:.5px solid #ddd"></span></div>
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="fg2"><label>เปลี่ยน Guard PIN</label><input type="password" id="cfg-gpin" maxlength="6" placeholder="xxxxxx"></div>
+          <div class="fg2"><label>เปลี่ยน EHS PIN</label><input type="password" id="cfg-epin" maxlength="6" placeholder="xxxxxx"></div>
+        </div>
+        <button class="btn-p" onclick="savePIN()" style="margin-bottom:16px">บันทึก PIN → Firebase</button>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)"><i class="ti ti-calendar-off"></i> ปิดรับลงทะเบียน Full Course (เลือกวันจันทร์ที่มี Event)</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">วันจันทร์ที่ถูกปิดจะไม่แสดงให้ผู้รับเหมาเลือกในหน้าลงทะเบียน</div>
+        <div id="cm-list"></div>
+        <div class="form-grid" style="margin-top:8px;margin-bottom:14px">
+          <div class="fg2"><label>เลือกวันจันทร์ที่ต้องการปิด</label><input type="date" id="cm-date"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addClosedMonday()">🚫 ปิดวันนี้</button></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--nw-navy)">Guard Whitelist</div>
+        <div id="guard-list"></div>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="fg2"><label>เพิ่ม Email Guard</label><input type="email" id="add-ge" placeholder="name@natureworkspla.com"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addEmail('guard')">+ เพิ่ม</button></div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--nw-navy)">EHS Whitelist</div>
+        <div id="ehs-list"></div>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="fg2"><label>เพิ่ม Email EHS</label><input type="email" id="add-ee" placeholder="name@natureworkspla.com"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="addEmail('ehs')">+ เพิ่ม</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title-text" id="modal-title">เอกสาร</div>
+      <span style="cursor:pointer;color:#888;font-size:18px" onclick="closeModal()"><i class="ti ti-x"></i></span>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE + MAIN JS (after all HTML) -->
+<script>/* qrcode-generator (embedded — SVG, prints on any device) */
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+
+window.qrcode=qrcode;
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// ── FIREBASE ──
+const firebaseConfig={apiKey:"AIzaSyCKASP9RLRFgvdsM98cgbK3gJQiYQDqFC4",authDomain:"nw-contractor-training.firebaseapp.com",projectId:"nw-contractor-training",storageBucket:"nw-contractor-training.firebasestorage.app",messagingSenderId:"543139137624",appId:"1:543139137624:web:04b331bd7187046352222d"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+// ── CLOUDINARY ──
+const CLD_CLOUD="zjtygb1h",CLD_PRESET="nw_ctms_unsigned";
+async function uploadFile(file,folder="nw-ctms"){
+  const fd=new FormData();fd.append("file",file);fd.append("upload_preset",CLD_PRESET);fd.append("folder",folder);
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/auto/upload`,{method:"POST",body:fd});
+  if(!res.ok)throw new Error("Upload failed");
+  const d=await res.json();return{url:d.secure_url,name:file.name,type:file.type};
+}
+async function uploadBase64(b64,name,folder="nw-ctms/photos"){
+  const fd=new FormData();fd.append("file",b64);fd.append("upload_preset",CLD_PRESET);fd.append("folder",folder);fd.append("public_id",name);
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`,{method:"POST",body:fd});
+  if(!res.ok)throw new Error("Photo upload failed");
+  const d=await res.json();return d.secure_url;
+}
+
+// ── STATE ──
+function isoLocal(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+const TODAY=isoLocal(new Date());
+const _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function qrSVG(text){
+  try{
+    const qr=qrcode(0,"M");qr.addData(text);qr.make();
+    const n=qr.getModuleCount();
+    let rects="";
+    for(let r=0;r<n;r++)for(let c=0;c<n;c++){if(qr.isDark(r,c))rects+=`<rect x="${c}" y="${r}" width="1.02" height="1.02"/>`;}
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" width="100%" height="100%" style="display:block"><rect width="${n}" height="${n}" fill="#fff"/><g fill="#000">${rects}</g></svg>`;
+  }catch(e){return "";}
+}
+function copyTxt(t){
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>showToast(`📋 คัดลอกแล้ว: ${t}`)).catch(()=>{
+    const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();showToast(`📋 คัดลอกแล้ว: ${t}`);
+  });
+}
+function idnoCopy(idno){return idno?`<div class="td-sub" style="display:flex;align-items:center;gap:5px">${idno} <i class="ti ti-copy" onclick="event.stopPropagation();copyTxt('${idno}')" style="cursor:pointer;color:var(--nw-teal)" title="คัดลอกเลขบัตร"></i></div>`:"";}
+function fmtCard(ds){if(!ds)return"—";const d=new Date(ds+"T00:00:00");if(isNaN(d))return ds;return `${d.getFullYear()}-${_MN[d.getMonth()]}-${String(d.getDate()).padStart(2,"0")}`;}
+function eligibleMondays(n=8){
+  const out=[],now=new Date();
+  let d=new Date(now);d.setHours(0,0,0,0);
+  do{d.setDate(d.getDate()+1);}while(d.getDay()!==1);
+  let guard=0;
+  while(out.length<n&&guard<40){
+    const iso=isoLocal(d);
+    const cutoff=new Date(d);cutoff.setDate(cutoff.getDate()-3);cutoff.setHours(0,0,0,0); // Friday 00:00 = หลังพฤหัส 24:00
+    if(now<cutoff&&!(CFG.closedMondays||[]).includes(iso))out.push(iso);
+    d.setDate(d.getDate()+7);guard++;
+  }
+  return out;
+}
+function populateFCDates(){
+  const sel=document.getElementById("c-pdate-fc");if(!sel)return;
+  sel.innerHTML=`<option value="">-- เลือกวันจันทร์ / Select Monday --</option>`+eligibleMondays(8).map(x=>`<option value="${x}">${fmtCard(x)} (วันจันทร์)</option>`).join("");
+}
+let SESSION={role:null,email:null};
+let CFG={guardEmails:["guard1@natureworks.com"],ehsEmails:["kannikar.thaicharoen@natureworkspla.com"],guardPIN:"112233",ehsPIN:"998877",closedMondays:[]};
+let LOGIN_ROLE="",PIN_VAL="";
+let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null,C_DL_FILE=null,C_VI_FILE=null;
+// ── ลิงก์เนื้อหา Short Brief (แยกตามสัญชาติ) ──
+const LESSON_URLS={
+  thai:"https://drive.google.com/file/d/1w2-xW9L7pmNBAj7Y9ZDPjrHk3kHBTc0K/view?usp=sharing",      // ลิงก์ 1: คนไทย
+  foreign:"https://drive.google.com/file/d/1pfDu4oPwyN5U7LEKXXrvWZQSq-GHqFsw/view?usp=sharing"    // ลิงก์ 2: ต่างชาติ
+};
+const QUIZ_URLS={"4A":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4B":"https://forms.office.com/r/5K3fXqbpXe?origin=lprLink","4C":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink","4D":"https://forms.office.com/r/2txWB98XJ8?origin=lprLink"};
+let UPLOADED=[],PHOTO_DATA="";
+let _allRegs=[],_sbRows=[],UNSUB=null;
+let _blSet=new Set(),_blDocs=[],UNSUB_BL=null;
+
+// ── UTILS ──
+async function genId(p){
+  const yr=new Date().getFullYear();
+  const ref=db.collection("counters").doc(`${p}-${yr}`);
+  try{
+    const seq=await db.runTransaction(async t=>{
+      const s=await t.get(ref);
+      const next=(s.exists?(s.data().seq||0):0)+1;
+      t.set(ref,{seq:next,prefix:p,year:yr},{merge:true});
+      return next;
+    });
+    return `${p}-${yr}-${String(seq).padStart(4,"0")}`;
+  }catch(e){
+    // fallback กรณี transaction ล้มเหลว — ใช้ timestamp กันซ้ำ
+    return `${p}-${yr}-T${Date.now().toString().slice(-6)}`;
+  }
+}
+function fmtDate(d){if(!d)return"—";try{return new Date(d).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});}catch(e){return d;}}
+function cardExpiry(issued){const d=new Date(issued),m=d.getMonth()+1,y=d.getFullYear();return m>=1&&m<=6?`${y}-12-31`:`${y+1}-06-30`;}
+let _tt;function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(_tt);_tt=setTimeout(()=>t.style.display="none",3500);}
+
+// ── NAV ──
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
+function goHome(){if(UNSUB){UNSUB();UNSUB=null;}SESSION={role:null,email:null};showScreen("s-home");}
+function goContractor(){showScreen("s-contractor");}
+function doLogout(){goHome();}
+function closeModal(){document.getElementById("modal").style.display="none";document.getElementById("modal-body").innerHTML="";}
+function showModal(title,html){document.getElementById("modal-title").textContent=title;document.getElementById("modal-body").innerHTML=html;document.getElementById("modal").style.display="flex";}
+
+// ── CFG ──
+async function loadCFG(){try{const s=await db.collection("config").doc("ctms").get();if(s.exists)CFG={...CFG,...s.data()};}catch(e){}populateFCDates();}
+async function saveCFG(){try{await db.collection("config").doc("ctms").set(CFG);}catch(e){showToast("⚠ บันทึก Config ไม่สำเร็จ");}}
+
+// ── LOGIN ──
+function doShowLogin(role){
+  LOGIN_ROLE=role;PIN_VAL="";
+  document.getElementById("login-title").textContent=role==="guard"?"Guard / รปภ. Login":"EHS Admin Login";
+  document.getElementById("login-email").value="";
+  document.getElementById("email-err").textContent="";
+  document.getElementById("pin-err").textContent="";
+  document.getElementById("ls1").style.display="block";
+  document.getElementById("ls2").style.display="none";
+  showScreen("s-login");
+}
+async function doCheckEmail(){
+  const em=document.getElementById("login-email").value.trim().toLowerCase();
+  if(!em){document.getElementById("email-err").textContent="กรุณากรอก Email";return;}
+  const btn=document.querySelector("#ls1 .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ ตรวจสอบ...";}
+  try{
+    const snap=await db.collection("config").doc("ctms").get();
+    if(snap.exists){const d=snap.data();if(d.guardEmails)CFG.guardEmails=d.guardEmails;if(d.ehsEmails)CFG.ehsEmails=d.ehsEmails;if(d.guardPIN)CFG.guardPIN=d.guardPIN;if(d.ehsPIN)CFG.ehsPIN=d.ehsPIN;}
+  }catch(e){}
+  if(btn){btn.disabled=false;btn.textContent="ถัดไป / Next →";}
+  const list=(LOGIN_ROLE==="guard"?CFG.guardEmails:CFG.ehsEmails).map(e=>e.toLowerCase().trim());
+  if(!list.includes(em)){document.getElementById("email-err").textContent="Email นี้ไม่มีสิทธิ์เข้าถึงระบบ / Unauthorized";return;}
+  document.getElementById("email-err").textContent="";
+  document.getElementById("login-email-show").textContent=em;
+  document.getElementById("ls1").style.display="none";
+  document.getElementById("ls2").style.display="block";
+  updatePinDots();
+}
+function doBackToEmail(){PIN_VAL="";updatePinDots();document.getElementById("ls1").style.display="block";document.getElementById("ls2").style.display="none";}
+function doPinKey(k){if(PIN_VAL.length>=6)return;PIN_VAL+=k;updatePinDots();if(PIN_VAL.length===6)setTimeout(verifyPIN,300);}
+function doPinBack(){if(PIN_VAL.length>0){PIN_VAL=PIN_VAL.slice(0,-1);updatePinDots();document.getElementById("pin-err").textContent="";}}
+function doPinClear(){PIN_VAL="";updatePinDots();document.getElementById("pin-err").textContent="";}
+function updatePinDots(){for(let i=0;i<6;i++)document.getElementById("pd"+i).classList.toggle("filled",i<PIN_VAL.length);}
+function verifyPIN(){
+  const correct=LOGIN_ROLE==="guard"?CFG.guardPIN:CFG.ehsPIN;
+  if(PIN_VAL===correct){SESSION={role:LOGIN_ROLE,email:document.getElementById("login-email").value.trim().toLowerCase()};enterPortal();}
+  else{document.getElementById("pin-err").textContent="PIN ไม่ถูกต้อง / Incorrect PIN";PIN_VAL="";updatePinDots();}
+}
+function enterPortal(){
+  const init=SESSION.email.substring(0,2).toUpperCase();
+  if(SESSION.role==="guard"){
+    showScreen("s-guard");
+    document.getElementById("g-av").textContent=init;
+    document.getElementById("g-nm").textContent=SESSION.email;
+    startGuardListener();
+  }else{
+    showScreen("s-ehs");
+    document.getElementById("e-av").textContent=init;
+    document.getElementById("e-nm").textContent=SESSION.email;
+    startEHSListener();
+    renderCFG();
+  }
+}
+
+// ── DOC LISTS ──
+const DOCS={
+  "4A":{thai:["1. สำเนาบัตรประชาชน เซ็นรับรองสำเนาด้วยตนเอง / Copy of ID Card signed by yourself","5. ประกันสังคม ม.33 (หรือ ม.40/ประกันอุบัติเหตุ) / Social Security Sec.33","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport with valid VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4B":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport with valid VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","9. ผลตรวจสารเสพติด ภายใน 24 ชม. / Drug Test within 24 hrs"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4C":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate 4 diseases","7. เอกสารผ่านการอบรม Safety 6 ชม. / Safety Training 6 hrs Certificate","8. เอกสาร จป.หัวหน้างาน (ถ้ามี) / Safety Supervisor Cert","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP ลงนาม+ประทับตรา / NTRAP Regulation signed+sealed"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport+VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]},
+  "4D":{thai:["1. สำเนาบัตรประชาชน / Copy of ID Card","5. ประกันสังคม ม.33 / Social Security Sec.33","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","7. เอกสารผ่านการอบรม Safety 6 ชม. / Safety Training 6 hrs","8. เอกสาร จป.หัวหน้างาน (ถ้ามี) / Safety Supervisor Cert","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],foreign:["2. หนังสือเดินทาง+วีซ่า / Passport+VISA","3. ใบอนุญาตทำงาน / Work Permit","4. กรมธรรม์ประกันชีวิต / Life Insurance","6. ใบรับรองแพทย์ 4 รายการ / Medical Certificate","11. ประวัติอาชญากรรม / Criminal History","12. เอกสาร NTRAP / NTRAP Regulation signed+sealed"],driver:["13. ใบอนุญาตขับขี่ / Driver License","14. บันทึกตรวจสอบความปลอดภัยรถขนส่ง / Vehicle Safety Inspection Record"]}
+};
+
+function setNat(nat){C_NAT=nat;document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));document.getElementById("nat-"+nat).classList.add("sel");renderDocList();}
+function toggleDriver(){C_DRIVER=document.getElementById("c-driver").checked;renderDocList();}
+function renderDocList(){
+  if(!C_TYPE||!DOCS[C_TYPE])return;
+  const isDrv=C_DRIVER||C_POSITION==="driver";
+  const d=DOCS[C_TYPE],list=[...(d[C_NAT]||d.thai),...(isDrv?d.driver:[])];
+  document.getElementById("doc-list").innerHTML=`<div class="doc-box"><div class="doc-box-t"><i class="ti ti-checklist"></i> เอกสารที่ต้องเตรียม / Required Documents — ${C_TYPE}</div><ul>${list.map(x=>`<li><i class="ti ti-circle-check"></i>${x}</li>`).join("")}</ul>${isDrv?`<div style="margin-top:8px;padding:6px 10px;background:#FAEEDA;border-radius:5px;font-size:11px;color:#854F0B"><i class="ti ti-truck"></i> พนักงานขับรถ: ต้องแนบเอกสารข้อ 13 และ 14 เพิ่มเติม</div>`:""}</div>`;
+}
+
+function selectType(el,t){
+  document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));el.classList.add("sel");C_TYPE=t;
+  renderDocList();
+  const isFC=["4C","4D"].includes(t);
+  document.getElementById("position-row").style.display="block";
+  const posSel=document.getElementById("c-position");
+  posSel.innerHTML=`<option value="">-- เลือกตำแหน่ง --</option><option value="general">👷 ผู้รับเหมาทั่วไป / General Contractor</option><option value="safety">🦺 จป.หัวหน้างาน / Safety Supervisor</option><option value="firewatchman">🔥 Fire Watchman</option><option value="driver">🚚 พนักงานขับรถขนส่ง / Transport Driver</option><option value="support">🧰 Supporting Staff</option>`;
+  posSel.value="";C_POSITION="";C_CERT=null;C_DL_FILE=null;C_VI_FILE=null;
+  document.getElementById("cert-row").style.display="none";
+  document.getElementById("driver-row").style.display="none";
+  ["cert-file-list","dl-file-list","vi-file-list"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML="";});
+  document.getElementById("pdate-sb-row").style.display=isFC?"none":"block";
+  document.getElementById("pdate-fc-row").style.display=isFC?"block":"none";
+  const emRow=document.getElementById("email-row");if(emRow)emRow.style.display=t==="4D"?"block":"none";
+  if(isFC)populateFCDates();
+  const dEl=document.getElementById("c-pdate");if(dEl)dEl.min=TODAY;
+  document.getElementById("cert-row").style.display="none";
+  document.getElementById("c-position").value="";C_POSITION="";C_CERT=null;
+  // Show info panel (links appear AFTER submission for Short Brief)
+  const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
+  document.getElementById("type-content").innerHTML=isFC
+    ?`<div class="panel"><div class="panel-title"><i class="ti ti-clipboard-text"></i> แบบทดสอบ / Quiz</div><div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จในวันอบรม (คะแนนเต็ม ${MAX_SCORES[t]} คะแนน เกณฑ์ผ่าน 85%)<br><span style="color:#888">EHS will provide the quiz after the training session is completed.</span></span></div></div>`
+    :`<div class="panel"><div class="panel-title"><i class="ti ti-book"></i> เนื้อหาการอบรม & แบบทดสอบ</div><div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span><b>หลังจากกดส่งใบลงทะเบียนแล้ว</b> ระบบจะแสดงลิงก์สำหรับเรียนเนื้อหาและทำแบบทดสอบให้ทันที (คะแนนเต็ม ${MAX_SCORES[t]} คะแนน เกณฑ์ผ่าน 85%)<br><span style="color:#888">Lesson & quiz links will appear right after you submit this registration.</span></span></div></div>`;
+}
+
+function onPositionChange(){
+  C_POSITION=document.getElementById("c-position").value;
+  const needCert=["safety","firewatchman"].includes(C_POSITION);
+  document.getElementById("cert-row").style.display=needCert?"block":"none";
+  document.getElementById("driver-row").style.display=C_POSITION==="driver"?"block":"none";
+  if(needCert){
+    const txt=C_POSITION==="safety"?"จป.หัวหน้างาน: ต้องแนบใบประกาศนียบัตร จป.":"Fire Watchman: ต้องแนบใบประกาศนียบัตร";
+    document.getElementById("cert-alert-text").textContent=txt;
+  }else{C_CERT=null;document.getElementById("cert-file-list").innerHTML="";}
+  if(C_POSITION!=="driver"){C_DL_FILE=null;C_VI_FILE=null;const a=document.getElementById("dl-file-list"),b=document.getElementById("vi-file-list");if(a)a.innerHTML="";if(b)b.innerHTML="";}
+  renderDocList();
+}
+function handleDL(input){const f=input.files[0];if(!f)return;C_DL_FILE=f;document.getElementById("dl-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-license" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_DL_FILE=null;document.getElementById('dl-file-list').innerHTML='';document.getElementById('dl-in').value=''"></i></div>`;}
+function handleVI(input){const f=input.files[0];if(!f)return;C_VI_FILE=f;document.getElementById("vi-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-truck" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_VI_FILE=null;document.getElementById('vi-file-list').innerHTML='';document.getElementById('vi-in').value=''"></i></div>`;}
+function handleCert(input){const f=input.files[0];if(!f)return;C_CERT=f;document.getElementById("cert-file-list").innerHTML=`<div class="file-item" style="margin-top:6px"><i class="ti ti-certificate" style="color:#C5940A"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="C_CERT=null;document.getElementById('cert-file-list').innerHTML='';document.getElementById('cert-in').value=''"></i></div>`;}
+
+function handlePhoto(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    const img=new Image();img.onload=()=>{
+      const canvas=document.createElement("canvas");const MAX=300;let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);
+      let q=0.8,dataUrl=canvas.toDataURL("image/jpeg",q);
+      while(dataUrl.length>200000&&q>0.3){q-=0.1;dataUrl=canvas.toDataURL("image/jpeg",q);}
+      PHOTO_DATA=dataUrl;document.getElementById("photo-img").src=dataUrl;document.getElementById("photo-prev").style.display="block";
+    };img.src=e.target.result;
+  };r.readAsDataURL(f);
+}
+function handleDocs(input){Array.from(input.files).forEach(f=>{if(!UPLOADED.find(u=>u.name===f.name))UPLOADED.push(f);});renderFileList();}
+function renderFileList(){document.getElementById("file-list").innerHTML=UPLOADED.map((f,i)=>`<div class="file-item"><i class="ti ti-file" style="color:var(--nw-teal)"></i><span class="fi-name">${f.name}</span><i class="ti ti-x fi-rm" onclick="rmFile(${i})"></i></div>`).join("");}
+function rmFile(i){UPLOADED.splice(i,1);renderFileList();}
+
+async function submitReg(){
+  if(!C_TYPE){showToast("⚠ กรุณาเลือกประเภทการอบรม");return;}
+  const fn=document.getElementById("c-fn").value.trim(),ln=document.getElementById("c-ln").value.trim(),co=document.getElementById("c-co").value.trim(),idno=document.getElementById("c-id").value.trim(),job=document.getElementById("c-job").value.trim();
+  if(!fn||!ln||!co||!idno||!job){showToast("⚠ กรุณากรอกข้อมูลที่จำเป็น");return;}
+  const isFC=["4C","4D"].includes(C_TYPE);
+  const pdateVal=isFC?document.getElementById("c-pdate-fc").value:document.getElementById("c-pdate").value;
+  if(!pdateVal){showToast(isFC?"⚠ กรุณาเลือกวันจันทร์ที่ต้องการอบรม":"⚠ กรุณาเลือกวันที่ต้องการอบรม");return;}
+  if(!isFC&&pdateVal<TODAY){showToast("⚠ วันที่อบรมต้องไม่เป็นวันที่ผ่านมาแล้ว");return;}
+  if(isFC&&!eligibleMondays(8).includes(pdateVal)){showToast("⚠ วันจันทร์ที่เลือกปิดรับลงทะเบียนแล้ว กรุณาเลือกใหม่");populateFCDates();return;}
+  if(!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
+  const onlineEmail=(document.getElementById("c-email")||{value:""}).value.trim();
+  if(C_TYPE==="4D"&&(!onlineEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(onlineEmail))){showToast("⚠ กรุณากรอกอีเมลสำหรับรับลิงก์ Online Class ให้ถูกต้อง");return;}
+  if(["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
+  let dlNo="",dlType="",dlExp="";
+  if(C_POSITION==="driver"){
+    dlNo=(document.getElementById("c-dl-no")||{value:""}).value.trim();
+    dlType=(document.getElementById("c-dl-type")||{value:""}).value.trim();
+    dlExp=(document.getElementById("c-dl-exp")||{value:""}).value;
+    if(!dlNo||!dlType||!dlExp){showToast("⚠ กรุณากรอกข้อมูลใบขับขี่ให้ครบ (เลขที่/ประเภทรถ/วันหมดอายุ)");return;}
+    if(dlExp<TODAY){showToast("⚠ ใบขับขี่หมดอายุแล้ว ไม่สามารถลงทะเบียนได้");return;}
+    if(!C_DL_FILE){showToast("⚠ กรุณาแนบใบอนุญาตขับขี่");return;}
+    if(!C_VI_FILE){showToast("⚠ กรุณาแนบใบตรวจสภาพรถ");return;}
+  }
+  const btn=document.querySelector("#c-reg-form .btn-p");
+  if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
+  try{
+    // ── BLACKLIST CHECK ──
+    const blSnap=await db.collection("blacklist").where("idno","==",idno).where("active","==",true).get();
+    if(!blSnap.empty){
+      showModal("⛔ ไม่สามารถลงทะเบียนได้",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>ไม่สามารถลงทะเบียนได้เนื่องจากติด Blacklist</b><br>Registration denied — this ID is blacklisted.</span></div><div style="font-size:12px;color:#555">หมายเลขบัตร <b>${idno}</b> ถูกระงับสิทธิ์การเข้าพื้นที่ NatureWorks เนื่องจากการกระทำผิดกฎความปลอดภัย<br><br>กรุณาติดต่อทีม EHS / Please contact the EHS team.</div>`);
+      if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}
+      return;
+    }
+    // ── ตรวจประวัติต่อบุคคล (เลขบัตรประชาชน) ──
+    let sbUsed=0;
+    {
+      const allSnap=await db.collection("registrations").where("idno","==",idno).get();
+      const allNR=allSnap.docs.map(d=>d.data()).filter(r=>r.approvalStatus!=="rejected");
+      const yr=String(new Date().getFullYear());
+      const stopBtn=()=>{if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}};
+      const LOST_NOTE=`<br><br>📌 <b>กรณีบัตรหาย</b> กรุณาติดต่อแผนก EHS เพื่อขอออกบัตรใหม่ / If the card is lost, please contact EHS to reissue.`;
+      if(!isFC){
+        const sbAll=allNR.filter(r=>r.isShort);
+        // 1) มีรายการ Short Brief ค้างที่ยังไม่ออกบัตร
+        const dup=sbAll.find(r=>!r.cardIssued);
+        if(dup){
+          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอทำแบบทดสอบ / รอตรวจ / รอออกบัตร<br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+          stopBtn();return;
+        }
+        // 2) มีบัตร Short Brief ที่ยังไม่หมดอายุ
+        const act=sbAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY&&r.status!=="blocked");
+        if(act){
+          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Short Brief ที่ยังไม่หมดอายุ</b><br>An active Short Brief card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${act.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(act.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
+          stopBtn();return;
+        }
+        // 3) โควตา 2 ครั้ง/ปี
+        const sbYear=sbAll.filter(r=>String(r.created||"").startsWith(yr));
+        sbUsed=sbYear.reduce((m,r)=>Math.max(m,r.cardIssued?Math.max(r.shortBriefCount||0,1):(r.shortBriefCount||0)),0);
+        if(sbUsed>=2){
+          showModal("⛔ ครบโควตา Short Brief",`<div class="alert alert-err" style="margin-bottom:10px"><i class="ti ti-ban"></i><span><b>เลขบัตรประชาชนนี้ใช้ Short Brief ครบ 2 ครั้งในปีนี้แล้ว</b><br>Short Brief quota (2/year) has been used up.</span></div><div style="font-size:12px;color:#555">ไม่สามารถลงทะเบียน Short Brief ได้อีก — กรุณาลงทะเบียน <b>อบรม Full Course (4C/4D)</b> แทนค่ะ<br><br>หากมีข้อสงสัย กรุณาติดต่อทีม EHS</div>`);
+          stopBtn();return;
+        }
+      }else{
+        const sbPend=allNR.find(r=>r.isShort&&!r.cardIssued);
+        const fcAll=allNR.filter(r=>!r.isShort);
+        // 1) มี Short Brief ค้างที่ยังไม่ออกบัตร → ห้ามลง Full Course
+        if(sbPend){
+          showModal("⚠ มี Short Brief ค้างอยู่",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ที่ยังไม่เสร็จสิ้น</b><br>A pending Short Brief registration exists for this ID.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${sbPend.id}</b><br><br>ต้องดำเนินการ Short Brief ให้เสร็จ (ออกบัตรแล้ว) ก่อน จึงจะลงทะเบียน Full Course ได้ค่ะ<br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ"</div>`);
+          stopBtn();return;
+        }
+        // 2) มี Full Course ค้าง → ห้ามลงซ้ำ
+        const fcDup=fcAll.find(r=>!r.cardIssued);
+        if(fcDup){
+          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Full Course ค้างอยู่แล้ว</b><br>This ID already has a pending Full Course registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${fcDup.id}</b><br>วันอบรม: <b>${fmtCard(fcDup.pdate)}</b><br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+          stopBtn();return;
+        }
+        // 3) มีบัตร Full Course ที่ยังไม่หมดอายุ
+        const fcAct=fcAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY);
+        if(fcAct){
+          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Full Course ที่ยังไม่หมดอายุ</b><br>An active Full Course card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${fcAct.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(fcAct.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
+          stopBtn();return;
+        }
+      }
+    }
+    const regId=await genId("NBC-REG");
+    let photoUrl="";
+    if(PHOTO_DATA){try{photoUrl=await uploadBase64(PHOTO_DATA,regId+"_photo","nw-ctms/photos");}catch(e){showToast("⚠ รูปถ่ายอัปโหลดไม่สำเร็จ");}}
+    const docResults=[];
+    for(const f of UPLOADED){try{docResults.push(await uploadFile(f,"nw-ctms/docs"));}catch(e){docResults.push({url:"",name:f.name});}}
+    let certUrl="",dlUrl="",viUrl="";
+    if(C_CERT){try{const cr=await uploadFile(C_CERT,"nw-ctms/certs");certUrl=cr.url;}catch(e){}}
+    if(C_DL_FILE){try{const dr=await uploadFile(C_DL_FILE,"nw-ctms/certs");dlUrl=dr.url;}catch(e){}}
+    if(C_VI_FILE){try{const vr=await uploadFile(C_VI_FILE,"nw-ctms/certs");viUrl=vr.url;}catch(e){}}
+    const posLabels={general:"ผู้รับเหมาทั่วไป / General Contractor",safety:"จป.หัวหน้างาน / Safety Supervisor",firewatchman:"Fire Watchman",driver:"พนักงานขับรถขนส่ง / Transport Driver",support:"Supporting Staff"};
+    const posColors={general:"#1F497D",safety:"#2E7D32",firewatchman:"#C2185B",driver:"#E0AC00",support:"#1F4E9C"};
+    const MAX_SCORES={"4A":30,"4B":30,"4C":50,"4D":50};
+    const data={
+      id:regId,fn,ln,co,nw:document.getElementById("c-nw").value.trim(),idno,phone:document.getElementById("c-phone").value.trim(),
+      job,type:C_TYPE,isShort:["4A","4B"].includes(C_TYPE),
+      pdate:pdateVal,
+      quizSubmissionId:(document.getElementById("c-quiz")||{value:""}).value.trim(),
+      quizScore:null,quizPct:null,quizPass:null,quizScoreMax:MAX_SCORES[C_TYPE],
+      docs:docResults.map(d=>({name:d.name,url:d.url||""})),
+      photo:photoUrl,nationality:C_NAT,isDriver:C_DRIVER,onlineEmail:C_TYPE==="4D"?onlineEmail:null,
+      dlNo:dlNo||null,dlVehicleType:dlType||null,dlExpiry:dlExp||null,dlUrl:dlUrl||null,viUrl:viUrl||null,
+      position:C_POSITION||"general",positionLabel:posLabels[C_POSITION||"general"]||"พนักงานทั่วไป",
+      cardColor:posColors[C_POSITION||"general"]||"#1F497D",certUrl,
+      status:"pending",approvalStatus:null,cardIssued:false,cardIssuedDate:null,cardExpiry:null,cardId:null,
+      violation:null,violationDate:null,violationBy:null,
+      shortBriefCount:sbUsed,created:TODAY,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await db.collection("registrations").doc(regId).set(data);
+    document.getElementById("reg-ref").textContent=regId;
+    const okEl=document.getElementById("ok-links");
+    if(okEl){
+      if(data.isShort){
+        const natTH=C_NAT==="thai";
+        okEl.innerHTML=`<div class="panel" style="text-align:left;max-width:430px;margin:0 auto 18px">
+          <div class="panel-title"><i class="ti ti-book"></i> ขั้นตอนต่อไป — ต้องทำให้เสร็จ / Next Steps</div>
+          <div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span><b>อย่าเพิ่งปิดหน้านี้!</b> กรุณาเรียนเนื้อหาและทำแบบทดสอบให้เสร็จ มิฉะนั้นการลงทะเบียนจะไม่สมบูรณ์<br><span style="color:#888">Don't close this page — complete the lesson and quiz below.</span></span></div>
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)">ขั้นตอนที่ 1: เรียนเนื้อหา / Step 1: Study the lesson ${natTH?"(ภาษาไทย)":"(English)"}</div>
+          <a href="${natTH?LESSON_URLS.thai:LESSON_URLS.foreign}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px"><i class="ti ti-brand-google-drive"></i> เปิดเนื้อหา / Open Lesson</a>
+          <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)">ขั้นตอนที่ 2: ทำแบบทดสอบ / Step 2: Take the quiz (ผ่าน 85%)</div>
+          <a href="${QUIZ_URLS[C_TYPE]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:12px"><i class="ti ti-clipboard-text"></i> ทำแบบทดสอบ / Take Quiz</a>
+          <div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>ทำแบบทดสอบเสร็จแล้ว EHS จะตรวจคะแนนและอนุมัติ — ติดตามผลได้ที่เมนู "ตรวจสอบสถานะ" ด้วยหมายเลขอ้างอิง <b>${regId}</b></span></div>
+        </div>`;
+      }else{
+        const is4D=data.type==="4D";
+        okEl.innerHTML=is4D
+          ?`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-mail"></i><span>อบรมออนไลน์ Full Course (4D) วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — แผนกความปลอดภัย (EHS) จะส่งลิงก์เข้าอบรมไปที่อีเมล <b>${data.onlineEmail||"-"}</b> ก่อนถึงวันอบรม กรุณาตรวจสอบกล่องจดหมายของท่าน<br><span style="color:#888">Online Full Course (4D) on the selected Monday — EHS will send the class link to <b>${data.onlineEmail||"-"}</b> before the training date. Please check your inbox.</span></span></div>`
+          :`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-calendar-event"></i><span>มาอบรม Full Course วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จค่ะ<br><span style="color:#888">Attend the training on the selected Monday. EHS will provide the quiz after the session.</span></span></div>`;
+      }
+    }
+    document.getElementById("c-reg-form").style.display="none";
+    document.getElementById("c-reg-ok").style.display="block";
+  }catch(e){showToast("⚠ บันทึกไม่สำเร็จ: "+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent="ส่งใบลงทะเบียน / Submit";}}
+}
+
+function resetC(){
+  ["c-fn","c-ln","c-co","c-nw","c-id","c-phone","c-job","c-pdate"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  UPLOADED=[];PHOTO_DATA="";C_TYPE="";C_NAT="thai";C_DRIVER=false;C_POSITION="";C_CERT=null;C_DL_FILE=null;C_VI_FILE=null;
+  ["c-dl-no","c-dl-type","c-dl-exp"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["dl-file-list","vi-file-list"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML="";});
+  const drR=document.getElementById("driver-row");if(drR)drR.style.display="none";
+  document.getElementById("file-list").innerHTML="";
+  const pp=document.getElementById("photo-prev");if(pp)pp.style.display="none";
+  document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("sel"));
+  document.querySelectorAll(".nat-btn").forEach(b=>b.classList.remove("sel"));
+  document.getElementById("nat-thai").classList.add("sel");
+  const okEl=document.getElementById("ok-links");if(okEl)okEl.innerHTML="";
+  const emR=document.getElementById("email-row");if(emR)emR.style.display="none";
+  const emI=document.getElementById("c-email");if(emI)emI.value="";
+  const cd=document.getElementById("c-driver");if(cd)cd.checked=false;
+  document.getElementById("doc-list").innerHTML="";
+  document.getElementById("type-content").innerHTML="";
+  document.getElementById("position-row").style.display="none";
+  document.getElementById("cert-row").style.display="none";
+  const fcSel=document.getElementById("c-pdate-fc");if(fcSel)fcSel.value="";
+  document.getElementById("pdate-sb-row").style.display="block";
+  document.getElementById("pdate-fc-row").style.display="none";
+  document.getElementById("c-reg-form").style.display="block";
+  document.getElementById("c-reg-ok").style.display="none";
+}
+function cTab(id,btn){["c-reg","c-status"].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display="none";});document.querySelectorAll("#s-contractor .nav-tab").forEach(t=>t.classList.remove("active"));document.getElementById(id).style.display="block";btn.classList.add("active");}
+
+function refPrefix(){return `NBC-REG-${new Date().getFullYear()}-`;}
+function addRefRow(){
+  const box=document.getElementById("ref-rows");if(!box)return;
+  if(box.children.length>=10){showToast("⚠ ค้นได้สูงสุดครั้งละ 10 หมายเลข");return;}
+  const row=document.createElement("div");
+  row.style.cssText="display:flex;align-items:center;gap:6px";
+  row.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--nw-navy);background:#EFF6FB;border:1px solid #CBE4F1;border-radius:6px;padding:7px 10px;white-space:nowrap">${refPrefix()}</span><input class="ref-4" maxlength="4" inputmode="numeric" placeholder="0001" style="width:76px;text-align:center;letter-spacing:2px" oninput="this.value=this.value.replace(/\\D/g,'')"><i class="ti ti-x" style="cursor:pointer;color:#bbb" onclick="if(document.getElementById('ref-rows').children.length>1)this.parentElement.remove()"></i>`;
+  box.appendChild(row);
+}
+function statusCard(r,label){
+  if(!r)return `<div class="alert alert-err" style="margin-bottom:8px"><i class="ti ti-x"></i>${label} — ไม่พบข้อมูล</div>`;
+  const qb=r.quizPass===true?`<span class="badge b-pass">Pass ✓</span>`:r.quizPass===false?`<span class="badge b-fail">Fail ✗</span>`:`<span class="badge b-pending">รอผล</span>`;
+  const sb=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติแล้ว</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอตรวจสอบ</span>`;
+  return `<div class="panel" style="margin:0 0 10px"><div style="font-size:11px;color:#888;margin-bottom:6px">${label}</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span>${r.pdate&&!r.isShort?` &nbsp;<b>วันอบรม:</b> ${fmtCard(r.pdate)}`:""}</div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${r.approvalStatus==="rejected"?`<div class="alert alert-err" style="margin:0"><i class="ti ti-x"></i><span><b>เหตุผลที่ปฏิเสธ:</b> ${r.rejectReason||"ไม่ระบุ"}<br><span style="color:#888;font-size:11px">กรุณาแก้ไขตามเหตุผลข้างต้นและลงทะเบียนใหม่ หรือติดต่อทีม EHS หากมีข้อสงสัย</span></span></div>`:""}${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${fmtCard(r.cardExpiry)}</div>`:""}</div></div>`;
+}
+async function checkStatus(){
+  const el=document.getElementById("s-result");
+  const nums=[...new Set([...document.querySelectorAll(".ref-4")].map(i=>i.value.trim()).filter(v=>v))].slice(0,10);
+  const idq=document.getElementById("s-search").value.trim();
+  if(!nums.length&&!idq){showToast("⚠ กรุณากรอกหมายเลขอ้างอิง หรือเลขบัตรประชาชน");return;}
+  el.innerHTML=`<div class="alert alert-info"><i class="ti ti-loader"></i> กำลังค้นหา...</div>`;
+  try{
+    let out="";
+    for(const n of nums){
+      const ref=refPrefix()+n.padStart(4,"0");
+      const snap=await db.collection("registrations").doc(ref).get();
+      out+=statusCard(snap.exists?snap.data():null,ref);
+    }
+    if(idq){
+      const qs=await db.collection("registrations").where("idno","==",idq).get();
+      if(qs.empty)out+=statusCard(null,`เลขบัตร ${idq}`);
+      else qs.docs.forEach(d=>{const r=d.data();out+=statusCard(r,r.id||d.id);});
+    }
+    el.innerHTML=out||`<div class="alert alert-err"><i class="ti ti-x"></i>ไม่พบข้อมูล</div>`;
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>${e.message}</div>`;}
+}
+
+// ── BLACKLIST LISTENER ──
+function startBLListener(){
+  if(UNSUB_BL)UNSUB_BL();
+  UNSUB_BL=db.collection("blacklist").onSnapshot(s=>{
+    _blDocs=s.docs.map(d=>({docId:d.id,...d.data()}));
+    _blSet=new Set(_blDocs.filter(x=>x.active).map(x=>x.idno));
+    if(SESSION.role==="ehs"){renderDB();renderEHSShort();renderEHSFull();loadBlacklistTab();}
+    if(SESSION.role==="guard")renderGuardView();
+  },err=>{});
+}
+
+// ── GUARD LISTENER ──
+function startGuardListener(){
+  if(UNSUB)UNSUB();
+  startBLListener();
+  UNSUB=db.collection("registrations").orderBy("createdAt","desc").onSnapshot(snap=>{_allRegs=snap.docs.map(d=>d.data());renderGuardView();},err=>showToast("⚠ "+err.message));
+}
+
+function renderGuardView(){
+  const all=_allRegs,shorts=all.filter(r=>r.isShort);
+  const q=(document.getElementById("g-q")||{value:""}).value.toLowerCase();
+  const fc=(document.getElementById("g-fc")||{value:""}).value;
+  document.getElementById("g-s1").textContent=shorts.filter(r=>!r.approvalStatus).length;
+  document.getElementById("g-s2").textContent=shorts.filter(r=>r.cardIssuedDate===TODAY).length;
+  document.getElementById("g-s3").textContent=all.filter(r=>r.status==="blocked").length;
+  const cos=[...new Set(shorts.map(r=>r.co))];
+  const sel=document.getElementById("g-fc"),cur=sel.value;
+  sel.innerHTML=`<option value="">ทุกบริษัท</option>`+cos.map(c=>`<option${c===cur?" selected":""}>${c}</option>`).join("");
+  const filt=r=>(r.fn+r.ln+r.co).toLowerCase().includes(q)&&(!fc||r.co===fc);
+  const pending=shorts.filter(r=>!r.approvalStatus&&filt(r));
+  document.getElementById("g-pending-tbody").innerHTML=pending.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอผล</span>`;
+    const docs=(r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`)+(!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:"");
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+      <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
+      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST — ปฏิเสธเท่านั้น</span> `:(!r.photo||!(r.docs&&r.docs.length))?`<span class="badge b-fail">เอกสารไม่ครบ — ปฏิเสธเท่านั้น</span> `:`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓ อนุมัติ</button>`}<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
+  }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+  const ready=shorts.filter(r=>r.approvalStatus==="approved"&&!r.cardIssued&&filt(r));
+  document.getElementById("g-ready-tbody").innerHTML=ready.map(r=>`<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><span class="badge ${(r.shortBriefCount||0)>=1?"b-pending":"b-active"}">${(r.shortBriefCount||0)+1}/2</span></td><td><span class="badge b-approved">รอออกบัตร</span></td><td><button class="btn-approve" onclick="issueShortCard('${r.id}')"><i class="ti ti-id-badge"></i> ออกบัตรแล้ว</button></td></tr>`).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+  const issued=shorts.filter(r=>r.cardIssued);
+  document.getElementById("g-issued-tbody").innerHTML=issued.map(r=>{const exp=r.cardExpiry&&r.cardExpiry<TODAY;return`<tr><td class="td-name">${r.fn} ${r.ln}</td><td class="td-sub">${r.co}</td><td style="font-size:11px">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${exp?`<span class="badge b-expired">หมดอายุ</span>`:`<span class="badge b-active">Active</span>`}</td></tr>`;}).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ยังไม่มีประวัติ</td></tr>`;
+}
+
+async function setScore(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const max=r.isShort?30:50;
+  const raw=prompt(`กรอกคะแนนที่ได้ (เต็ม ${max} คะแนน):`);
+  if(raw===null)return;
+  const sc=parseFloat(raw);if(isNaN(sc)||sc<0||sc>max){showToast(`⚠ กรอก 0-${max}`);return;}
+  const pct=Math.round((sc/max)*100),pass=pct>=85;
+  try{await db.collection("registrations").doc(regId).update({quizScore:sc,quizScoreMax:max,quizPct:pct,quizPass:pass});showToast(`✅ ${sc}/${max} = ${pct}% — ${pass?"Pass ✓":"Fail ✗"}`);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+async function guardApprove(regId){
+  const r=_allRegs.find(x=>x.id===regId);
+  if(r&&(!r.photo||!(r.docs&&r.docs.length))){showToast("⛔ ไม่มีรูปถ่าย/เอกสารแนบ — อนุมัติไม่ได้ กดปฏิเสธเท่านั้น");return;}
+  try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY});showToast("✅ อนุมัติแล้ว");}catch(e){showToast("⚠ "+e.message);}}
+async function guardReject(regId){const reason=prompt("ระบุเหตุผล:");if(reason===null)return;try{await db.collection("registrations").doc(regId).update({approvalStatus:"rejected",rejectedBy:SESSION.email,rejectReason:reason});showToast("🚫 ปฏิเสธแล้ว");}catch(e){showToast("⚠ "+e.message);}}
+async function issueShortCard(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  if(!r.photo||!(r.docs&&r.docs.length)){showToast("⛔ ไม่มีรูปถ่าย/เอกสารแนบ — ออกบัตรไม่ได้");return;}
+  const cnt=(r.shortBriefCount||0)+1;
+  const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=isoLocal(exp);
+  const cardId=await genId("NBC-SB");
+  try{
+    await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,cardId,shortBriefCount:cnt,status:cnt>=2?"blocked":"active",issuedBy:SESSION.email});
+    if(cnt>=2){await db.collection("blockLog").add({regId,idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,reason:"Short Brief ครบ 2 ครั้ง/ปี",date:TODAY,active:true});showToast(`⚠ ${r.fn} ${r.ln} ถูก Block — Short Brief ครบ 2 ครั้ง/ปี`);}
+    else{showToast(`✅ ออกบัตรแล้ว — หมดอายุ ${fmtCard(expiry)}`);}
+    printSBQR(regId,cardId);
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── VIEW DOCS ──
+function viewDocs(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const photoHTML=r.photo?`<div style="text-align:center;margin-bottom:16px"><img src="${r.photo}" style="width:120px;height:120px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal);cursor:pointer" onclick="window.open('${r.photo}','_blank')"><div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย (คลิกขยาย)</div></div>`:`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block;margin-bottom:4px"></i>ไม่มีรูปถ่าย</div>`;
+  const docs=r.docs||[];
+  const docsHTML=docs.length?docs.map((d,i)=>{const name=typeof d==="string"?d:d.name;const url=typeof d==="object"&&d.url?d.url:null;const icon=name.toLowerCase().endsWith(".pdf")?"ti-file-type-pdf":"ti-photo";const dot=name.lastIndexOf(".");const dlName=`Attachment${docs.length>1?i+1:""}_${r.fn} ${r.ln}${dot>0?name.slice(dot):""}`;return`<div class="file-item" style="justify-content:space-between"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:var(--nw-teal)"></i><span class="fi-name">${name}</span></div>${url?`<div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${dlName}')"><i class="ti ti-download"></i> โหลด</button></div>`:`<span style="font-size:10px;color:#aaa">ไม่มีไฟล์</span>`}</div>`;}).join(""):`<div style="color:#888;font-size:12px">ไม่มีเอกสารแนบ</div>`;
+  let certHTML="";
+  if(r.position==="driver"){
+    const box=(url,name,icon)=>url?`<div class="file-item" style="justify-content:space-between;margin-bottom:8px;border:1px solid #EED9A0;background:#FFFBEF"><div style="display:flex;align-items:center;gap:7px"><i class="ti ${icon}" style="color:#C5940A"></i><span class="fi-name">${name}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${url}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${url}','${name}_${r.fn} ${r.ln}${url.toLowerCase().includes(".pdf")?".pdf":".jpg"}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:8px"><i class="ti ti-alert-triangle"></i><span>ไม่พบ${name}ในระบบ</span></div>`;
+    const dlExpired=r.dlExpiry&&r.dlExpiry<TODAY;
+    certHTML=`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:#C5940A"><i class="ti ti-truck"></i> ข้อมูลพนักงานขับรถขนส่ง:</div>
+      <div style="font-size:12px;background:#FFFBEF;border:1px solid #EED9A0;border-radius:8px;padding:10px;margin-bottom:10px;display:grid;gap:5px">
+        <div><b>เลขที่ใบขับขี่:</b> ${r.dlNo||"—"}</div>
+        <div><b>ประเภทรถที่ได้รับอนุญาต:</b> ${r.dlVehicleType||"—"}</div>
+        <div><b>ใบขับขี่หมดอายุ:</b> ${fmtCard(r.dlExpiry)} ${dlExpired?'<span class="badge b-fail">หมดอายุแล้ว!</span>':""}</div>
+      </div>
+      ${box(r.dlUrl,"ใบอนุญาตขับขี่","ti-license")}
+      ${box(r.viUrl,"ใบตรวจสภาพรถ","ti-truck")}
+      <div style="margin-bottom:12px"></div>`;
+  }
+  if(["safety","firewatchman"].includes(r.position)){
+    const certName=`${r.position==="safety"?"Safety Certificate":"Watchman Certificate"}_${r.fn} ${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
+    certHTML=r.certUrl?`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-gold)"><i class="ti ti-certificate"></i> ใบ Certificate (${r.positionLabel||""}):</div><div class="file-item" style="justify-content:space-between;margin-bottom:12px;border:1px solid #E8D9B0;background:#FFFDF5"><div style="display:flex;align-items:center;gap:7px"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span class="fi-name">${certName}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${r.certUrl}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${r.certUrl}','${certName}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span>ตำแหน่ง ${r.positionLabel||""} — ไม่พบใบ Certificate ในระบบ</span></div>`;
+  }
+  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"ผู้รับเหมาทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div><div><b>Safety Record:</b> ${_blSet.has(r.idno)?"⛔ Blacklist":r.violation==="1st"?"⚠ 1st Warning":r.violation==="2nd"?"⚠ 2nd Warning":"✅ ปกติ"}${r.violationReason?` — <span style="color:#A32D2D">${r.violationReason}</span>`:""}</div></div>`);
+}
+async function dlFile(url,filename){try{showToast("⏳ กำลัง Download...");const res=await fetch(url);const blob=await res.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);showToast("✅ Download สำเร็จ");}catch(e){window.open(url,"_blank");}}
+
+// ── PRINT CARD ──
+function printCard(regId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  // แถบสีตามตำแหน่ง: ทั่วไป=ขาว, จป.หัวหน้างาน=เขียว, Fire Watchman=ชมพู
+  // แถบสี: ทั่วไป=ขาว, จป.หัวหน้างาน=เขียว, Fire Watchman=ชมพู, พนักงานขับรถขนส่ง=เหลือง
+  const band={general:{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"},safety:{bg:"#2E7D32",color:"#FFFFFF",border:"#2E7D32"},firewatchman:{bg:"#E85D9E",color:"#FFFFFF",border:"#E85D9E"},driver:{bg:"#F5C518",color:"#5B4400",border:"#DFAE00"},support:{bg:"#1F4E9C",color:"#FFFFFF",border:"#1F4E9C"}}[r.position||"general"]||{bg:"#FFFFFF",color:"#1F497D",border:"#B7D6E8"};
+  const photoHTML=r.photo?`<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover">`:`<div style="font-size:10mm;font-weight:600;color:#7FB3D3;display:flex;align-items:center;justify-content:center;height:100%">${(r.fn||"").charAt(0)}${(r.ln||"").charAt(0)}</div>`;
+  const LOGO="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png";
+  // รหัสตำแหน่งใน QR สำหรับระบบ Gate Pass Control (GPC): DRV = พนักงานขับรถขนส่ง
+  const POS_CODE={general:"GEN",safety:"SAF",firewatchman:"FWM",driver:"DRV",support:"SUP"};
+  const qrData=`NBC|${r.cardId||r.id}|${r.idno||""}|${POS_CODE[r.position||"general"]||"GEN"}`;
+  const qrImg=qrSVG(qrData);
+  const w=window.open("","_blank","width=520,height=760");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:A5;margin:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Arial,sans-serif;margin:0;background:#fff}
+.wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:8mm 0}
+.sheet-center{margin:0 auto}
+.hint{background:#FFF8E1;border-bottom:1px solid #E8D9A0;color:#7A5C00;font-size:12px;padding:8px 14px;text-align:center}
+@media print{.hint{display:none}.wrap{display:block;padding:58mm 0 0;min-height:0}.sheet{margin:0 auto}}
+.sheet{width:110mm;height:85mm;display:flex;flex-direction:row;position:relative;outline:.2mm dashed #999}
+.fold{position:absolute;left:55mm;top:-4mm;bottom:-4mm;border-left:.2mm dashed #999;z-index:5}
+.fold::after{content:"✂ พับ / fold";position:absolute;top:-3.6mm;left:1mm;font-size:2.2mm;color:#999;white-space:nowrap}
+.card{width:55mm;height:85mm;background:linear-gradient(165deg,#F2FAFD 0%,#D9EEF8 45%,#BFE2F2 100%);color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm}
+.cardback{width:55mm;height:85mm;background:#fff;color:#1F497D;position:relative;overflow:hidden;display:flex;flex-direction:column;border:.3mm solid #A9D3E8;border-radius:2.5mm;padding:2.5mm 3mm}
+.wb-title{font-size:2.9mm;font-weight:700;color:#185FA5;text-align:center;line-height:1.35;padding-bottom:1.8mm;border-bottom:.2mm solid #A9D3E8}
+.wb-body{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:1mm 0}
+.wb-row{display:flex;align-items:center;gap:2.2mm}
+.wb-dot{width:7mm;height:7mm;border-radius:50%;flex-shrink:0;border:.25mm solid rgba(0,0,0,.15)}
+.wb-txt{font-size:2.7mm;line-height:1.4;flex:1}
+.wb-txt b{color:#C5940A}
+.wb-line{border-bottom:.3mm dotted #E0A400;height:4mm;margin-top:1mm}
+.wb-sign{border-top:.2mm solid #A9D3E8;padding-top:2mm}
+.wb-sign .lbl{font-size:2.2mm;color:#185FA5;line-height:1.4;margin-bottom:1.6mm}
+.sig-row{display:flex;align-items:flex-end;gap:1.5mm;font-size:2.4mm;margin-bottom:2mm;font-weight:600;color:#1F497D}
+.sig-row .dots{flex:1;border-bottom:.3mm dotted #888;height:4mm}
+.bg1{position:absolute;width:62mm;height:62mm;border-radius:50%;background:rgba(0,181,168,.06);bottom:-22mm;right:-16mm}
+.card-top{padding:2.5mm 3.5mm 1mm;display:flex;justify-content:space-between;align-items:center;gap:1.5mm;position:relative;z-index:1}
+.logo{height:4.5mm;max-width:28mm;object-fit:contain}
+.pill{font-size:1.9mm;background:#1F497D;color:#fff;padding:.7mm 2mm;border-radius:5mm;letter-spacing:.04em;white-space:nowrap;flex-shrink:0}
+.photo-wrap{display:flex;justify-content:center;margin:.8mm 0 1mm;position:relative;z-index:1}
+.photo{width:27mm;height:27mm;border-radius:2mm;background:#E4F2F9;overflow:hidden;border:.8mm solid #fff;box-shadow:0 .5mm 1.5mm rgba(31,73,125,.15)}
+.info{padding:0 3.5mm;position:relative;z-index:1}
+.name{font-size:3.8mm;font-weight:700;text-align:center;margin-bottom:.8mm;line-height:1.2;color:#123A66}
+.company{font-size:2.2mm;color:#4A7396;text-align:center;margin-bottom:1.4mm}
+.pos-badge{background:${band.bg};color:${band.color};border:.35mm solid ${band.border};border-radius:1.2mm;padding:1.2mm 2mm;text-align:center;font-size:2.2mm;font-weight:700;margin-bottom:1.4mm;letter-spacing:.02em}
+.divline{height:.2mm;background:#A9D3E8;margin:0 3.5mm 1.4mm}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:1.3mm;padding:0 3.5mm;position:relative;z-index:1}
+.field{background:rgba(255,255,255,.75);border:.2mm solid #CBE4F1;border-radius:1mm;padding:.9mm 1.4mm}
+.field-full{grid-column:1/-1}
+.fl{font-size:1.8mm;color:#6E93AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3mm}
+.fv{font-size:2.4mm;font-weight:600;color:#1F497D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-bottom{padding:1.2mm 3.5mm 1.6mm;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;margin-top:auto}
+.issuer{font-size:1.6mm;color:#6E93AF;line-height:1.5}
+.qr-box{background:#fff;border:.2mm solid #CBE4F1;border-radius:1mm;padding:.5mm;width:14mm;height:14mm;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.qr-box>div{width:100%;height:100%;display:flex}
+.qr-box svg{width:100%;height:100%;display:block}
+</style></head><body>
+<div class="hint">🖨 ตั้งค่าพิมพ์: กระดาษ <b>A5</b> | Scale = <b>100% / Actual size</b> (ห้ามใช้ Fit to page) | ขนาดบัตรหลังพับ = 55×85 มม.</div>
+<div class="wrap">
+  <div class="sheet"><div class="fold"></div>
+  <div class="card"><div class="bg1"></div>
+    <div class="card-top"><img src="${LOGO}" class="logo" alt="NW"><div class="pill">CONTRACTOR</div></div>
+    <div class="photo-wrap"><div class="photo">${photoHTML}</div></div>
+    <div class="info">
+      <div class="name">${r.fn} ${r.ln}</div>
+      <div class="company">${r.co}</div>
+      <div class="pos-badge">${r.positionLabel||"ผู้รับเหมาทั่วไป / General Contractor"}</div>
+    </div>
+    <div class="divline"></div>
+    <div class="fields">
+      <div class="field"><div class="fl">ออกบัตร / Issued</div><div class="fv" style="font-size:2.1mm">${fmtCard(r.cardIssuedDate)}</div></div>
+      <div class="field"><div class="fl">หมดอายุ / Expiry</div><div class="fv" style="font-size:2.1mm">${fmtCard(r.cardExpiry)}</div></div>
+      <div class="field field-full"><div class="fl">Card ID</div><div class="fv" style="font-size:2mm">${r.cardId||"—"}</div></div>
+    </div>
+    <div class="card-bottom">
+      <div class="issuer">NatureWorks Asia Pacific Limited<br>NTRAP Contractor ID Card</div>
+      <div class="qr-box">${qrImg?`<div>${qrImg}</div>`:`<div style="font-size:2mm;color:#A32D2D">QR ERROR</div>`}</div>
+    </div>
+  </div>
+  <div class="cardback">
+    <div class="wb-title">แจ้งเตือนกรณีไม่ปฏิบัติตามข้อกำหนด<br>Warning Notice for Non-Compliance</div>
+    <div class="wb-body">
+      <div class="wb-row"><div class="wb-dot" style="background:#FFE100"></div><div class="wb-txt"><b>ครั้งที่ 1 1st</b> &nbsp;ผู้เตือน By<div class="wb-line"></div></div></div>
+      <div class="wb-row"><div class="wb-dot" style="background:#F7941D"></div><div class="wb-txt"><b>ครั้งที่ 2 2nd</b> &nbsp;ผู้เตือน By<div class="wb-line"></div></div></div>
+      <div class="wb-row"><div class="wb-dot" style="background:#E31E24"></div><div class="wb-txt" style="color:#E31E24;font-weight:700">สิ้นสุดการจ้างงาน<br>Termination</div></div>
+    </div>
+    <div class="wb-sign">
+      <div class="lbl">ลงชื่อข้าพเจ้ารับทราบและตกลงปฏิบัติตามข้อกำหนดที่ระบุไว้ข้างต้น<br>Sign for acknowledge and agree to comply with the requirements:</div>
+      <div class="sig-row"><span>ลงชื่อ Sign:</span><span class="dots"></span></div>
+      <div class="sig-row"><span>วันที่ Date:</span><span class="dots"></span></div>
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+window.onload=function(){setTimeout(function(){window.focus();window.print();},400);};
+<\/script>
+</body></html>`);
+  w.document.close();
+}
+
+// ── SHORT BRIEF QR OVERLAY (พิมพ์ QR ทับเอกสาร A5) ──
+async function saveQRPos(prof,x,y,s){CFG.qrPosProfiles=CFG.qrPosProfiles||{};CFG.qrPosProfiles[prof]={x,y,s};try{await saveCFG();}catch(e){}}
+function getQRPos(prof){return (CFG.qrPosProfiles&&CFG.qrPosProfiles[prof])||CFG.qrPos||{x:118,y:8,s:24};}
+function printSBQR(regId,freshCardId){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  const POS_CODE={general:"GEN",safety:"SAF",firewatchman:"FWM",driver:"DRV",support:"SUP"};
+  const qrData=`NBC|${freshCardId||r.cardId||r.id}|${r.idno||""}|${POS_CODE[r.position||"general"]||"GEN"}`;
+  const qrImg=qrSVG(qrData);
+  const defProf=SESSION.role==="guard"?"guard":"ehs";
+  const profiles={ehs:getQRPos("ehs"),guard:getQRPos("guard")};
+  const pos=profiles[defProf];
+  const w=window.open("","_blank","width=560,height=820");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:A5;margin:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Arial,sans-serif}
+.sheet{width:148mm;height:210mm;position:relative;margin:0 auto;background:#fff}
+@media screen{.sheet{border:1px dashed #bbb;background:repeating-linear-gradient(45deg,#fdfdfd,#fdfdfd 8px,#f7f7f7 8px,#f7f7f7 16px)}}
+#qrbox{position:absolute;background:#fff;padding:1mm}
+#qr img,#qr canvas{display:block;width:100%!important;height:100%!important}
+.ctl{padding:10px;background:#F2F8FC;border-bottom:1px solid #CBE4F1;font-size:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ctl label{display:flex;align-items:center;gap:4px;font-weight:600;color:#1F497D}
+.ctl input{width:58px;padding:4px;border:1px solid #CBE4F1;border-radius:5px;text-align:center}
+.ctl button{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600}
+.b1{background:#00B5A8;color:#fff}.b2{background:#1F497D;color:#fff}
+@media print{.ctl{display:none}}
+</style></head><body>
+<div class="ctl">
+  <label>เครื่องพิมพ์ <select id="prof" onchange="loadProf()" style="padding:4px;border:1px solid #CBE4F1;border-radius:5px">
+    <option value="ehs"${defProf==="ehs"?" selected":""}>🏢 EHS Office</option>
+    <option value="guard"${defProf==="guard"?" selected":""}>🛡 ป้อม รปภ.</option>
+  </select></label>
+  <label>X <input type="number" id="px" value="${pos.x}" onchange="upd()"> mm</label>
+  <label>Y <input type="number" id="py" value="${pos.y}" onchange="upd()"> mm</label>
+  <label>ขนาด <input type="number" id="ps" value="${pos.s}" onchange="upd()"> mm</label>
+  <button class="b2" onclick="window.opener.saveQRPos(prof.value,+px.value,+py.value,+ps.value);alert('บันทึกตำแหน่งของ '+(prof.value==='guard'?'ป้อม รปภ.':'EHS Office')+' แล้ว')">💾 บันทึกตำแหน่ง</button>
+  <button class="b1" onclick="window.print()">🖨 พิมพ์ QR</button>
+  <span style="color:#888">ใส่กระดาษ A5 แบบฟอร์มลงเครื่องพิมพ์ แล้วสั่งพิมพ์ทับ — QR: ${r.fn} ${r.ln} (${(r.cardId||freshCardId||"")})</span>
+</div>
+<div class="sheet"><div id="qrbox">${qrImg?qrImg:`<div style="color:#A32D2D;font-size:10px">QR ERROR — refresh หน้าแอปแล้วลองใหม่</div>`}</div></div>
+<script>
+const PROFILES=${JSON.stringify(profiles)};
+function upd(){const b=document.getElementById("qrbox");b.style.left=px.value+"mm";b.style.top=py.value+"mm";b.style.width=ps.value+"mm";b.style.height=ps.value+"mm";}
+function loadProf(){const p=PROFILES[prof.value];px.value=p.x;py.value=p.y;ps.value=p.s;upd();}
+upd();
+<\/script>
+</body></html>`);
+  w.document.close();
+}
+
+// ── EHS LISTENER ──
+function startEHSListener(){
+  if(UNSUB)UNSUB();
+  startBLListener();
+  UNSUB=db.collection("registrations").orderBy("createdAt","desc").onSnapshot(snap=>{_allRegs=snap.docs.map(d=>d.data());renderEHSDash();renderEHSShort();renderEHSFull();renderSBReg();renderDB();},err=>showToast("⚠ "+err.message));
+  loadBlockLog();
+}
+
+function renderEHSDash(){
+  const all=_allRegs,fc=all.filter(r=>!r.isShort);
+  document.getElementById("e-s1").textContent=all.length;
+  document.getElementById("e-s2").textContent=fc.filter(r=>!r.approvalStatus).length;
+  document.getElementById("e-s3").textContent=all.filter(r=>r.cardIssued).length;
+  document.getElementById("e-s4").textContent=all.filter(r=>r.status==="blocked").length;
+  document.getElementById("e-activity").innerHTML=all.slice(0,6).map(r=>`<div class="hist-item"><div class="hdot ${r.approvalStatus==="approved"?"hd-g":r.approvalStatus==="rejected"?"hd-r":"hd-go"}"></div><div style="flex:1"><b>${r.fn} ${r.ln}</b> · ${r.co}<br><span style="font-size:10px;color:#888">${r.id} · <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></span></div><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></div>`).join("")||`<div style="color:#888;font-size:12px;padding:8px">ยังไม่มีกิจกรรม</div>`;
+}
+function renderEHSShort(){
+  const q=(document.getElementById("esb-q")||{value:""}).value.toLowerCase();
+  const rows=_allRegs.filter(r=>r.isShort&&(r.fn+r.ln+r.co).toLowerCase().includes(q));
+  document.getElementById("e-sb-tbody").innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
+    const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
+    const cardSt=r.cardIssued?`<span class="badge b-active">ออกบัตรแล้ว</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${ab}</td><td>${cardSt}</td>
+      <td>${!r.approvalStatus?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
+  }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
+}
+function renderEHSFull(){
+  const rows=_allRegs.filter(r=>!r.isShort).sort((a,b)=>
+    (a.pdate||"9999").localeCompare(b.pdate||"9999")||
+    (a.type||"").localeCompare(b.type||"")||
+    (a.co||"").localeCompare(b.co||"")||
+    (a.id||"").localeCompare(b.id||""));
+  document.getElementById("e-fc-tbody").innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
+    const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
+    const ab=r.approvalStatus==="approved"?`<span class="badge b-approved">อนุมัติ</span>`:r.approvalStatus==="rejected"?`<span class="badge b-fail">ปฏิเสธ</span>`:`<span class="badge b-pending">รอ</span>`;
+    const cardSt=r.cardIssued?`<span class="badge b-active">จ่ายบัตรแล้ว</span>`:r.approvalStatus==="approved"?`<span class="badge b-pending">รอจ่ายบัตร</span>`:"—";
+    const isBL=_blSet.has(r.idno);
+    const can=!isBL&&r.quizPass===true&&r.docs&&r.docs.length>0&&!!r.photo&&!r.approvalStatus;
+    return `<tr${isBL?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
+      <td style="font-size:11px">${r.positionLabel||"—"}</td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td>
+      <td>${ab}</td><td>${cardSt}</td>
+      <td>${can?`<button class="btn-approve" onclick="ehsApproveFull('${r.id}')">✓ Approve</button>`:""}${!r.approvalStatus?`<button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""}${!isBL&&r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueFullCard('${r.id}')">จ่ายบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button>${r.cardId?`<button class="btn-sm" onclick="printCard('${r.id}')"><i class="ti ti-printer"></i></button>`:""}</td></tr>`;
+  }).join("")||`<tr><td colspan="10" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
+}
+
+async function ehsApproveFull(regId){
+  const cardId=await genId("NBC-FC");
+  try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY,cardId});showToast(`✅ Approved — Card ${cardId} พร้อมจ่ายเมื่อผู้รับเหมามาติดต่อ`);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+async function issueFullCard(regId){
+  const expiry=cardExpiry(TODAY);
+  try{await db.collection("registrations").doc(regId).update({cardIssued:true,cardIssuedDate:TODAY,cardExpiry:expiry,status:"active",issuedBy:SESSION.email});showToast(`✅ จ่ายบัตรแล้ว — หมดอายุ ${fmtCard(expiry)}`);printCard(regId);}
+  catch(e){showToast("⚠ "+e.message);}
+}
+
+function renderSBReg(){
+  const rows=_allRegs.filter(r=>r.isShort);
+  const q=(document.getElementById("sb-q")||{value:""}).value.toLowerCase();
+  const sf=(document.getElementById("sb-status")||{value:""}).value;
+  const filtered=rows.filter(r=>{
+    const mq=(r.fn+r.ln+r.co).toLowerCase().includes(q);
+    let ms=true;if(sf==="active")ms=r.cardIssued&&r.cardExpiry>=TODAY&&r.status!=="blocked";else if(sf==="expired")ms=r.cardExpiry&&r.cardExpiry<TODAY;else if(sf==="blocked")ms=r.status==="blocked";
+    return mq&&ms;
+  }).sort((a,b)=>a.co.localeCompare(b.co));
+  document.getElementById("sb-s1").textContent=rows.length;
+  document.getElementById("sb-s2").textContent=rows.filter(r=>r.cardIssued&&r.cardExpiry>=TODAY&&r.status!=="blocked").length;
+  document.getElementById("sb-s3").textContent=rows.filter(r=>(r.shortBriefCount||0)===1).length;
+  document.getElementById("sb-s4").textContent=rows.filter(r=>r.status==="blocked").length;
+  _sbRows=filtered;
+  document.getElementById("sb-tbody").innerHTML=filtered.map(r=>{
+    const cnt=r.shortBriefCount||0;const exp=r.cardExpiry&&r.cardExpiry<TODAY;const blk=r.status==="blocked";
+    const cntB=cnt===0?`<span class="badge" style="background:#f5f5f5;color:#888">ยังไม่ใช้</span>`:cnt===1?`<span class="badge b-pending">1/2 ⚠</span>`:`<span class="badge b-fail">2/2 ครบ</span>`;
+    const cardSt=blk?`<span class="badge b-blocked">Blocked</span>`:r.cardIssued&&!exp?`<span class="badge b-active">Active</span>`:exp?`<span class="badge b-expired">หมดอายุ</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
+    return `<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="text-align:center">${cntB}</td><td style="font-size:11px;color:#888">${r.cardIssuedDate||"—"}</td><td style="font-size:11px;color:${exp?"#A32D2D":"#888"}">${r.cardExpiry||"—"}</td><td>${cardSt}</td><td>${blk?`<span class="badge b-blocked">Blocked</span>`:`<span class="badge b-approved">ปกติ</span>`}</td><td>${r.cardIssued?`<button class="btn-sm" onclick="printSBQR('${r.id}')" title="พิมพ์ QR ทับเอกสาร A5"><i class="ti ti-qrcode"></i> QR</button>`:""}</td></tr>`;
+  }).join("")||`<tr><td colspan="8" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
+}
+function filterSB(){renderSBReg();}
+
+function renderDB(){
+  const q=(document.getElementById("db-q")||{value:""}).value.toLowerCase();
+  const ft=(document.getElementById("db-t")||{value:""}).value;
+  const fv=(document.getElementById("db-v")||{value:""}).value;
+  const rows=_allRegs.filter(r=>!r.isShort&&r.approvalStatus==="approved").filter(r=>{
+    const okQ=(r.fn+r.ln+r.co+r.idno).toLowerCase().includes(q)&&(!ft||r.type===ft);
+    const v=r.violation||"none";
+    const okV=!fv||(fv==="none"?v==="none":v===fv);
+    return okQ&&okV;
+  });
+  const el=document.getElementById("db-tbody");if(!el)return;
+  el.innerHTML=rows.map(r=>{
+    const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:r.quizScore+"%"):"—";
+    const v=r.violation||"";
+    const isBL=v==="blacklist"||_blSet.has(r.idno);
+    const vSel=`<select onchange="setViolation('${r.id}',this.value)" style="font-size:10px;padding:2px 4px;border:.5px solid ${isBL?"#A32D2D":"#ddd"};border-radius:4px;background:${isBL?"#FCEBEB":v?"#FAEEDA":"#fff"};color:${isBL?"#A32D2D":v?"#854F0B":"#555"}">
+      <option value=""${!v?" selected":""}>✅ ปกติ</option>
+      <option value="1st"${v==="1st"?" selected":""}>⚠ 1st Warning</option>
+      <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
+      <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
+    </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}${(v||isBL)&&(r.violationReason||isBL)?`<div style="font-size:9px;color:#A32D2D;margin-top:2px;max-width:130px;white-space:normal">${isBL?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}</div>`:""}`;
+    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button></td></tr>`;
+  }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
+}
+function filterDB(){renderDB();}
+
+function exportCSV(){
+  const all=_allRegs.filter(r=>!r.isShort&&r.approvalStatus==="approved");
+  if(!all.length){showToast("⚠ ไม่มีข้อมูลในทะเบียน");return;}
+  const hdr="ID,ชื่อ,นามสกุล,บริษัท,เลขบัตร,ประเภท,ตำแหน่ง,คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Safety Record,เหตุผล";
+  const rows=all.map(r=>`${r.id},${r.fn},${r.ln},"${r.co}",${r.idno},${r.type},"${r.positionLabel||""}",${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):""},${r.quizPass===true?"Pass":r.quizPass===false?"Fail":""},${r.approvalStatus||"pending"},${r.cardIssuedDate||""},${r.cardExpiry||""},${_blSet.has(r.idno)?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ"},"${_blSet.has(r.idno)?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}"`);
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_CTMS_${TODAY}.csv`;a.click();
+  showToast("📥 Export CSV สำเร็จ");
+}
+function exportFCCSV(){
+  const rows=_allRegs.filter(r=>!r.isShort).sort((a,b)=>
+    (a.pdate||"9999").localeCompare(b.pdate||"9999")||
+    (a.type||"").localeCompare(b.type||"")||
+    (a.co||"").localeCompare(b.co||"")||
+    (a.id||"").localeCompare(b.id||""));
+  if(!rows.length){showToast("⚠ ไม่มีข้อมูล Full Course");return;}
+  const esc=v=>`"${String(v==null?"":v).replace(/"/g,'""')}"`;
+  const hdr="วันอบรม,Type,Register No.,ชื่อ,นามสกุล,บริษัท,เลขบัตรประชาชน,สัญชาติ,ตำแหน่ง,พนักงานขับรถ,อีเมล Online Class (4D),คะแนน,Pass/Fail,สถานะอนุมัติ,วันออกบัตร,วันหมดอายุ,Card ID,Safety Record,เหตุผล";
+  const data=rows.map(r=>[
+    r.pdate||"",r.type||"",r.id||"",r.fn||"",r.ln||"",r.co||"",r.idno||"",
+    r.nationality==="thai"?"ไทย":"ต่างชาติ",r.positionLabel||"",r.isDriver?"ใช่":"ไม่ใช่",
+    r.onlineEmail||"",
+    r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:""):"",
+    r.quizPass===true?"Pass":r.quizPass===false?"Fail":"",
+    r.approvalStatus||"pending",r.cardIssuedDate||"",r.cardExpiry||"",r.cardId||"",
+    _blSet.has(r.idno)?"Blacklist":r.violation==="1st"?"1st Warning":r.violation==="2nd"?"2nd Warning":"ปกติ",
+    _blSet.has(r.idno)?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")
+  ].map(esc).join(","));
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+data.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_FullCourse_${TODAY}.csv`;a.click();
+  showToast("📥 Export Full Course CSV สำเร็จ");
+}
+function exportSBCSV(){
+  const rows=_sbRows||[];const hdr="ชื่อ,นามสกุล,บริษัท,ประเภท,ครั้งที่,วันออกบัตร,หมดอายุ,สถานะ";
+  const data=rows.map(r=>{const exp=r.cardExpiry&&r.cardExpiry<TODAY;const cs=r.status==="blocked"?"Blocked":r.cardIssued&&!exp?"Active":exp?"หมดอายุ":"ยังไม่ออก";return`${r.fn},${r.ln},"${r.co}",${r.type},${r.shortBriefCount||0},${r.cardIssuedDate||""},${r.cardExpiry||""},${cs}`;});
+  const blob=new Blob(["\uFEFF"+hdr+"\n"+data.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`NBC_ShortBrief_${TODAY}.csv`;a.click();
+  showToast("📥 Export Short Brief CSV สำเร็จ");
+}
+
+// ── SAFETY VIOLATION / BLACKLIST ──
+async function setViolation(regId,v){
+  const r=_allRegs.find(x=>x.id===regId);if(!r)return;
+  try{
+    if(v==="blacklist"){
+      const reason=prompt(`⛔ ระบุเหตุผลการ Blacklist:\n${r.fn} ${r.ln} (${r.co})`);
+      if(reason===null){renderDB();return;}
+      await db.collection("registrations").doc(regId).update({violation:"blacklist",violationDate:TODAY,violationBy:SESSION.email,violationReason:reason||"-"});
+      await db.collection("blacklist").add({idno:r.idno,name:`${r.fn} ${r.ln}`,co:r.co,regId,reason:reason||"-",date:TODAY,by:SESSION.email,active:true});
+      showToast(`⛔ Blacklist แล้ว: ${r.fn} ${r.ln}`);
+    }else{
+      let reason=null;
+      if(v){
+        reason=prompt(`⚠ ระบุเหตุผล ${v==="1st"?"1st Warning":"2nd Warning"}:\n${r.fn} ${r.ln} (${r.co})`);
+        if(reason===null){renderDB();return;}
+      }
+      await db.collection("registrations").doc(regId).update({violation:v||null,violationDate:v?TODAY:null,violationBy:v?SESSION.email:null,violationReason:v?(reason||"-"):null});
+      if((r.violation==="blacklist")||_blSet.has(r.idno)){
+        const bl=await db.collection("blacklist").where("idno","==",r.idno).where("active","==",true).get();
+        for(const d of bl.docs){await d.ref.update({active:false,removedBy:SESSION.email,removedDate:TODAY});}
+      }
+      showToast(v?`⚠ บันทึก ${v==="1st"?"1st Warning":"2nd Warning"}: ${r.fn} ${r.ln}`:`✅ ล้างสถานะ: ${r.fn} ${r.ln}`);
+    }
+  }catch(e){showToast("⚠ "+e.message);renderDB();}
+}
+function loadBlacklistTab(){
+  const act=_blDocs.filter(x=>x.active),hist=_blDocs.filter(x=>!x.active);
+  const el1=document.getElementById("bl-list"),el2=document.getElementById("bl-hist");
+  if(!el1)return;
+  el1.innerHTML=act.map(x=>`<div class="config-item"><i class="ti ti-ban" style="color:#A32D2D"></i><div style="flex:1"><div style="font-weight:600;font-size:12px">${x.name} <span style="font-weight:400;color:#888">— ${x.co}</span></div><div style="font-size:10px;color:#888">เลขบัตร: ${x.idno} | ${fmtCard(x.date)} | โดย ${x.by||"—"}</div><div style="font-size:11px;color:#A32D2D">เหตุผล: ${x.reason||"-"}</div></div><button class="btn-sm" onclick="unBlacklist('${x.docId}')" style="color:#185FA5">🔓 ปลด</button></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีรายชื่อ Blacklist</div>`;
+  el2.innerHTML=hist.map(x=>`<div class="config-item"><i class="ti ti-history" style="color:#888"></i><div style="flex:1"><div style="font-size:12px">${x.name} — ${x.co}</div><div style="font-size:10px;color:#888">Blacklist ${fmtCard(x.date)} → ปลดโดย ${x.removedBy||"—"} เมื่อ ${fmtCard(x.removedDate)}</div></div></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีประวัติ</div>`;
+}
+async function unBlacklist(docId){
+  const x=_blDocs.find(d=>d.docId===docId);if(!x)return;
+  if(!confirm(`ยืนยันปลด Blacklist: ${x.name}?`))return;
+  try{
+    await db.collection("blacklist").doc(docId).update({active:false,removedBy:SESSION.email,removedDate:TODAY});
+    if(x.regId){try{await db.collection("registrations").doc(x.regId).update({violation:"2nd",violationDate:TODAY,violationBy:SESSION.email});}catch(e){}}
+    showToast(`🔓 ปลด Blacklist: ${x.name}`);
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── CLOSED MONDAYS (Full Course) ──
+async function addClosedMonday(){
+  const v=document.getElementById("cm-date").value;
+  if(!v){showToast("⚠ กรุณาเลือกวันที่");return;}
+  const d=new Date(v+"T00:00:00");
+  if(d.getDay()!==1){showToast("⚠ ต้องเป็นวันจันทร์เท่านั้น");return;}
+  CFG.closedMondays=CFG.closedMondays||[];
+  if(CFG.closedMondays.includes(v)){showToast("⚠ วันนี้ถูกปิดอยู่แล้ว");return;}
+  CFG.closedMondays.push(v);CFG.closedMondays.sort();
+  await saveCFG();renderCFG();populateFCDates();
+  document.getElementById("cm-date").value="";
+  showToast(`🚫 ปิดรับลงทะเบียนวันจันทร์ ${fmtCard(v)}`);
+}
+async function removeClosedMonday(i){
+  const v=CFG.closedMondays[i];CFG.closedMondays.splice(i,1);
+  await saveCFG();renderCFG();populateFCDates();
+  showToast(`🔓 เปิดรับลงทะเบียน ${fmtCard(v)}`);
+}
+
+// ── BLOCK LOG ──
+async function loadBlockLog(){
+  try{
+    const snap=await db.collection("blockLog").get();
+    const active=snap.docs.map(d=>({...d.data(),_did:d.id})).filter(b=>b.active);
+    document.getElementById("block-list").innerHTML=active.length?active.map(b=>`<div class="hist-item"><div class="hdot hd-r"></div><div style="flex:1"><b>${b.name}</b> · ${b.co}<br><span style="font-size:10px;color:#888">${b.reason} · ${b.date}</span></div><button class="btn-unblock" onclick="unblock('${b._did}','${b.regId}','${b.name}')">ปลด Block</button></div>`).join(""):`<div style="color:#888;font-size:12px;padding:8px">ไม่มีรายการ Blocked</div>`;
+    const unSnap=await db.collection("unblockLog").orderBy("date","desc").get();
+    document.getElementById("unblock-hist").innerHTML=unSnap.docs.length?unSnap.docs.map(d=>{const u=d.data();return`<div class="hist-item"><div class="hdot hd-go"></div><div><b>${u.name}</b> · ปลด Block ${u.date}<br><span style="font-size:10px;color:#888">โดย: ${u.by}</span></div></div>`;}).join(""):`<div style="color:#888;font-size:12px;padding:8px">ยังไม่มีประวัติ</div>`;
+  }catch(e){}
+}
+async function unblock(docId,regId,name){
+  try{await db.collection("blockLog").doc(docId).update({active:false});await db.collection("registrations").doc(regId).update({status:"active",shortBriefCount:0});await db.collection("unblockLog").add({regId,name,date:TODAY,by:SESSION.email});showToast(`🔓 ปลด Block: ${name}`);loadBlockLog();}
+  catch(e){showToast("⚠ "+e.message);}
+}
+
+// ── CONFIG ──
+function renderCFG(){
+  const cmEl=document.getElementById("cm-list");
+  if(cmEl)cmEl.innerHTML=(CFG.closedMondays||[]).map((d,i)=>`<div class="config-item"><i class="ti ti-calendar-off" style="color:#A32D2D"></i><span style="flex:1">${fmtCard(d)} (วันจันทร์)${d<TODAY?' <span style="color:#aaa;font-size:10px">— ผ่านมาแล้ว</span>':""}</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeClosedMonday(${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ไม่มีวันจันทร์ที่ปิด</div>`;
+  document.getElementById("cfg-gp").textContent=CFG.guardPIN;
+  document.getElementById("cfg-ep").textContent=CFG.ehsPIN;
+  document.getElementById("guard-list").innerHTML=CFG.guardEmails.map((e,i)=>`<div class="config-item"><i class="ti ti-shield-check" style="color:var(--nw-navy)"></i><span style="flex:1">${e}</span><span class="badge b-active" style="font-size:9px">Guard</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeEmail('guard',${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ยังไม่มี email</div>`;
+  document.getElementById("ehs-list").innerHTML=CFG.ehsEmails.map((e,i)=>`<div class="config-item"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span style="flex:1">${e}</span><span class="badge b-pending" style="font-size:9px">EHS</span><i class="ti ti-x" style="cursor:pointer;color:#aaa" onclick="removeEmail('ehs',${i})"></i></div>`).join("")||`<div style="color:#aaa;font-size:12px;padding:6px">ยังไม่มี email</div>`;
+}
+async function savePIN(){
+  const gp=document.getElementById("cfg-gpin").value.trim(),ep=document.getElementById("cfg-epin").value.trim();
+  if(gp&&!/^\d{4,6}$/.test(gp)){showToast("⚠ PIN ต้องเป็นตัวเลข 4-6 หลัก");return;}
+  if(ep&&!/^\d{4,6}$/.test(ep)){showToast("⚠ PIN ต้องเป็นตัวเลข 4-6 หลัก");return;}
+  if(gp)CFG.guardPIN=gp;if(ep)CFG.ehsPIN=ep;
+  await saveCFG();renderCFG();document.getElementById("cfg-gpin").value="";document.getElementById("cfg-epin").value="";showToast("✅ บันทึก PIN แล้ว");
+}
+async function addEmail(role){
+  const elId=role==="guard"?"add-ge":"add-ee";
+  const email=document.getElementById(elId).value.trim().toLowerCase();
+  if(!email||!/\S+@\S+\.\S+/.test(email)){showToast("⚠ Email ไม่ถูกต้อง");return;}
+  const list=role==="guard"?CFG.guardEmails:CFG.ehsEmails;
+  if(list.includes(email)){showToast("⚠ มีอยู่แล้ว");return;}
+  list.push(email);document.getElementById(elId).value="";await saveCFG();renderCFG();showToast(`✅ เพิ่ม ${email}`);
+}
+async function removeEmail(role,i){
+  const list=role==="guard"?CFG.guardEmails:CFG.ehsEmails;const e=list[i];list.splice(i,1);await saveCFG();renderCFG();showToast(`🗑 ลบ ${e}`);
+}
+
+function eTab(id,btn){
+  ["e-dash","e-sb-sec","e-fc-sec","e-sbreg","e-db","e-block","e-bl","e-cfg"].forEach(p=>{const el=document.getElementById(p);if(el)el.style.display="none";});
+  document.querySelectorAll("#s-ehs .nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(id).style.display="block";btn.classList.add("active");
+  if(id==="e-block")loadBlockLog();if(id==="e-cfg")renderCFG();if(id==="e-sbreg")renderSBReg();if(id==="e-bl")loadBlacklistTab();if(id==="e-db")renderDB();
+}
+
+// ── INIT ──
+loadCFG();
+addRefRow();
+console.log("✅ NatureWorks CTMS v9.29 — Firebase connected");
+</script>
+</body>
+</html>
