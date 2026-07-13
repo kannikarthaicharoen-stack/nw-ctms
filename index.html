@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NBC Gate Pass Control</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+:root{--teal:#00B5A8;--navy:#1F497D;--navy-d:#123A66;--gold:#C5940A;--bg:#EEF3F8;--card:#fff;--line:#D8E4EE;--red:#A32D2D;--green:#2E7D32;--amber:#B8860B;--grey:#6E93AF}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--navy-d);min-height:100vh}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:16px}
+.topbar{background:linear-gradient(135deg,var(--navy) 0%,#2A5A8F 100%);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.topbar .tb-title{font-weight:600;font-size:15px;flex:1}
+.topbar .tb-user{font-size:11px;opacity:.85}
+.btn{font-family:inherit;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.97)}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#009e93}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#2A5A8F}
+.btn-red{background:var(--red);color:#fff}
+.btn-out{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.btn-sm{padding:6px 10px;font-size:12px;border-radius:6px}
+.btn-big{width:100%;padding:16px;font-size:16px;justify-content:center;border-radius:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.home-logo{display:flex;flex-direction:column;align-items:center;padding:44px 16px 8px}
+.home-logo img{height:52px}
+.vbadge{background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;margin-top:8px}
+.home-title{text-align:center;margin:10px 0 4px;font-size:20px;font-weight:700;color:var(--navy)}
+.home-sub{text-align:center;font-size:12px;color:var(--grey);margin-bottom:26px}
+.home-btns{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:12px;padding:0 16px}
+label{font-size:12px;font-weight:600;color:var(--grey);display:block;margin-bottom:4px}
+input,select,textarea{font-family:inherit;font-size:14px;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--navy-d)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal)}
+.fg{margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+.tabs{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:2px solid var(--line);position:sticky;top:48px;z-index:40;padding:0 8px}
+.tab{padding:12px 14px;font-size:13px;font-weight:600;color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;display:flex;gap:5px;align-items:center}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab .cnt{background:var(--red);color:#fff;font-size:10px;border-radius:9px;padding:1px 6px;min-width:17px;text-align:center}
+.tabpane{display:none}.tabpane.active{display:block}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px}
+.b-ok{background:#E3F4E4;color:var(--green)}.b-bad{background:#F9E4E4;color:var(--red)}
+.b-warn{background:#FBF0D9;color:var(--amber)}.b-info{background:#E2F0F9;color:var(--navy)}
+.b-vis{background:#E2F0F9;color:var(--navy)}.b-del{background:#FBF0D9;color:var(--amber)}
+.b-emp{background:#EFE6F7;color:#6B3FA0}.b-con{background:#E0F5F3;color:#00776E}
+.result-panel{border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid}
+.rp-ok{background:#F2FBF3;border-color:var(--green)}
+.rp-bad{background:#FDF2F2;border-color:var(--red)}
+.person{display:flex;gap:14px;align-items:flex-start}
+.pphoto{width:86px;height:86px;border-radius:10px;object-fit:cover;background:#DCE9F3;border:2px solid #fff;box-shadow:0 2px 6px rgba(31,73,125,.18);flex-shrink:0}
+.pname{font-size:18px;font-weight:700}
+.pmeta{font-size:12.5px;color:var(--grey);line-height:1.7}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.stat .n{font-size:30px;font-weight:700;color:var(--navy)}
+.stat .l{font-size:11.5px;color:var(--grey);font-weight:600}
+.stat.total{background:var(--navy);border-color:var(--navy)}
+.stat.total .n,.stat.total .l{color:#fff}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px;color:var(--grey);font-size:11px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid #EAF1F7;vertical-align:middle}
+.tphoto{width:34px;height:34px;border-radius:6px;object-fit:cover;background:#DCE9F3}
+.tscroll{overflow-x:auto}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,22,40,.55);z-index:100;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:520px;width:100%;padding:20px}
+.modal h3{font-size:16px;margin-bottom:12px;color:var(--navy)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy-d);color:#fff;padding:11px 20px;border-radius:10px;font-size:13.5px;z-index:200;display:none;max-width:92vw;box-shadow:0 4px 18px rgba(0,0,0,.3)}
+#qr-reader{width:100%;max-width:420px;margin:0 auto;border-radius:12px;overflow:hidden}
+.alert{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.al-red{background:#FDF0F0;color:var(--red);border:1px solid #F0CACA}
+.al-amber{background:#FBF5E3;color:var(--amber);border:1px solid #EBD9A8}
+.al-teal{background:#E9F8F7;color:#00776E;border:1px solid #BEE8E4}
+.typebtns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:520px){.typebtns{grid-template-columns:1fr}}
+.typebtn{border:2px solid var(--line);border-radius:12px;background:#fff;padding:16px 8px;text-align:center;cursor:pointer;font-family:inherit}
+.typebtn i{font-size:26px;color:var(--teal);display:block;margin-bottom:6px}
+.typebtn .t1{font-size:13.5px;font-weight:700;color:var(--navy)}
+.typebtn .t2{font-size:10.5px;color:var(--grey)}
+.typebtn.sel{border-color:var(--teal);background:#F0FBFA}
+.pill-in{background:#E3F4E4;color:var(--green);font-weight:700;padding:3px 10px;border-radius:10px;font-size:12px}
+.hint{font-size:11px;color:var(--grey);margin-top:3px}
+.req{color:var(--red)}
+.divh{height:1px;background:var(--line);margin:14px 0}
+.rowflex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.okbox{text-align:center;padding:30px 16px}
+.okbox .big{font-size:26px;font-weight:700;color:var(--teal);margin:10px 0}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.login-box{max-width:380px;margin:60px auto;padding:0 16px}
+tr.rowclick{cursor:pointer}tr.rowclick:hover td{background:#F2F8FC}
+.dgrid{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;margin-top:10px}
+.dgrid .dl{color:var(--grey);font-size:11.5px;font-weight:600;padding-top:1px;white-space:nowrap}
+.dgrid .dv{font-weight:600;word-break:break-word}
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen active" id="s-home">
+  <div class="home-logo">
+    <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks">
+    <span class="vbadge" id="ver-badge">v1.8</span>
+  </div>
+  <div class="home-title">Gate Pass Control</div>
+  <div class="home-sub">ระบบควบคุมการผ่านเข้า–ออก ป้อมรักษาความปลอดภัย · NBC Plant</div>
+  <div class="home-btns">
+    <button class="btn btn-navy btn-big" onclick="showLogin()"><i class="ti ti-shield-lock"></i> เจ้าหน้าที่ รปภ. / Security Guard</button>
+    <button class="btn btn-teal btn-big" onclick="openReg()"><i class="ti ti-clipboard-text"></i> ลงทะเบียนเข้าพื้นที่ / Self-Registration</button>
+  </div>
+</div>
+
+<!-- ═══ LOGIN ═══ -->
+<div class="screen" id="s-login">
+  <div class="topbar"><button class="btn btn-sm btn-out" onclick="goHome()"><i class="ti ti-arrow-left"></i></button><div class="tb-title">เข้าสู่ระบบ รปภ.</div></div>
+  <div class="login-box">
+    <div class="card">
+      <div class="fg"><label>Email</label><input type="email" id="lg-email" placeholder="guard@..." autocomplete="username"></div>
+      <div class="fg"><label>Guard PIN</label><input type="password" id="lg-pin" maxlength="6" inputmode="numeric" placeholder="••••••"></div>
+      <button class="btn btn-navy btn-big" id="lg-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SELF-REGISTRATION (PUBLIC) ═══ -->
+<div class="screen" id="s-reg">
+  <div class="topbar"><button class="btn btn-sm btn-out" onclick="goHome()"><i class="ti ti-arrow-left"></i></button><div class="tb-title">ลงทะเบียนเข้าพื้นที่ / Site Entry Registration</div></div>
+  <div class="wrap" style="max-width:640px">
+    <div id="reg-form-area">
+      <div class="card">
+        <label style="margin-bottom:8px">ประเภทผู้ลงทะเบียน / Registrant Type <span class="req">*</span></label>
+        <div class="typebtns">
+          <button class="typebtn" id="tb-visitor" onclick="setRegType('visitor')"><i class="ti ti-user"></i><div class="t1">ผู้มาติดต่อ</div><div class="t2">Visitor</div></button>
+          <button class="typebtn" id="tb-delivery" onclick="setRegType('delivery')"><i class="ti ti-truck-delivery"></i><div class="t1">รถขนส่ง / Delivery</div><div class="t2">Transport / Delivery</div></button>
+          <button class="typebtn" id="tb-tempemp" onclick="setRegType('tempemp')"><i class="ti ti-id"></i><div class="t1">พนักงาน (บัตรชั่วคราว)</div><div class="t2">Employee — Temporary Pass</div></button>
+        </div>
+        <div id="reg-fields" style="display:none">
+          <div class="grid2">
+            <div class="fg"><label>ชื่อ / First Name <span class="req">*</span></label><input id="r-fn"></div>
+            <div class="fg"><label>นามสกุล / Last Name <span class="req">*</span></label><input id="r-ln"></div>
+          </div>
+          <div class="fg" id="fg-co"><label>บริษัท / Company <span class="req">*</span></label><input id="r-co"></div>
+          <div class="fg" id="fg-dept" style="display:none"><label>แผนก / Department <span class="req">*</span></label><select id="r-dept"></select></div>
+          <div class="grid2">
+            <div class="fg"><label>เลขบัตรประชาชน / ID No. <span class="req">*</span></label><input id="r-idno" maxlength="13" inputmode="numeric"></div>
+            <div class="fg"><label>เบอร์โทร / Tel <span class="req">*</span></label><input id="r-tel" inputmode="tel"></div>
+          </div>
+          <div class="fg" id="fg-contact"><label>ชื่อพนักงาน NatureWorks ที่ต้องการติดต่อ / Person to Contact <span class="req">*</span></label><input id="r-contact" list="contacts-dl" oninput="contactPick()" onchange="contactPick()" placeholder="พิมพ์ชื่อ — ระบบจะแนะนำรายชื่อให้"><datalist id="contacts-dl"></datalist></div>
+          <div class="fg" id="fg-cdept"><label>แผนกของพนักงานที่ต้องการติดต่อ / Department <span class="req">*</span></label><select id="r-cdept"></select></div>
+          <div class="fg" id="fg-purpose"><label>วัตถุประสงค์ / Purpose <span class="req">*</span></label><select id="r-purpose-sel" onchange="refreshOthers()"></select></div>
+          <div class="fg" id="fg-purpose-other" style="display:none"><label>ระบุวัตถุประสงค์ / Please specify <span class="req">*</span></label><input id="r-purpose-other"></div>
+          <div class="fg" id="fg-reason" style="display:none"><label>เหตุผลที่ขอบัตรชั่วคราว / Reason for Temporary Pass <span class="req">*</span></label><select id="r-reason" onchange="refreshOthers()"></select></div>
+          <div class="fg" id="fg-reason-other" style="display:none"><label>ระบุเหตุผล / Please specify <span class="req">*</span></label><input id="r-reason-other"></div>
+          <div class="grid2">
+            <div class="fg"><label>ทะเบียนรถ / Vehicle Plate <span id="plate-req" style="display:none" class="req">*</span></label><input id="r-plate" placeholder="เว้นว่างได้หากไม่มีรถ"></div>
+            <div class="fg" id="fg-cargo" style="display:none"><label>ประเภทสินค้าที่นำส่ง / Cargo Type <span class="req">*</span></label>
+              <select id="r-cargo" onchange="refreshOthers()"></select></div>
+            <div class="fg" id="fg-cargo-other" style="display:none"><label>ระบุสิ่งที่นำมาส่ง / Please specify <span class="req">*</span></label><input id="r-cargo-other"></div>
+          </div>
+          <div class="fg"><label>ถ่ายรูปผู้ลงทะเบียน / Photo <span class="req">*</span></label>
+            <div class="rowflex">
+              <button type="button" class="btn btn-navy" onclick="openCamera()"><i class="ti ti-camera"></i> เปิดกล้องถ่ายรูป</button>
+              <img id="r-photo-prev" style="display:none;width:64px;height:64px;border-radius:8px;object-fit:cover;border:2px solid var(--teal)">
+              <span id="r-photo-ok" style="display:none;color:var(--green);font-weight:700;font-size:12px">✓ ถ่ายแล้ว — ถ่ายใหม่ได้</span>
+            </div>
+            <div class="hint">ต้องถ่ายรูป ณ ปัจจุบันเท่านั้นเพื่อยืนยันตัวตน — ไม่สามารถเลือกรูปจากเครื่องได้</div></div>
+          <div class="alert al-teal"><i class="ti ti-info-circle"></i><span>หลังส่งข้อมูลแล้ว กรุณาแจ้งเจ้าหน้าที่ รปภ. ที่ป้อม เพื่อตรวจสอบและออกบัตรผ่านค่ะ<br>After submitting, please contact the security guard for verification and pass issuance.</span></div>
+          <button class="btn btn-teal btn-big" id="r-submit" onclick="submitReg()"><i class="ti ti-send"></i> ส่งข้อมูลลงทะเบียน / Submit</button>
+        </div>
+      </div>
+    </div>
+    <div id="reg-ok" style="display:none" class="card okbox">
+      <i class="ti ti-circle-check" style="font-size:52px;color:var(--teal)"></i>
+      <div class="big" id="reg-ref">—</div>
+      <div style="font-size:14px">ลงทะเบียนสำเร็จ กรุณาแจ้งเจ้าหน้าที่ รปภ. ที่ป้อม<br><span style="font-size:12px;color:var(--grey)">Registration submitted. Please proceed to the security guard.</span></div>
+      <button class="btn btn-out" style="margin-top:18px" onclick="location.reload()">ลงทะเบียนคนถัดไป</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GUARD PORTAL ═══ -->
+<div class="screen" id="s-guard">
+  <div class="topbar">
+    <div class="tb-title"><i class="ti ti-shield-check"></i> Gate Pass Control — ป้อม รปภ.</div>
+    <div class="tb-user" id="tb-user"></div>
+    <button class="btn btn-sm btn-out" onclick="logout()"><i class="ti ti-logout"></i></button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-t="scan" onclick="setTab('scan')"><i class="ti ti-qrcode"></i> สแกนบัตร</div>
+    <div class="tab" data-t="pending" onclick="setTab('pending')"><i class="ti ti-clipboard-list"></i> รอตรวจสอบ <span class="cnt" id="cnt-pending" style="display:none">0</span></div>
+    <div class="tab" data-t="checkout" onclick="setTab('checkout')"><i class="ti ti-door-exit"></i> Check-out</div>
+    <div class="tab" data-t="onsite" onclick="setTab('onsite')"><i class="ti ti-users"></i> ในโรงงาน <span class="cnt" id="cnt-onsite" style="display:none;background:var(--green)">0</span></div>
+    <div class="tab" data-t="history" onclick="setTab('history')"><i class="ti ti-history"></i> ประวัติ</div>
+    <div class="tab" data-t="settings" onclick="setTab('settings')"><i class="ti ti-settings"></i> ตั้งค่า</div>
+  </div>
+  <div class="wrap">
+
+    <!-- TAB: SCAN -->
+    <div class="tabpane active" id="tp-scan">
+      <div class="card">
+        <div class="rowflex" style="justify-content:space-between;margin-bottom:10px">
+          <b style="font-size:14px"><i class="ti ti-qrcode"></i> สแกน QR บัตรผู้รับเหมา / บัตรผ่าน</b>
+          <span class="rowflex"><button class="btn btn-sm btn-teal" id="cam-btn" onclick="toggleCam()"><i class="ti ti-camera"></i> สแกนสด</button>
+          <button class="btn btn-sm btn-navy" onclick="document.getElementById('qr-photo').click()"><i class="ti ti-photo-scan"></i> ถ่ายรูป QR</button></span>
+          <input type="file" id="qr-photo" accept="image/*" capture="environment" style="display:none" onchange="scanQRFile(this)">
+        </div>
+        <div id="qr-reader"></div><div id="qr-file-reader" style="display:none"></div>
+        <div class="hint" style="text-align:center;margin-top:6px">สแกนสด: ถือ QR ห่างกล้อง ~10–15 ซม. ให้อยู่กลางกรอบ นิ่ง 1–2 วินาที · ถ้าอ่านไม่ติด ใช้ปุ่ม "ถ่ายรูป QR" ถ่ายใกล้ๆ ชัดๆ แล้วระบบถอดรหัสจากภาพ</div>
+        <div class="divh"></div>
+        <label><i class="ti ti-scan"></i> เครื่องสแกน USB — ยิงที่ช่องนี้ (อ่านรหัสเต็มและค้นหาให้อัตโนมัติ)</label>
+        <input id="manual-code" placeholder="เคอร์เซอร์รออยู่ที่นี่ — ยิงสแกนเนอร์ได้เลย..." onkeydown="if(event.key==='Enter')manualLookup()" style="margin-bottom:12px">
+        <label>หรือกรอกเลข 4 ตัวท้ายของบัตร</label>
+        <div class="rowflex">
+          <select id="qs-type" style="width:auto" onchange="qsYear()"><option value="NBC-SB">NBC-SB (Short Brief)</option><option value="NBC-FC">NBC-FC (Full Course)</option><option value="VP">VP (ใบผ่าน)</option></select>
+          <select id="qs-year" style="width:auto"></select>
+          <span style="font-weight:700;color:var(--grey)">—</span>
+          <input id="qs-num" maxlength="4" inputmode="numeric" placeholder="เลข 4 ตัว" style="width:110px" onkeydown="if(event.key==='Enter')qsLookup()">
+          <button class="btn btn-navy" onclick="qsLookup()"><i class="ti ti-search"></i> ค้นหา</button>
+        </div>
+      </div>
+      <div id="scan-result"></div>
+    </div>
+
+    <!-- TAB: PENDING -->
+    <div class="tabpane" id="tp-pending">
+      <div class="alert al-teal"><i class="ti ti-info-circle"></i><span>รายการลงทะเบียนด้วยตนเองที่รอ รปภ. ตรวจสอบ — ตรวจบัตรประชาชนจริงให้ตรงกับข้อมูล ก่อนออกบัตรและพิมพ์ใบผ่าน</span></div>
+      <div id="pending-list"></div>
+    </div>
+
+    <!-- TAB: CHECKOUT -->
+    <div class="tabpane" id="tp-checkout">
+      <div class="card">
+        <b style="font-size:14px"><i class="ti ti-nfc"></i> แตะบัตร RFID ที่รับคืน หรือค้นหา</b>
+        <div class="hint" style="margin-bottom:8px">เคอร์เซอร์อยู่ในช่องนี้เสมอ — แตะบัตรกับเครื่องอ่าน ระบบจะค้นหา record ให้ทันที</div>
+        <input id="co-rfid" placeholder="แตะบัตร RFID... / พิมพ์ชื่อ, ทะเบียนรถ หรือเลขบัตรประชาชน 13 หลัก (กรณีบัตรหาย) แล้วกด Enter" onkeydown="if(event.key==='Enter')coSearch()" style="margin-bottom:12px">
+        <label>หรือกรอกเลข 4 ตัวท้ายของบัตร</label>
+        <div class="rowflex">
+          <select id="cq-type" style="width:auto" onchange="cqYear()"><option value="NBC-SB">NBC-SB (Short Brief)</option><option value="NBC-FC">NBC-FC (Full Course)</option><option value="VP">VP (ใบผ่าน)</option></select>
+          <select id="cq-year" style="width:auto"></select>
+          <span style="font-weight:700;color:var(--grey)">—</span>
+          <input id="cq-num" maxlength="4" inputmode="numeric" placeholder="เลข 4 ตัว" style="width:110px" onkeydown="if(event.key==='Enter')cqLookup()">
+          <button class="btn btn-navy" onclick="cqLookup()"><i class="ti ti-search"></i> ค้นหา</button>
+        </div>
+      </div>
+      <div id="co-list"></div>
+    </div>
+
+    <!-- TAB: ONSITE -->
+    <div class="tabpane" id="tp-onsite">
+      <div class="statgrid">
+        <div class="stat total"><div class="n" id="st-total">0</div><div class="l">รวมทั้งหมดในโรงงาน / TOTAL ON-SITE</div></div>
+        <div class="stat"><div class="n" id="st-con" style="color:#00776E">0</div><div class="l">ผู้รับเหมา Contractor</div></div>
+        <div class="stat"><div class="n" id="st-vis">0</div><div class="l">ผู้มาติดต่อ Visitor</div></div>
+        <div class="stat"><div class="n" id="st-del" style="color:var(--amber)">0</div><div class="l">รถขนส่ง Delivery</div></div>
+        <div class="stat"><div class="n" id="st-emp" style="color:#6B3FA0">0</div><div class="l">พนักงาน Temp Pass</div></div>
+      </div>
+      <div class="card tscroll"><div id="onsite-list"></div></div>
+    </div>
+
+    <!-- TAB: HISTORY -->
+    <div class="tabpane" id="tp-history">
+      <div class="card">
+        <div class="rowflex">
+          <div><label>ตั้งแต่วันที่ (ตัดเวลา 00:00 น.)</label><input type="date" id="h-d1"></div>
+          <div><label>ถึงวันที่ (รวมทั้งวัน)</label><input type="date" id="h-d2"></div>
+          <button class="btn btn-navy" style="margin-top:18px" onclick="loadHistory()"><i class="ti ti-search"></i> แสดง</button>
+          <button class="btn btn-out" style="margin-top:18px" onclick="exportCSV()"><i class="ti ti-file-spreadsheet"></i> Export รายละเอียด</button>
+          <button class="btn btn-teal" style="margin-top:18px" onclick="exportMH()"><i class="ti ti-clock-hour-4"></i> Export ชั่วโมงทำงาน</button>
+        </div>
+      </div>
+      <div class="card tscroll" id="mh-card" style="display:none">
+        <b style="font-size:14px"><i class="ti ti-clock-hour-4"></i> ชั่วโมงทำงานผู้รับเหมา (Man-hours) — แยกประเภท × รายเดือน</b>
+        <div class="hint" style="margin-bottom:8px">นับเฉพาะผู้ถือบัตรอบรม CTMS ที่ Check-out แล้ว · ตัดรอบเดือนวันที่ 1 – วันสุดท้ายของเดือน เวลา 00:00 น. · รายการที่ข้ามเที่ยงคืนนับถึง 24:00 ของวันเข้า</div>
+        <div id="mh-table"></div>
+      </div>
+      <div class="card tscroll"><div id="hist-list">เลือกช่วงวันที่แล้วกดแสดง</div></div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div class="tabpane" id="tp-settings">
+      <div class="card" id="set-cal" style="display:none">
+        <b style="font-size:14px"><i class="ti ti-printer"></i> ปรับตำแหน่งพิมพ์ทับกระดาษ A5 (Calibration)</b>
+        <div class="hint" style="margin-bottom:10px">พิมพ์หน้าทดสอบลงกระดาษใบผ่านจริง แล้วปรับ Offset จนกรอบทดสอบทาบสนิทกับเส้นตารางบนกระดาษ (ค่าบันทึกในเครื่องนี้)</div>
+        <div class="grid3">
+          <div class="fg"><label>Offset X (มม. +ขวา / −ซ้าย)</label><input type="number" id="cal-ox" step="0.5" value="0"></div>
+          <div class="fg"><label>Offset Y (มม. +ลง / −ขึ้น)</label><input type="number" id="cal-oy" step="0.5" value="0"></div>
+          <div class="fg"><label>&nbsp;</label><button class="btn btn-teal" style="width:100%" onclick="saveCal()"><i class="ti ti-device-floppy"></i> บันทึก</button></div>
+        </div>
+        <button class="btn btn-out" onclick="printCalTest()"><i class="ti ti-focus-2"></i> พิมพ์หน้าทดสอบ</button>
+      </div>
+      <div class="card" id="set-contacts" style="display:none">
+        <b style="font-size:14px"><i class="ti ti-address-book"></i> รายชื่อพนักงาน NatureWorks (Autocomplete ช่อง "ผู้ที่มาพบ")</b>
+        <div class="hint" style="margin-bottom:8px">หนึ่งบรรทัดต่อหนึ่งคน รูปแบบ: <b>ชื่อ-นามสกุล, แผนก</b> — หน้าลงทะเบียนจะแนะนำชื่อและเติมแผนกให้อัตโนมัติ</div>
+        <textarea id="gp-contacts" rows="7" placeholder="Kannikar Thaicharoen, EHS / ความปลอดภัยและสิ่งแวดล้อม&#10;Sirisak Charoenkitpeeti, EHS / ความปลอดภัยและสิ่งแวดล้อม"></textarea>
+        <button class="btn btn-teal" style="margin-top:8px" onclick="saveContacts()"><i class="ti ti-device-floppy"></i> บันทึกรายชื่อ</button>
+      </div>
+      <div class="card">
+        <b style="font-size:14px"><i class="ti ti-qrcode"></i> QR Poster สำหรับติดที่ป้อม</b>
+        <div class="hint" style="margin-bottom:10px">ผู้มาติดต่อ / รถขนส่ง / พนักงาน สแกนเพื่อเปิดหน้าลงทะเบียนด้วยตนเอง</div>
+        <button class="btn btn-navy" onclick="printPoster()"><i class="ti ti-printer"></i> พิมพ์ Poster (A4)</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-bg" id="cam-bg"><div class="modal" style="max-width:440px;text-align:center">
+  <h3><i class="ti ti-camera"></i> ถ่ายรูปยืนยันตัวตน</h3>
+  <video id="cam-video" autoplay playsinline style="width:100%;border-radius:10px;background:#000"></video>
+  <div class="rowflex" style="justify-content:center;margin-top:10px">
+    <button class="btn btn-out" onclick="closeCamera()">ยกเลิก</button>
+    <button class="btn btn-teal" onclick="snapPhoto()"><i class="ti ti-camera"></i> ถ่ายรูป</button>
+  </div></div></div>
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal-body"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+/* ═══════════ NBC GATE PASS CONTROL v1.0 ═══════════ */
+const firebaseConfig={apiKey:"AIzaSyCKASP9RLRFgvdsM98cgbK3gJQiYQDqFC4",authDomain:"nw-contractor-training.firebaseapp.com",projectId:"nw-contractor-training",storageBucket:"nw-contractor-training.firebasestorage.app",messagingSenderId:"543139137624",appId:"1:543139137624:web:04b331bd7187046352222d"};
+firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+const CLD_CLOUD="zjtygb1h",CLD_PRESET="nw_ctms_unsigned";
+const APP_VER="v1.8";document.getElementById("ver-badge").textContent=APP_VER;
+const POS_LABEL={GEN:"พนักงานทั่วไป / General",SAF:"จป.หัวหน้างาน / Safety Sup.",FWM:"Fire Watchman",DRV:"พนักงานขับรถขนส่ง / Transport Driver",SUP:"พนักงานสนับสนุน / Supporting Staff"};
+const GROUP_TH={contractor:"ผู้รับเหมา",visitor:"ผู้มาติดต่อ",delivery:"รถขนส่ง",tempemp:"พนักงาน(ชั่วคราว)"};
+const DEPTS=["Administration / ธุรการ","HR / ทรัพยากรบุคคล","EHS / ความปลอดภัยฯ","Production / ฝ่ายผลิต","Maintenance / ซ่อมบำรุง","Engineering / วิศวกรรม","QA-QC / Laboratory","Warehouse & Logistics / คลังสินค้า","Procurement / จัดซื้อ","IT / เทคโนโลยีสารสนเทศ","Finance & Accounting / บัญชีการเงิน"];
+const PURPOSES=["ประชุม / ติดต่อธุรกิจ","เข้าปฏิบัติงาน / ให้บริการ","ส่ง-รับเอกสาร","ส่งสินค้า / รับสินค้า","ตรวจสอบ / Audit","สัมภาษณ์งาน","เยี่ยมชมโรงงาน","อื่นๆ (โปรดระบุ)"];
+const CARGOS=["สารเคมี / Chemicals","บรรจุภัณฑ์ / Packaging","อุปกรณ์ / เครื่องมือ","พัสดุไปรษณีย์","อาหาร / เครื่องดื่ม","อุปกรณ์ PPE","ของใช้สำนักงาน","อื่นๆ (โปรดระบุ)"];
+const REASONS=["พนักงานใหม่ยังไม่มีบัตรพนักงาน","บัตรพนักงานชำรุด / สูญหาย","ลืมนำบัตรพนักงานมา","อื่นๆ (โปรดระบุ)"];
+function fillSel(id,arr,extra){const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">— เลือก —</option>'+arr.map(x=>`<option>${x}</option>`).join("")+(extra||"");}
+function buildSelects(){fillSel("r-purpose-sel",PURPOSES);fillSel("r-cargo",CARGOS);fillSel("r-dept",DEPTS);fillSel("r-reason",REASONS);fillSel("r-cdept",DEPTS,'<option>ไม่ทราบ</option>');}
+function refreshOthers(){
+  const f=(sel,box,vis)=>{const e=document.getElementById(sel);const on=vis&&e&&(e.value||"").startsWith("อื่นๆ");document.getElementById(box).style.display=on?"block":"none";};
+  f("r-purpose-sel","fg-purpose-other",REG_TYPE&&REG_TYPE!=="tempemp");
+  f("r-cargo","fg-cargo-other",REG_TYPE==="delivery");
+  f("r-reason","fg-reason-other",REG_TYPE==="tempemp");
+}
+/* live camera capture — บังคับถ่ายสด */
+let PHOTO_BLOB=null,CAM_STREAM=null;
+async function openCamera(){
+  try{CAM_STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+    document.getElementById("cam-bg").classList.add("show");
+    document.getElementById("cam-video").srcObject=CAM_STREAM;
+  }catch(e){showToast("⚠ เปิดกล้องไม่ได้ — กรุณาอนุญาตการใช้กล้อง ("+e.message+")");}
+}
+function closeCamera(){if(CAM_STREAM){CAM_STREAM.getTracks().forEach(t=>t.stop());CAM_STREAM=null;}document.getElementById("cam-bg").classList.remove("show");}
+function snapPhoto(){
+  const v=document.getElementById("cam-video");if(!v.videoWidth){showToast("⚠ กล้องยังไม่พร้อม");return;}
+  const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0);
+  c.toBlob(b=>{PHOTO_BLOB=b;const p=document.getElementById("r-photo-prev");p.src=URL.createObjectURL(b);p.style.display="inline-block";document.getElementById("r-photo-ok").style.display="inline";closeCamera();},"image/jpeg",0.85);
+}
+/* contacts autocomplete */
+let CONTACTS=[],CONTACTS_RAW="";
+async function loadContacts(){
+  try{const s=await db.collection("config").doc("gatepass").get();
+    CONTACTS_RAW=(s.exists&&s.data().contacts)||"";
+    CONTACTS=CONTACTS_RAW.split("\n").map(l=>l.split(",")).filter(a=>a[0]&&a[0].trim()).map(a=>({n:a[0].trim(),d:(a[1]||"").trim()}));
+    const dl=document.getElementById("contacts-dl");if(dl)dl.innerHTML=CONTACTS.map(c=>`<option value="${esc(c.n)}">`).join("");
+    const ta=document.getElementById("gp-contacts");if(ta)ta.value=CONTACTS_RAW;
+  }catch(e){}
+}
+function contactPick(){
+  const v=(document.getElementById("r-contact").value||"").trim();
+  const m=CONTACTS.find(c=>c.n===v);if(!m||!m.d)return;
+  const sel=document.getElementById("r-cdept");
+  for(const o of sel.options){if(o.text===m.d){sel.value=o.value||o.text;return;}}
+  const o=document.createElement("option");o.text=m.d;sel.add(o);sel.value=m.d;
+}
+async function saveContacts(){
+  try{await db.collection("config").doc("gatepass").set({contacts:document.getElementById("gp-contacts").value||""},{merge:true});
+  showToast("✅ บันทึกรายชื่อแล้ว");loadContacts();}catch(e){showToast("⚠ "+e.message);}
+}
+/* quick 4-digit lookup */
+function _yrOpts(t){const y=bkk().getFullYear(),b=beYear();return t==="VP"?[b,b-1]:[y,y-1];}
+function qsYear(){const t=document.getElementById("qs-type").value;document.getElementById("qs-year").innerHTML=_yrOpts(t).map(x=>`<option>${x}</option>`).join("");}
+function cqYear(){const t=document.getElementById("cq-type").value;document.getElementById("cq-year").innerHTML=_yrOpts(t).map(x=>`<option>${x}</option>`).join("");}
+function _qcode(t,y,n){n=String(n||"").replace(/\D/g,"");if(!n){showToast("⚠ กรอกเลข 4 ตัวท้าย");return null;}return `${t}-${y}-${n.padStart(4,"0")}`;}
+function qsLookup(){const c=_qcode(document.getElementById("qs-type").value,document.getElementById("qs-year").value,document.getElementById("qs-num").value);if(c){document.getElementById("qs-num").value="";handleCode(c);}}
+function cqLookup(){
+  const c=_qcode(document.getElementById("cq-type").value,document.getElementById("cq-year").value,document.getElementById("cq-num").value);if(!c)return;
+  const l=_open.find(x=>x.cardId===c||x.vpNo===c);
+  document.getElementById("cq-num").value="";
+  if(l)openCheckout(l._id);else showToast("⚠ ไม่พบ "+c+" ในรายการที่อยู่ในโรงงาน");
+}
+const GROUP_BADGE={contractor:"b-con",visitor:"b-vis",delivery:"b-del",tempemp:"b-emp"};
+let SESSION=null,CFG={},REG_TYPE="",QRSCAN=null,CAM_ON=false;
+let _pending=[],_open=[],_hist=[],UNSUB_GV=null,UNSUB_LOG=null;
+
+/* ── time helpers (Bangkok) ── */
+function bkk(){return new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));}
+function today(){const d=bkk();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function nowTime(){const d=bkk();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
+function beYear(){return bkk().getFullYear()+543;}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+/* ── UI helpers ── */
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0);}
+function showToast(m){const t=document.getElementById("toast");t.textContent=m;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(()=>t.style.display="none",3200);}
+function showModal(html){document.getElementById("modal-body").innerHTML=html;document.getElementById("modal-bg").classList.add("show");}
+function closeModal(){document.getElementById("modal-bg").classList.remove("show");}
+function goHome(){stopCam();if(UNSUB_GV){UNSUB_GV();UNSUB_GV=null;}if(UNSUB_LOG){UNSUB_LOG();UNSUB_LOG=null;}SESSION=null;sessionStorage.removeItem("gp_session");showScreen("s-home");}
+function logout(){goHome();}
+
+/* ── config + login (ใช้ Guard PIN ชุดเดียวกับ CTMS: config/ctms) ── */
+async function loadCFG(){try{const s=await db.collection("config").doc("ctms").get();if(s.exists)CFG=s.data()||{};}catch(e){}}
+function showLogin(){showScreen("s-login");document.getElementById("lg-email").focus();}
+async function doLogin(){
+  const btn=document.getElementById("lg-btn");btn.disabled=true;btn.innerHTML='<span class="spin"></span> กำลังตรวจสอบ...';
+  await loadCFG();
+  const em=(document.getElementById("lg-email").value||"").trim().toLowerCase();
+  const pin=(document.getElementById("lg-pin").value||"").trim();
+  const gList=(CFG.guardEmails||[]).map(e=>String(e).toLowerCase().trim());
+  const eList=(CFG.ehsEmails||[]).map(e=>String(e).toLowerCase().trim());
+  let role=null;
+  if(gList.includes(em)&&pin===String(CFG.guardPIN||""))role="guard";
+  else if(eList.includes(em)&&pin===String(CFG.ehsPIN||""))role="ehs";
+  btn.disabled=false;btn.innerHTML="เข้าสู่ระบบ";
+  if(!role){showToast("⛔ Email หรือ PIN ไม่ถูกต้อง");return;}
+  SESSION={email:em,role};sessionStorage.setItem("gp_session",JSON.stringify(SESSION));
+  enterGuard();
+}
+function enterGuard(){
+  document.getElementById("tb-user").textContent=SESSION.email;
+  showScreen("s-guard");startListeners();
+  document.getElementById("h-d2").value=today();document.getElementById("h-d1").value=today().slice(0,8)+"01";
+  document.getElementById("cal-ox").value=localStorage.getItem("gp_ox")||"0";
+  document.getElementById("cal-oy").value=localStorage.getItem("gp_oy")||"0";
+  const adm=SESSION.role==="ehs";
+  document.getElementById("set-cal").style.display=adm?"block":"none";
+  document.getElementById("set-contacts").style.display=adm?"block":"none";
+  qsYear();cqYear();loadContacts();
+}
+function setTab(t){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.t===t));
+  document.querySelectorAll(".tabpane").forEach(x=>x.classList.remove("active"));
+  document.getElementById("tp-"+t).classList.add("active");
+  if(t==="checkout"){cqYear();setTimeout(()=>document.getElementById("co-rfid").focus(),150);}
+  if(t==="scan"){qsYear();setTimeout(()=>document.getElementById("manual-code").focus(),150);}
+  if(t!=="scan")stopCam();
+}
+
+/* ── realtime listeners ── */
+function startListeners(){
+  if(UNSUB_GV)UNSUB_GV();
+  UNSUB_GV=db.collection("gate_visitors").orderBy("createdAt","desc").limit(120).onSnapshot(s=>{
+    _pending=s.docs.map(d=>({_id:d.id,...d.data()})).filter(v=>v.status==="pending");
+    renderPending();
+  },e=>showToast("⚠ "+e.message));
+  if(UNSUB_LOG)UNSUB_LOG();
+  UNSUB_LOG=db.collection("gate_logs").where("status","==","in").onSnapshot(s=>{
+    _open=s.docs.map(d=>({_id:d.id,...d.data()}));
+    _open.sort((a,b)=>(a.inTime||"").localeCompare(b.inTime||""));
+    renderOnsite();renderCoList();
+  },e=>showToast("⚠ "+e.message));
+}
+
+/* ── Cloudinary ── */
+async function uploadPhoto(file){
+  const fd=new FormData();fd.append("file",file,"photo.jpg");fd.append("upload_preset",CLD_PRESET);fd.append("folder","gatepass");
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/image/upload`,{method:"POST",body:fd});
+  if(!res.ok)throw new Error("อัปโหลดรูปไม่สำเร็จ");
+  return (await res.json()).secure_url;
+}
+
+/* ── VP number: VP-{พ.ศ.}-XXXX ── */
+async function genVP(){
+  const yr=beYear();const ref=db.collection("counters").doc("VP-"+yr);
+  const seq=await db.runTransaction(async t=>{
+    const s=await t.get(ref);const next=(s.exists?(s.data().seq||0):0)+1;
+    t.set(ref,{seq:next,prefix:"VP",year:yr},{merge:true});return next;
+  });
+  return `VP-${yr}-${String(seq).padStart(4,"0")}`;
+}
+
+/* ═══════════ SELF-REGISTRATION ═══════════ */
+function openReg(){showScreen("s-reg");buildSelects();loadContacts();}
+function setRegType(t){
+  REG_TYPE=t;
+  ["visitor","delivery","tempemp"].forEach(x=>document.getElementById("tb-"+x).classList.toggle("sel",x===t));
+  document.getElementById("reg-fields").style.display="block";
+  const isDel=t==="delivery",isEmp=t==="tempemp";
+  document.getElementById("fg-co").style.display=isEmp?"none":"block";
+  document.getElementById("fg-dept").style.display=isEmp?"block":"none";
+  document.getElementById("fg-contact").style.display=isEmp?"none":"block";
+  document.getElementById("fg-purpose").style.display=isEmp?"none":"block";
+  document.getElementById("fg-reason").style.display=isEmp?"block":"none";
+  document.getElementById("fg-cargo").style.display=isDel?"block":"none";
+  document.getElementById("fg-cdept").style.display=isEmp?"none":"block";
+  document.getElementById("plate-req").style.display=isDel?"inline":"none";
+  document.getElementById("r-plate").placeholder=isDel?"จำเป็นต้องระบุ":"เว้นว่างได้หากไม่มีรถ";
+  refreshOthers();
+}
+function gv(id){return (document.getElementById(id).value||"").trim();}
+async function submitReg(){
+  if(!REG_TYPE){showToast("⚠ กรุณาเลือกประเภท");return;}
+  const fn=gv("r-fn"),ln=gv("r-ln"),idno=gv("r-idno"),tel=gv("r-tel"),plate=gv("r-plate");
+  const co=gv("r-co"),dept=gv("r-dept"),contact=gv("r-contact"),cdept=gv("r-cdept");
+  const isDel=REG_TYPE==="delivery",isEmp=REG_TYPE==="tempemp";
+  let purpose=gv("r-purpose-sel"),reason=gv("r-reason"),cargo=gv("r-cargo");
+  if(!fn||!ln||!idno||!tel){showToast("⚠ กรอกชื่อ นามสกุล เลขบัตร และเบอร์โทรให้ครบ");return;}
+  if(!isEmp){
+    if(!co||!contact){showToast("⚠ กรอกบริษัทและผู้ที่มาพบ");return;}
+    if(!cdept){showToast("⚠ เลือกแผนกของพนักงานที่ต้องการติดต่อ");return;}
+    if(!purpose){showToast("⚠ เลือกวัตถุประสงค์");return;}
+    if(purpose.startsWith("อื่นๆ")){const o=gv("r-purpose-other");if(!o){showToast("⚠ ระบุวัตถุประสงค์");return;}purpose="อื่นๆ: "+o;}
+  }
+  if(isEmp){
+    if(!dept){showToast("⚠ เลือกแผนก");return;}
+    if(!reason){showToast("⚠ เลือกเหตุผลที่ขอบัตรชั่วคราว");return;}
+    if(reason.startsWith("อื่นๆ")){const o=gv("r-reason-other");if(!o){showToast("⚠ ระบุเหตุผล");return;}reason="อื่นๆ: "+o;}
+  }
+  if(isDel){
+    if(!plate){showToast("⚠ รถขนส่งจำเป็นต้องระบุทะเบียนรถ");return;}
+    if(!cargo){showToast("⚠ เลือกประเภทสินค้าที่นำส่ง");return;}
+    if(cargo.startsWith("อื่นๆ")){const o=gv("r-cargo-other");if(!o){showToast("⚠ ระบุสิ่งที่นำมาส่ง");return;}cargo="อื่นๆ: "+o;}
+  }
+  if(!PHOTO_BLOB){showToast("⚠ กรุณาเปิดกล้องถ่ายรูปเพื่อยืนยันตัวตน");return;}
+  const btn=document.getElementById("r-submit");btn.disabled=true;btn.innerHTML='<span class="spin"></span> กำลังส่งข้อมูล...';
+  try{
+    const photo=await uploadPhoto(PHOTO_BLOB);
+    const id="GV-"+Date.now();
+    await db.collection("gate_visitors").doc(id).set({
+      id,vpType:REG_TYPE,fn,ln,co:isEmp?"NatureWorks":co,dept:dept||null,idno,tel,
+      contact:contact||null,contactDept:isEmp?null:(cdept||null),purpose:isEmp?null:(purpose||null),reason:isEmp?(reason||null):null,
+      plate:plate||null,cargoType:isDel?(cargo||null):null,photo,
+      status:"pending",vpNo:null,rfid:null,vehiclePassNo:null,
+      date:today(),createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById("reg-form-area").style.display="none";
+    document.getElementById("reg-ok").style.display="block";
+    document.getElementById("reg-ref").textContent=`${fn} ${ln}`;
+  }catch(e){showToast("⚠ "+e.message);}
+  btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> ส่งข้อมูลลงทะเบียน / Submit';
+}
+
+/* ═══════════ SCAN (Contractor QR: NBC|cardId|idno|POS) ═══════════ */
+function toggleCam(){CAM_ON?stopCam():startCam();}
+function startCam(){
+  QRSCAN=new Html5Qrcode("qr-reader",{experimentalFeatures:{useBarCodeDetectorIfSupported:true},verbose:false});
+  const onScan=txt=>{QRSCAN.pause(true);handleCode(txt);setTimeout(()=>{try{QRSCAN.resume();}catch(e){}},2500);};
+  const camOK=()=>{CAM_ON=true;document.getElementById("cam-btn").innerHTML='<i class="ti ti-camera-off"></i> ปิดกล้อง';};
+  const full={fps:10,qrbox:(w,hh)=>{const s=Math.floor(Math.min(w,hh)*0.8);return{width:s,height:s};},
+    videoConstraints:{facingMode:"environment",width:{ideal:1920},height:{ideal:1080}}};
+  const basic={fps:10,qrbox:250};
+  QRSCAN.start({facingMode:"environment"},full,onScan,()=>{}).then(camOK)
+    .catch(()=>QRSCAN.start({facingMode:"environment"},basic,onScan,()=>{}).then(camOK)
+    .catch(e=>showToast("⚠ เปิดกล้องไม่ได้: "+e)));
+}
+/* โหมดสำรอง: ถ่ายภาพนิ่งความละเอียดเต็ม แล้วถอดรหัสจากรูป (โฟกัส/แสงดีกว่า live มาก) */
+async function scanQRFile(inp){
+  const f=inp.files[0];if(!f)return;
+  showToast("🔍 กำลังอ่าน QR จากรูป...");
+  stopCam();
+  try{
+    const sc=new Html5Qrcode("qr-file-reader",{experimentalFeatures:{useBarCodeDetectorIfSupported:true},verbose:false});
+    const txt=await sc.scanFile(f,false);
+    try{sc.clear();}catch(e){}
+    handleCode(txt);
+  }catch(e){showToast("⚠ อ่าน QR จากรูปไม่สำเร็จ — ถ่ายใหม่ให้ QR ใหญ่เต็มเฟรมและชัด ไม่ย้อนแสง");}
+  inp.value="";
+}
+function stopCam(){if(QRSCAN&&CAM_ON){QRSCAN.stop().catch(()=>{});CAM_ON=false;const b=document.getElementById("cam-btn");if(b)b.innerHTML='<i class="ti ti-camera"></i> เปิดกล้อง';}}
+function manualLookup(){const v=(document.getElementById("manual-code").value||"").trim();if(v)handleCode(v);}
+function handleCode(txt){
+  txt=txt.trim();
+  if(txt.startsWith("NBC|")){const p=txt.split("|");lookupContractor(p[1]||"",p[2]||"",p[3]||"GEN");}
+  else if(txt.startsWith("NBCV|")){lookupVP(txt.split("|")[1]||"");}
+  else if(/^VP-\d{4}-\d{4}$/i.test(txt)){lookupVP(txt.toUpperCase());}
+  else if(/^NBC-/i.test(txt)){lookupContractor(txt.toUpperCase(),"","");}
+  else showToast("⚠ ไม่รู้จักรหัสนี้: "+txt.slice(0,30));
+}
+function panel(cls,inner){document.getElementById("scan-result").innerHTML=`<div class="result-panel ${cls}">${inner}</div>`;window.scrollTo({top:0,behavior:"smooth"});}
+function blockPanel(title,detail,r){
+  panel("rp-bad",`<div class="rowflex" style="gap:12px">${r&&r.photo?`<img class="pphoto" src="${esc(r.photo)}">`:""}
+  <div><div style="font-size:20px;font-weight:800;color:var(--red)"><i class="ti ti-ban"></i> ${title}</div>
+  ${r?`<div class="pname">${esc(r.fn)} ${esc(r.ln)}</div><div class="pmeta">${esc(r.co||"")}</div>`:""}
+  <div style="font-size:13px;margin-top:6px">${detail}</div>
+  <div style="font-size:12px;color:var(--red);margin-top:6px;font-weight:700">⛔ ห้ามเข้าพื้นที่ — Do NOT allow entry</div></div></div>`);
+}
+async function lookupContractor(cardId,idno,pos){
+  if(!cardId){showToast("⚠ QR ไม่มี Card ID");return;}
+  panel("rp-ok",'<span class="spin" style="border-color:#ccc;border-top-color:var(--teal)"></span> กำลังตรวจสอบ...');
+  try{
+    const q=await db.collection("registrations").where("cardId","==",cardId).limit(1).get();
+    if(q.empty){blockPanel("ไม่พบบัตรนี้ในระบบ",`Card ID: <b>${esc(cardId)}</b> — ตรวจสอบกับ EHS`,null);return;}
+    const r={id:q.docs[0].id,...q.docs[0].data()};
+    const rIdno=r.idno||idno;
+    const bl=await db.collection("blacklist").where("idno","==",rIdno).where("active","==",true).get();
+    if(!bl.empty){blockPanel("BLACKLIST",`เหตุผล: ${esc(bl.docs[0].data().reason||"-")}`,r);return;}
+    if(r.status==="blocked"){blockPanel("ถูก Block",`Short Brief ครบ 2 ครั้ง/ปี หรือถูกระงับสิทธิ์ — ติดต่อ EHS`,r);return;}
+    if(!r.cardIssued){blockPanel("ยังไม่ได้รับบัตร",`สถานะ: ${esc(r.approvalStatus||"รอตรวจสอบ")} — ให้ติดต่อขั้นตอนออกบัตรก่อน`,r);return;}
+    if(r.cardExpiry&&r.cardExpiry<today()){blockPanel("บัตรหมดอายุ",`หมดอายุเมื่อ: <b>${esc(r.cardExpiry)}</b> — ต้องอบรม/ต่ออายุใหม่`,r);return;}
+    const openLog=_open.find(l=>l.cardId===cardId);
+    const posCode=pos||( {general:"GEN",safety:"SAF",firewatchman:"FWM",driver:"DRV",support:"SUP"}[r.position]||"GEN");
+    const isDRV=posCode==="DRV"||r.isDriver===true;
+    if(openLog){renderCheckoutPanel(openLog,r);return;}
+    renderCheckinPanel(r,cardId,posCode,isDRV);
+  }catch(e){showToast("⚠ "+e.message);}
+}
+function renderCheckinPanel(r,cardId,posCode,isDRV){
+  panel("rp-ok",`
+  <div class="person">
+    ${r.photo?`<img class="pphoto" src="${esc(r.photo)}">`:`<div class="pphoto"></div>`}
+    <div style="flex:1">
+      <div class="rowflex" style="justify-content:space-between"><div class="pname">✅ ${esc(r.fn)} ${esc(r.ln)}</div><span class="badge b-ok">บัตรใช้งานได้</span></div>
+      <div class="pmeta">${esc(r.co||"")} · <b>${esc(POS_LABEL[posCode]||posCode)}</b><br>
+      Card: <b>${esc(cardId)}</b> (${esc(r.type||"")}) · หมดอายุ: <b>${esc(r.cardExpiry||"—")}</b></div>
+    </div>
+  </div>
+  ${isDRV?`<div class="alert al-amber" style="margin-top:10px"><i class="ti ti-truck"></i><span><b>พนักงานขับรถขนส่ง</b> — ต้องระบุทะเบียนรถและประเภทสินค้าทุกครั้ง</span></div>`:""}
+  <div class="divh"></div>
+  <div class="grid3">
+    <div class="fg"><label>ทะเบียนรถ ${isDRV?'<span class="req">*</span>':"(เว้นว่างได้)"}</label><input id="ci-plate"></div>
+    <div class="fg" ${isDRV?"":'style="display:none"'}><label>ประเภทสินค้าที่นำส่ง <span class="req">*</span></label>
+      <select id="ci-cargo" onchange="document.getElementById('ci-cargo-other-box').style.display=this.value.startsWith('อื่นๆ')?'block':'none'">${'<option value="">— เลือก —</option>'+CARGOS.map(c=>`<option>${c}</option>`).join("")}</select>
+      <div id="ci-cargo-other-box" style="display:none;margin-top:6px"><input id="ci-cargo-other" placeholder="ระบุสิ่งที่นำมาส่ง"></div></div>
+    <div class="fg"><label>Assign บัตร RFID (แตะบัตร / เว้นว่างได้)</label><input id="ci-rfid" placeholder="แตะบัตรกับเครื่องอ่าน..."></div>
+  </div>
+  <button class="btn btn-teal btn-big" onclick="doCheckIn('${r.id}','${esc(cardId)}','${posCode}',${isDRV})"><i class="ti ti-login"></i> Check-in เข้าโรงงาน (${nowTime()} น.)</button>`);
+}
+async function doCheckIn(regId,cardId,posCode,isDRV){
+  const plate=(document.getElementById("ci-plate").value||"").trim();
+  const cargoEl=document.getElementById("ci-cargo");let cargo=cargoEl?(cargoEl.value||"").trim():"";
+  if(cargo.startsWith("อื่นๆ")){const o=(document.getElementById("ci-cargo-other").value||"").trim();if(!o){showToast("⚠ ระบุสิ่งที่นำมาส่ง");return;}cargo="อื่นๆ: "+o;}
+  const rfid=(document.getElementById("ci-rfid").value||"").trim();
+  if(isDRV&&!plate){showToast("⚠ พนักงานขับรถขนส่งต้องระบุทะเบียนรถ");return;}
+  if(isDRV&&!cargo){showToast("⚠ เลือกประเภทสินค้าที่นำส่ง");return;}
+  try{
+    const q=await db.collection("registrations").doc(regId).get();const r=q.data()||{};
+    await db.collection("gate_logs").add({
+      date:today(),group:isDRV?"delivery":"contractor",refId:regId,cardId,vpNo:null,
+      name:`${r.fn||""} ${r.ln||""}`.trim(),co:r.co||"",idno:r.idno||"",photo:r.photo||null,
+      position:posCode,posLabel:POS_LABEL[posCode]||posCode,
+      plate:plate||null,cargoType:cargo||null,rfid:rfid||null,vehiclePassNo:null,
+      inTime:nowTime(),outTime:null,status:"in",
+      guardIn:SESSION.email,guardOut:null,inAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast(`✅ Check-in: ${r.fn||""} ${r.ln||""} (${nowTime()})`);
+    document.getElementById("scan-result").innerHTML="";document.getElementById("manual-code").value="";
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+/* ═══════════ VISITOR PASS LOOKUP (QR: NBCV|VP-xxxx) ═══════════ */
+async function lookupVP(vpNo){
+  const openLog=_open.find(l=>l.vpNo===vpNo);
+  if(openLog){renderCheckoutPanel(openLog,null);return;}
+  const q=await db.collection("gate_visitors").where("vpNo","==",vpNo).limit(1).get();
+  if(q.empty){showToast("⚠ ไม่พบ "+vpNo);return;}
+  const v={_id:q.docs[0].id,...q.docs[0].data()};
+  panel("rp-ok",`<div class="person">${v.photo?`<img class="pphoto" src="${esc(v.photo)}">`:""}
+  <div><div class="pname">${esc(v.fn)} ${esc(v.ln)}</div>
+  <div class="pmeta">${esc(v.co||"")} · <span class="badge ${GROUP_BADGE[v.vpType]||"b-vis"}">${GROUP_TH[v.vpType]||v.vpType}</span><br>
+  ${esc(vpNo)} · สถานะ: ${esc(v.status)} · วันที่ลงทะเบียน: ${esc(v.date||"")}</div>
+  <div style="margin-top:8px" class="rowflex"><button class="btn btn-teal btn-sm" onclick="gvCheckIn('${v._id}')"><i class="ti ti-login"></i> Check-in อีกครั้ง</button><button class="btn btn-out btn-sm" onclick='printVisitorPass(${JSON.stringify(v).replace(/'/g,"&#39;")})'><i class="ti ti-printer"></i> พิมพ์ใบผ่านซ้ำ</button></div></div></div>`);
+}
+async function gvCheckIn(gvId){
+  if(_open.find(l=>l.refId===gvId)){showToast("⚠ คนนี้อยู่ในโรงงานอยู่แล้ว — ยังไม่ Check-out");return;}
+  const s=await db.collection("gate_visitors").doc(gvId).get();const v=s.data();
+  await createLogFromGV(gvId,v,v.rfid||null);
+  showToast("✅ Check-in: "+v.fn+" "+v.ln);document.getElementById("scan-result").innerHTML="";
+}
+async function createLogFromGV(gvId,v,rfid){
+  await db.collection("gate_logs").add({
+    date:today(),group:v.vpType,refId:gvId,cardId:null,vpNo:v.vpNo||null,
+    name:`${v.fn} ${v.ln}`,co:v.co||"",idno:v.idno||"",photo:v.photo||null,
+    position:null,posLabel:null,plate:v.plate||null,cargoType:v.cargoType||null,
+    rfid:rfid||null,vehiclePassNo:v.vehiclePassNo||null,contact:v.contact||null,
+    inTime:nowTime(),outTime:null,status:"in",
+    guardIn:SESSION.email,guardOut:null,inAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+</script>
+
+
+<script>
+/* ═══════════ PENDING (Self-registrations review) ═══════════ */
+function renderPending(){
+  const c=document.getElementById("cnt-pending");
+  c.textContent=_pending.length;c.style.display=_pending.length?"inline-block":"none";
+  const el=document.getElementById("pending-list");
+  if(!_pending.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--grey)">— ไม่มีรายการรอตรวจสอบ —</div>';return;}
+  el.innerHTML=_pending.map(v=>`
+  <div class="card"><div class="person">
+    ${v.photo?`<img class="pphoto" src="${esc(v.photo)}">`:`<div class="pphoto"></div>`}
+    <div style="flex:1">
+      <div class="rowflex" style="justify-content:space-between">
+        <div class="pname" style="font-size:16px">${esc(v.fn)} ${esc(v.ln)}</div>
+        <span class="badge ${GROUP_BADGE[v.vpType]||"b-vis"}">${GROUP_TH[v.vpType]||v.vpType}</span></div>
+      <div class="pmeta">${esc(v.vpType==="tempemp"?("แผนก: "+(v.dept||"")):(v.co||""))} · โทร ${esc(v.tel||"")}<br>
+      ${v.contact?`พบ: ${esc(v.contact)} · `:""}${v.purpose?`เรื่อง: ${esc(v.purpose)}`:""}${v.reason?`เหตุผล: ${esc(v.reason)}`:""}
+      ${v.plate?`<br>ทะเบียนรถ: <b>${esc(v.plate)}</b>`:""}${v.cargoType?` · สินค้า: ${esc(v.cargoType)}`:""}</div>
+      <div class="rowflex" style="margin-top:8px">
+        <button class="btn btn-teal btn-sm" onclick="reviewGV('${v._id}')"><i class="ti ti-checkup-list"></i> ตรวจสอบ / ออกบัตร</button>
+        <button class="btn btn-red btn-sm" onclick="rejectGV('${v._id}')"><i class="ti ti-x"></i> ปฏิเสธ</button>
+      </div>
+    </div></div></div>`).join("");
+}
+function reviewGV(id){
+  const v=_pending.find(x=>x._id===id);if(!v)return;
+  showModal(`
+  <h3><i class="ti ti-id-badge-2"></i> ตรวจสอบและออกบัตรผ่าน</h3>
+  <div class="person" style="margin-bottom:12px">
+    ${v.photo?`<img class="pphoto" src="${esc(v.photo)}">`:""}
+    <div><div class="pname" style="font-size:16px">${esc(v.fn)} ${esc(v.ln)}</div>
+    <div class="pmeta">${esc(v.co||"")} · เลขบัตร ปชช.: <b>${esc(v.idno||"")}</b><br>
+    <span class="badge ${GROUP_BADGE[v.vpType]}">${GROUP_TH[v.vpType]}</span> ${v.plate?"· รถ "+esc(v.plate):""}</div></div>
+  </div>
+  <div class="alert al-amber"><i class="ti ti-id"></i><span>ตรวจบัตรประชาชนตัวจริงให้ตรงกับข้อมูลก่อนออกบัตร</span></div>
+  <div class="grid2">
+    <div class="fg"><label>Assign บัตร RFID (แตะบัตร / เว้นว่างได้)</label><input id="m-rfid" placeholder="แตะบัตรกับเครื่องอ่าน..." autofocus></div>
+    <div class="fg"><label>บัตรผ่านรถหมายเลข / Vehicle Pass No. (ถ้ามี)</label><input id="m-vpassno"></div>
+  </div>
+  <div class="rowflex" style="justify-content:flex-end;margin-top:6px">
+    <button class="btn btn-out" onclick="closeModal()">ยกเลิก</button>
+    <button class="btn btn-teal" id="m-approve" onclick="approveGV('${id}')"><i class="ti ti-printer"></i> อนุมัติ + พิมพ์ใบผ่าน + Check-in</button>
+  </div>`);
+  setTimeout(()=>{const x=document.getElementById("m-rfid");if(x)x.focus();},150);
+}
+async function approveGV(id){
+  const v=_pending.find(x=>x._id===id);if(!v)return;
+  const rfid=(document.getElementById("m-rfid").value||"").trim()||null;
+  const vpassno=(document.getElementById("m-vpassno").value||"").trim()||null;
+  const btn=document.getElementById("m-approve");btn.disabled=true;btn.innerHTML='<span class="spin"></span> กำลังออกบัตร...';
+  try{
+    const bl=await db.collection("blacklist").where("idno","==",v.idno).where("active","==",true).get();
+    if(!bl.empty){closeModal();showToast("⛔ BLACKLIST — ออกบัตรไม่ได้: "+(bl.docs[0].data().reason||""));return;}
+    const vpNo=v.vpNo||await genVP();
+    await db.collection("gate_visitors").doc(id).update({status:"approved",vpNo,rfid,vehiclePassNo:vpassno,approvedBy:SESSION.email,approvedDate:today()});
+    const v2={...v,vpNo,rfid,vehiclePassNo:vpassno};
+    await createLogFromGV(id,v2,rfid);
+    closeModal();showToast(`✅ ออกบัตร ${vpNo} + Check-in แล้ว`);
+    printVisitorPass(v2);
+  }catch(e){showToast("⚠ "+e.message);btn.disabled=false;}
+}
+async function rejectGV(id){
+  const reason=prompt("ระบุเหตุผลที่ปฏิเสธ:");if(reason===null)return;
+  await db.collection("gate_visitors").doc(id).update({status:"rejected",rejectReason:reason||"-",rejectedBy:SESSION.email});
+  showToast("🚫 ปฏิเสธแล้ว");
+}
+
+/* ═══════════ CHECK-OUT ═══════════ */
+function renderCoList(){
+  const el=document.getElementById("co-list");if(!el)return;
+  coRenderRows(_open,el);
+}
+function coRenderRows(rows,el){
+  if(!rows.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--grey)">— ไม่มีผู้ค้างอยู่ในโรงงาน —</div>';return;}
+  el.innerHTML=`<div class="card tscroll"><table><thead><tr><th></th><th>ชื่อ</th><th>กลุ่ม</th><th>เข้า</th><th>รถ</th><th>RFID</th><th></th></tr></thead><tbody>`+
+  rows.map(l=>`<tr class="rowclick" onclick="showLogDetail('${l._id}')">
+    <td>${l.photo?`<img class="tphoto" src="${esc(l.photo)}">`:""}</td>
+    <td><b>${esc(l.name)}</b><br><span style="font-size:11px;color:var(--grey)">${esc(l.co||"")}</span></td>
+    <td><span class="badge ${GROUP_BADGE[l.group]||"b-info"}">${GROUP_TH[l.group]||l.group}</span></td>
+    <td>${esc(l.inTime||"")}</td><td>${esc(l.plate||"—")}</td>
+    <td>${l.rfid?`<span class="badge b-warn"><i class="ti ti-nfc"></i> ${esc(l.rfid)}</span>`:"—"}</td>
+    <td><button class="btn btn-navy btn-sm" onclick="event.stopPropagation();openCheckout('${l._id}')"><i class="ti ti-door-exit"></i> Check-out</button></td></tr>`).join("")+`</tbody></table></div>`;
+}
+function coSearch(){
+  const v=(document.getElementById("co-rfid").value||"").trim();
+  if(!v){renderCoList();return;}
+  const exact=_open.find(l=>l.rfid&&l.rfid===v);
+  if(exact){document.getElementById("co-rfid").value="";openCheckout(exact._id);return;}
+  const lv=v.toLowerCase();
+  const rows=/^\d{13}$/.test(v)?_open.filter(l=>l.idno===v)
+    :_open.filter(l=>(l.name||"").toLowerCase().includes(lv)||(l.vpNo||"").toLowerCase().includes(lv)||(l.plate||"").toLowerCase().includes(lv)||(l.cardId||"").toLowerCase().includes(lv));
+  coRenderRows(rows,document.getElementById("co-list"));
+  if(!rows.length)showToast("⚠ ไม่พบ: "+v);
+}
+function renderCheckoutPanel(log,r){
+  panel("rp-ok",`<div class="person">${log.photo?`<img class="pphoto" src="${esc(log.photo)}">`:""}
+  <div><div class="pname">${esc(log.name)}</div>
+  <div class="pmeta">${esc(log.co||"")} · <span class="pill-in">อยู่ในโรงงาน · เข้า ${esc(log.inTime)}</span></div>
+  <div style="margin-top:10px"><button class="btn btn-navy" onclick="openCheckout('${log._id}')"><i class="ti ti-door-exit"></i> Check-out ออกจากโรงงาน</button></div></div></div>`);
+}
+function openCheckout(logId){
+  const l=_open.find(x=>x._id===logId);if(!l)return;
+  const needRFID=!!l.rfid;
+  showModal(`
+  <h3><i class="ti ti-door-exit"></i> Check-out — ${esc(l.name)}</h3>
+  <div class="pmeta" style="margin-bottom:10px">${esc(l.co||"")} · เข้าเมื่อ ${esc(l.inTime)} น. · ${GROUP_TH[l.group]||""} ${l.plate?"· รถ "+esc(l.plate):""}</div>
+  ${needRFID?`
+  <div class="alert al-red"><i class="ti ti-nfc"></i><span><b>คนนี้ต้องคืนบัตร RFID: ${esc(l.rfid)}</b><br>แตะบัตรที่รับคืนเพื่อยืนยัน — หากไม่คืนบัตร จะ Check-out ไม่ได้</span></div>
+  <div class="fg"><label>แตะบัตร RFID ที่รับคืน <span class="req">*</span></label>
+  <input id="co-return" placeholder="แตะบัตร..." oninput="coVerify('${logId}')" onkeydown="if(event.key==='Enter')coVerify('${logId}')"></div>
+  <div class="rowflex" style="justify-content:flex-end">
+    <button class="btn btn-out" onclick="closeModal()">ยกเลิก</button>
+    <button class="btn btn-out btn-sm" onclick="coManual('${logId}')" title="กรณีเครื่องอ่านเสีย"><i class="ti ti-hand-stop"></i> ยืนยันรับคืนแบบ Manual</button>
+    <button class="btn btn-teal" id="co-confirm" disabled onclick="doCheckout('${logId}',false)"><i class="ti ti-check"></i> Check-out</button>
+  </div>`:`
+  <div class="rowflex" style="justify-content:flex-end">
+    <button class="btn btn-out" onclick="closeModal()">ยกเลิก</button>
+    <button class="btn btn-teal" onclick="doCheckout('${logId}',false)"><i class="ti ti-check"></i> ยืนยัน Check-out (${nowTime()} น.)</button>
+  </div>`}`);
+  if(needRFID)setTimeout(()=>{const x=document.getElementById("co-return");if(x)x.focus();},150);
+}
+function coVerify(logId){
+  const l=_open.find(x=>x._id===logId);if(!l)return;
+  const v=(document.getElementById("co-return").value||"").trim();
+  const ok=v===l.rfid;
+  const btn=document.getElementById("co-confirm");btn.disabled=!ok;
+  if(ok){btn.innerHTML='<i class="ti ti-check"></i> ✓ บัตรถูกต้อง — Check-out';}
+  else if(v.length>=String(l.rfid).length){showToast("⛔ บัตรไม่ตรง! ได้รับ: "+v);document.getElementById("co-return").value="";}
+}
+function coManual(logId){
+  const reason=prompt("เหตุผลการยืนยันแบบ Manual (เช่น เครื่องอ่านเสีย, ตรวจเลขบนบัตรด้วยตาแล้ว):");
+  if(reason===null||!reason.trim()){showToast("⚠ ต้องระบุเหตุผล");return;}
+  doCheckout(logId,reason.trim());
+}
+async function doCheckout(logId,manualReason){
+  const l=_open.find(x=>x._id===logId);if(!l)return;
+  try{
+    await db.collection("gate_logs").doc(logId).update({
+      status:"out",outTime:nowTime(),outDate:today(),guardOut:SESSION.email,
+      rfidReturned:l.rfid?true:null,
+      rfidReturnMode:l.rfid?(manualReason?("manual: "+manualReason):"tap"):null,
+      outAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeModal();showToast(`✅ Check-out: ${l.name} (${nowTime()})`);
+    const f=document.getElementById("co-rfid");if(f){f.value="";f.focus();}
+    document.getElementById("scan-result").innerHTML="";
+  }catch(e){showToast("⚠ "+e.message);}
+}
+
+/* ═══════════ ON-SITE DASHBOARD ═══════════ */
+function renderOnsite(){
+  const cnt={contractor:0,visitor:0,delivery:0,tempemp:0};
+  _open.forEach(l=>{if(cnt[l.group]!=null)cnt[l.group]++;});
+  document.getElementById("st-total").textContent=_open.length;
+  document.getElementById("st-con").textContent=cnt.contractor;
+  document.getElementById("st-vis").textContent=cnt.visitor;
+  document.getElementById("st-del").textContent=cnt.delivery;
+  document.getElementById("st-emp").textContent=cnt.tempemp;
+  const b=document.getElementById("cnt-onsite");b.textContent=_open.length;b.style.display=_open.length?"inline-block":"none";
+  const el=document.getElementById("onsite-list");
+  if(!_open.length){el.innerHTML='<div style="text-align:center;color:var(--grey);padding:14px">— ไม่มีผู้อยู่ในโรงงาน —</div>';return;}
+  el.innerHTML=`<table><thead><tr><th></th><th>ชื่อ</th><th>บริษัท</th><th>กลุ่ม</th><th>เข้า</th><th>รถ / สินค้า</th><th>RFID</th><th>พบ</th></tr></thead><tbody>`+
+  _open.map(l=>`<tr class="rowclick" onclick="showLogDetail('${l._id}')">
+    <td>${l.photo?`<img class="tphoto" src="${esc(l.photo)}">`:""}</td>
+    <td><b>${esc(l.name)}</b>${l.vpNo?`<br><span style="font-size:10.5px;color:var(--grey)">${esc(l.vpNo)}</span>`:""}${l.cardId?`<br><span style="font-size:10.5px;color:var(--grey)">${esc(l.cardId)}</span>`:""}</td>
+    <td>${esc(l.co||"")}</td>
+    <td><span class="badge ${GROUP_BADGE[l.group]||"b-info"}">${GROUP_TH[l.group]||l.group}</span></td>
+    <td><b>${esc(l.inTime||"")}</b></td>
+    <td>${esc(l.plate||"—")}${l.cargoType?`<br><span style="font-size:10.5px;color:var(--amber)">${esc(l.cargoType)}</span>`:""}</td>
+    <td>${l.rfid?esc(l.rfid):"—"}</td>
+    <td style="font-size:11px">${esc(l.contact||"—")}</td></tr>`).join("")+`</tbody></table>`;
+}
+
+/* ═══════════ HISTORY + CSV ═══════════ */
+async function loadHistory(){
+  const d1=document.getElementById("h-d1").value,d2=document.getElementById("h-d2").value;
+  const el=document.getElementById("hist-list");
+  if(!d1||!d2){showToast("⚠ เลือกวันเริ่มต้นและวันสิ้นสุด");return;}
+  if(d1>d2){showToast("⚠ วันเริ่มต้นต้องไม่เกินวันสิ้นสุด");return;}
+  el.innerHTML="กำลังโหลด...";
+  try{
+    const q=await db.collection("gate_logs").where("date",">=",d1).where("date","<=",d2).get();
+    _hist=q.docs.map(x=>({_id:x.id,...x.data()}));
+    _hist.sort((a,b)=>(a.date+a.inTime).localeCompare(b.date+b.inTime));
+    if(!_hist.length){el.innerHTML=`— ไม่มีข้อมูลช่วง ${d1} ถึง ${d2} —`;document.getElementById("mh-card").style.display="none";return;}
+    el.innerHTML=`<div style="font-size:12px;color:var(--grey);margin-bottom:8px">ช่วง ${d1} → ${d2} · ${_hist.length} รายการ · ยังไม่ออก ${_hist.filter(l=>l.status==="in").length} คน</div>
+    <table><thead><tr><th>วันที่</th><th>ชื่อ</th><th>บริษัท</th><th>กลุ่ม</th><th>เข้า</th><th>ออก</th><th>รถ</th><th>สินค้า</th><th>RFID</th><th>รปภ.</th></tr></thead><tbody>`+
+    _hist.map(l=>`<tr class="rowclick" onclick="showLogDetail('${l._id}')"><td>${esc(l.date||"")}</td><td><b>${esc(l.name)}</b>${l.vpNo?" · "+esc(l.vpNo):""}${l.cardId?" · "+esc(l.cardId):""}</td>
+    <td>${esc(l.co||"")}</td><td><span class="badge ${GROUP_BADGE[l.group]||"b-info"}">${GROUP_TH[l.group]||l.group}</span></td>
+    <td>${esc(l.inTime||"")}</td><td>${l.status==="in"?'<span class="pill-in">ยังอยู่</span>':(esc(l.outTime||"")+(l.outDate&&l.outDate!==l.date?`<br><span style="font-size:10px;color:var(--amber);font-weight:700">${esc(l.outDate)}</span>`:""))}</td>
+    <td>${esc(l.plate||"—")}</td><td>${esc(l.cargoType||"—")}</td>
+    <td>${l.rfid?esc(l.rfid)+(l.rfidReturnMode&&String(l.rfidReturnMode).startsWith("manual")?" ⚠":""):"—"}</td>
+    <td style="font-size:10.5px">${esc((l.guardIn||"").split("@")[0])}</td></tr>`).join("")+`</tbody></table>`;
+    renderManhours();
+  }catch(e){el.innerHTML="⚠ "+e.message;}
+}
+/* ── Man-hours: ผู้ถือบัตร CTMS ที่ปิดรายการแล้ว · ตัดเที่ยงคืน · แยก ตำแหน่ง × เดือน ── */
+const MH_POS=["GEN","SAF","FWM","DRV","SUP"];
+function _mins(t){const p=(t||"").split(":");return (+p[0]||0)*60+(+p[1]||0);}
+function _dayAdd(d,n){const a=d.split("-").map(Number);const x=new Date(Date.UTC(a[0],a[1]-1,a[2]+n));return x.toISOString().slice(0,10);}
+/* กระจายชั่วโมงเป็นรายวัน ตัดที่ 00:00 แล้วเข้าถังรายเดือนของวันนั้น */
+function hoursByMonth(l){
+  if(!l.outTime)return null;
+  const sd=l.date;if(!sd)return null;
+  const si=_mins(l.inTime),eo=_mins(l.outTime);
+  let ed=l.outDate||(eo>=si?sd:_dayAdd(sd,1)); // record เก่าไม่มี outDate: ออก<เข้า = ข้ามคืน 1 วัน
+  if(ed<sd)return null;
+  const out={};let cur=sd,i=0;
+  while(cur<=ed&&i++<64){
+    const from=cur===sd?si:0, to=cur===ed?eo:1440;
+    if(to>from){const mo=cur.slice(0,7);out[mo]=(out[mo]||0)+(to-from)/60;}
+    if(cur===ed)break;cur=_dayAdd(cur,1);
+  }
+  return out;
+}
+let _mh=null;
+function renderManhours(){
+  const card=document.getElementById("mh-card");card.style.display="block";
+  const logs=_hist.filter(l=>l.cardId);
+  if(!logs.length){_mh=null;document.getElementById("mh-table").innerHTML='<div style="color:var(--grey);padding:8px 0">— ช่วงนี้ไม่มีข้อมูลผู้รับเหมา (ผู้ถือบัตรอบรม CTMS) — รายการผู้มาติดต่อ/Visitor ไม่ถูกนับใน Man-hours —</div>';return;}
+  const months={};let skipped=0;
+  logs.forEach(l=>{
+    const hb=hoursByMonth(l);
+    if(!hb){skipped++;return;}
+    const pos=MH_POS.includes(l.position)?l.position:"GEN";
+    Object.keys(hb).forEach(mo=>{
+      months[mo]=months[mo]||{GEN:0,SAF:0,FWM:0,DRV:0,SUP:0,_n:0};
+      months[mo][pos]+=hb[mo];
+    });
+    const smo=(l.date||"").slice(0,7);
+    if(months[smo])months[smo]._n++;
+  });
+  const keys=Object.keys(months).sort();
+  _mh={months,keys};
+  const f=x=>x?x.toFixed(1):"–";
+  let tot={GEN:0,SAF:0,FWM:0,DRV:0,SUP:0,_n:0};
+  let rows=keys.map(mo=>{
+    const m=months[mo];const sum=MH_POS.reduce((s,p)=>s+m[p],0);
+    MH_POS.forEach(p=>tot[p]+=m[p]);tot._n+=m._n;
+    return `<tr><td><b>${mo}</b></td>${MH_POS.map(p=>`<td style="text-align:right">${f(m[p])}</td>`).join("")}<td style="text-align:right"><b>${sum.toFixed(1)}</b></td><td style="text-align:right">${m._n}</td></tr>`;
+  }).join("");
+  const totSum=MH_POS.reduce((s,p)=>s+tot[p],0);
+  document.getElementById("mh-table").innerHTML=`
+  <table><thead><tr><th>เดือน</th><th style="text-align:right">GEN<br>ทั่วไป</th><th style="text-align:right">SAF<br>จป.</th><th style="text-align:right">FWM<br>Fire Watch</th><th style="text-align:right">DRV<br>ขับรถขนส่ง</th><th style="text-align:right">SUP<br>สนับสนุน</th><th style="text-align:right">รวม (ชม.)</th><th style="text-align:right">จำนวนครั้ง</th></tr></thead>
+  <tbody>${rows}<tr style="background:#F0FBFA"><td><b>รวมทั้งหมด</b></td>${MH_POS.map(p=>`<td style="text-align:right"><b>${f(tot[p])}</b></td>`).join("")}<td style="text-align:right"><b>${totSum.toFixed(1)}</b></td><td style="text-align:right"><b>${tot._n}</b></td></tr></tbody></table>
+  ${skipped?`<div class="hint" style="margin-top:6px">⚠ ไม่นับ ${skipped} รายการที่ยังไม่ Check-out</div>`:""}`;
+}
+function exportMH(){
+  if(!_hist.length){showToast("⚠ กดปุ่ม แสดง เพื่อโหลดข้อมูลก่อน");return;}
+  if(!_mh||!_mh.keys.length){showToast("⚠ ช่วงนี้ไม่มีข้อมูลผู้รับเหมา (บัตร CTMS) ที่ Check-out แล้ว — Visitor ไม่ถูกนับใน Man-hours");return;}
+  const rows=[["Month","GEN (hrs)","SAF (hrs)","FWM (hrs)","DRV (hrs)","SUP (hrs)","Total (hrs)","Entries"]];
+  _mh.keys.forEach(mo=>{const m=_mh.months[mo];const sum=MH_POS.reduce((s,p)=>s+m[p],0);
+    rows.push([mo,...MH_POS.map(p=>m[p].toFixed(2)),sum.toFixed(2),m._n]);});
+  const csv="\ufeff"+rows.map(r=>r.map(c=>`"${String(c)}"`).join(",")).join("\r\n");
+  const d1=document.getElementById("h-d1").value,d2=document.getElementById("h-d2").value;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`Contractor_Manhours_${d1}_to_${d2}.csv`;a.click();
+}
+function exportCSV(){
+  if(!_hist.length){showToast("⚠ กดแสดงข้อมูลก่อน");return;}
+  const d1=document.getElementById("h-d1").value,d2=document.getElementById("h-d2").value;
+  const rows=[["Date","Name","Company","Group","ID No.","Card/VP","In","Out","Plate","Cargo","RFID","RFID Return","Guard In","Guard Out"]];
+  _hist.forEach(l=>rows.push([l.date,l.name,l.co||"",GROUP_TH[l.group]||l.group,l.idno||"",l.cardId||l.vpNo||"",l.inTime||"",l.outTime||"",l.plate||"",l.cargoType||"",l.rfid||"",l.rfidReturnMode||"",l.guardIn||"",l.guardOut||""]));
+  const csv="\ufeff"+rows.map(r=>r.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`GatePass_${d1}_to_${d2}.csv`;a.click();
+}
+
+/* ═══════════ INIT ═══════════ */
+(function init(){
+  const sp=new URLSearchParams(location.search);
+  if(sp.get("reg")==="1"){openReg();return;}
+  const s=sessionStorage.getItem("gp_session");
+  if(s){try{SESSION=JSON.parse(s);if(SESSION&&SESSION.email){enterGuard();}}catch(e){}}
+})();
+</script>
+
+
+<script>
+/* ═══════════ PRINT MODULE — Overlay on pre-printed A5 form ═══════════
+   พิกัดวัดจากสแกนฟอร์มจริง (มม.): ตารางบน y=20.0, เส้นแถว 34.7/49.3/70.1/84.8
+   คอลัมน์ x=4.4/50.8/97.2/143.6 — ปรับเพี้ยนด้วย Offset X/Y ใน "ตั้งค่า" */
+function calOX(){return parseFloat(localStorage.getItem("gp_ox")||"0")||0;}
+function calOY(){return parseFloat(localStorage.getItem("gp_oy")||"0")||0;}
+function saveCal(){
+  localStorage.setItem("gp_ox",document.getElementById("cal-ox").value||"0");
+  localStorage.setItem("gp_oy",document.getElementById("cal-oy").value||"0");
+  showToast("✅ บันทึก Offset แล้ว (เครื่องนี้)");
+}
+function qrDataURL(text,px){
+  const d=document.createElement("div");d.style.cssText="position:fixed;left:-9999px";document.body.appendChild(d);
+  new QRCode(d,{text,width:px,height:px,correctLevel:QRCode.CorrectLevel.M});
+  const cv=d.querySelector("canvas");const url=cv?cv.toDataURL("image/png"):(d.querySelector("img")||{}).src||"";
+  document.body.removeChild(d);return url;
+}
+function printViaFrame(bodyHTML,pageSize){
+  const old=document.getElementById("print-frame");if(old)old.remove();
+  const f=document.createElement("iframe");f.id="print-frame";
+  f.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+  document.body.appendChild(f);
+  const doc=f.contentDocument||f.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:${pageSize};margin:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:'Leelawadee UI','IBM Plex Sans Thai',Tahoma,Arial,sans-serif;background:#fff;position:relative}
+.sheet{position:relative;overflow:hidden}
+.abs{position:absolute;white-space:nowrap;color:#000}
+</style></head><body>${bodyHTML}</body></html>`);
+  doc.close();
+  showToast("🖨 กำลังเปิดหน้าต่างพิมพ์...");
+  setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print();}catch(e){showToast("⚠ พิมพ์ไม่ได้: "+e.message);}},450);
+}
+function printVisitorPass(v){
+  const ox=calOX(),oy=calOY();
+  const dt=today().split("-").reverse().join("/");
+  const F="font-size:3.7mm;font-weight:600";
+  const body=`
+  <div class="sheet" style="width:148mm;height:210mm">
+   <div style="position:absolute;left:${ox}mm;top:${oy}mm;width:148mm;height:210mm">
+    <img class="abs" src="${qrDataURL("NBCV|"+(v.vpNo||""),196)}" style="left:6mm;top:2.5mm;width:13mm;height:13mm">
+    <div class="abs" style="left:96mm;top:5mm;width:46mm;text-align:right;font-size:5.2mm;font-weight:800">${esc(v.vpNo||"")}</div>
+    <div class="abs" style="left:7.4mm;top:27.2mm;${F}">${esc(dt)}</div>
+    <div class="abs" style="left:53.8mm;top:27.2mm;${F};max-width:42mm;overflow:hidden">${esc(v.fn)} ${esc(v.ln)}</div>
+    <div class="abs" style="left:100.2mm;top:29.5mm;${F};max-width:42mm;overflow:hidden">${esc(v.contact||"")}</div>
+    <div class="abs" style="left:7.4mm;top:41.7mm;font-size:3.2mm;font-weight:600;max-width:42mm;white-space:normal;line-height:1.25">${esc(v.purpose||v.reason||"")}</div>
+    <div class="abs" style="left:53.8mm;top:41.7mm;font-size:3.3mm;font-weight:600;max-width:42mm;white-space:normal;line-height:1.25">${esc(v.vpType==="tempemp"?("NatureWorks — "+(v.dept||"")):(v.co||""))}</div>
+    <div class="abs" style="left:100.2mm;top:41.7mm;${F}">${esc(v.tel||"")}</div>
+    <div class="abs" style="left:7.4mm;top:56.5mm;font-size:4.4mm;font-weight:800">${esc(v.vpNo||"")}</div>
+    <div class="abs" style="left:53.8mm;top:56.5mm;${F}">${esc(v.vehiclePassNo||v.plate||"")}</div>
+    <div class="abs" style="left:101.5mm;top:56mm;${F}">${nowTime()} น.</div>
+   </div>
+  </div>`;
+  printViaFrame(body,"A5 portrait");
+}
+function printCalTest(){
+  const ox=parseFloat(document.getElementById("cal-ox").value||"0")||0;
+  const oy=parseFloat(document.getElementById("cal-oy").value||"0")||0;
+  const cross=(x,y)=>`<div class="abs" style="left:${x-3}mm;top:${y}mm;width:6mm;height:.25mm;background:#000"></div><div class="abs" style="left:${x}mm;top:${y-3}mm;width:.25mm;height:6mm;background:#000"></div>`;
+  const body=`
+  <div class="sheet" style="width:148mm;height:210mm">
+   <div style="position:absolute;left:${ox}mm;top:${oy}mm;width:148mm;height:210mm">
+    <div class="abs" style="left:4.4mm;top:20mm;width:139.2mm;height:64.8mm;border:.3mm dashed #000"></div>
+    <div class="abs" style="left:50.8mm;top:20mm;width:.25mm;height:64.8mm;background:#000;opacity:.55"></div>
+    <div class="abs" style="left:97.2mm;top:20mm;width:.25mm;height:64.8mm;background:#000;opacity:.55"></div>
+    <div class="abs" style="left:4.4mm;top:34.7mm;width:139.2mm;height:.25mm;background:#000;opacity:.55"></div>
+    <div class="abs" style="left:4.4mm;top:49.3mm;width:139.2mm;height:.25mm;background:#000;opacity:.55"></div>
+    <div class="abs" style="left:4.4mm;top:70.1mm;width:139.2mm;height:.25mm;background:#000;opacity:.55"></div>
+    ${cross(4.4,20)}${cross(143.6,20)}${cross(4.4,84.8)}${cross(143.6,84.8)}
+    <div class="abs" style="left:8mm;top:95mm;font-size:3.2mm;white-space:normal;max-width:130mm">
+      กรอบเส้นประต้องทาบสนิทกับเส้นตารางบนฟอร์ม — ถ้าเลื่อนขวา ให้ลด Offset X / เลื่อนลง ให้ลด Offset Y (ปรับทีละ 0.5 มม. แล้วพิมพ์ทดสอบใหม่)</div>
+   </div>
+  </div>`;
+  printViaFrame(body,"A5 portrait");
+}
+function printPoster(){
+  const url=location.origin+location.pathname+"?reg=1";
+  const body=`
+  <div class="sheet" style="width:210mm;height:297mm;display:flex;flex-direction:column;align-items:center">
+    <div style="width:100%;background:#1F497D;color:#fff;text-align:center;padding:14mm 10mm 10mm">
+      <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" style="height:14mm;background:#fff;padding:2.5mm 6mm;border-radius:3mm">
+      <div style="font-size:11mm;font-weight:800;margin-top:7mm">ลงทะเบียนเข้าพื้นที่</div>
+      <div style="font-size:6mm;font-weight:600;opacity:.9">Site Entry Self-Registration</div>
+    </div>
+    <div style="height:5mm;width:100%;background:#00B5A8"></div>
+    <div style="margin-top:12mm;border:1.2mm solid #1F497D;border-radius:6mm;padding:8mm"><img src="${qrDataURL(url,560)}" style="width:72mm;height:72mm;display:block"></div>
+    <div style="font-size:7.5mm;font-weight:800;color:#1F497D;margin-top:8mm">สแกน QR เพื่อลงทะเบียนด้วยตนเอง</div>
+    <div style="font-size:4.6mm;color:#4A7396;font-weight:600">Scan to register — Visitor · Delivery · Temporary Pass</div>
+    <div style="margin-top:10mm;font-size:5mm;color:#123A66;line-height:2;text-align:left">
+      <b style="color:#00B5A8">1.</b> สแกน QR แล้วกรอกข้อมูล + ถ่ายรูป &nbsp;Scan &amp; fill in your details<br>
+      <b style="color:#00B5A8">2.</b> กดส่งข้อมูล &nbsp;Submit the form<br>
+      <b style="color:#00B5A8">3.</b> แจ้งเจ้าหน้าที่ รปภ. เพื่อรับใบผ่าน &nbsp;Contact the guard for your pass</div>
+    <div style="margin-top:auto;width:100%;background:#EEF3F8;text-align:center;padding:6mm;font-size:3.8mm;color:#6E93AF">
+      NatureWorks Asia Pacific Co., Ltd. — NBC Plant · Gate Pass Control ${APP_VER}</div>
+  </div>`;
+  printViaFrame(body,"A4 portrait");
+}
+</script>
+<script>
+/* ═══ v1.2: Record detail popup (Check-out / ในโรงงาน / ประวัติ) ═══ */
+function _findLog(id){return _open.find(x=>x._id===id)||_hist.find(x=>x._id===id)||null;}
+function showLogDetail(id){
+  const l=_findLog(id);if(!l)return;
+  const isIn=l.status==="in";
+  const row=(k,v)=>v?`<div class="dl">${k}</div><div class="dv">${v}</div>`:"";
+  showModal(`
+  <h3><i class="ti ti-id-badge-2"></i> รายละเอียดการเข้า-ออก</h3>
+  <div class="person" style="margin-bottom:4px">
+    ${l.photo?`<img class="pphoto" src="${esc(l.photo)}" style="width:96px;height:96px">`:`<div class="pphoto"></div>`}
+    <div style="flex:1">
+      <div class="pname" style="font-size:17px">${esc(l.name)}</div>
+      <div class="pmeta">${esc(l.co||"")}</div>
+      <div style="margin-top:5px" class="rowflex">
+        <span class="badge ${GROUP_BADGE[l.group]||"b-info"}">${GROUP_TH[l.group]||l.group}</span>
+        ${isIn?'<span class="pill-in">อยู่ในโรงงาน</span>':'<span class="badge b-info">ออกแล้ว</span>'}
+      </div>
+    </div>
+  </div>
+  <div class="dgrid">
+    ${row("วันที่",esc(l.date))}
+    ${row("เวลาเข้า",esc(l.inTime)+" น."+(l.guardIn?` <span style="color:var(--grey);font-weight:400">(รปภ. ${esc((l.guardIn||"").split("@")[0])})</span>`:""))}
+    ${row("เวลาออก",l.outTime?esc(l.outTime)+" น."+(l.outDate&&l.outDate!==l.date?` <b style="color:var(--amber)">(${esc(l.outDate)})</b>`:"")+(l.guardOut?` <span style="color:var(--grey);font-weight:400">(รปภ. ${esc((l.guardOut||"").split("@")[0])})</span>`:""):(isIn?"—":""))}
+    ${row("เลขบัตร/ใบผ่าน",esc(l.cardId||l.vpNo||""))}
+    ${row("ตำแหน่ง",esc(l.posLabel||""))}
+    ${row("เลขบัตร ปชช.",esc(l.idno||""))}
+    ${row("ทะเบียนรถ",esc(l.plate||""))}
+    ${row("บัตรผ่านรถ",esc(l.vehiclePassNo||""))}
+    ${row("สินค้าที่นำส่ง",esc(l.cargoType||""))}
+    ${row("RFID",l.rfid?esc(l.rfid)+(l.rfidReturnMode?` <span style="color:var(--grey);font-weight:400">(คืนแล้ว: ${esc(l.rfidReturnMode)})</span>`:(isIn?' <span style="color:var(--red)">— ยังไม่คืน</span>':"")):"")}
+    ${row("มาพบ",esc(l.contact||""))}
+    <div id="dx-extra" style="display:contents"></div>
+  </div>
+  <div class="rowflex" style="justify-content:flex-end;margin-top:16px">
+    <button class="btn btn-out" onclick="closeModal()">ปิด</button>
+    <span id="dx-actions"></span>
+    ${isIn?`<button class="btn btn-navy" onclick="closeModal();openCheckout('${l._id}')"><i class="ti ti-door-exit"></i> Check-out</button>`:""}
+  </div>`);
+  loadLogExtra(l);
+}
+async function loadLogExtra(l){
+  try{
+    const row=(k,v)=>v?`<div class="dl">${k}</div><div class="dv">${v}</div>`:"";
+    if(l.group==="contractor"||l.group==="delivery"){
+      if(!l.refId)return;
+      const s=await db.collection("registrations").doc(l.refId).get();if(!s.exists)return;
+      const r=s.data();
+      const ex=document.getElementById("dx-extra");
+      if(ex)ex.innerHTML=row("ประเภทบัตร",esc(r.type||""))+row("บัตรหมดอายุ",esc(r.cardExpiry||""))+row("เบอร์โทร",esc(r.tel||r.phone||""));
+    }else{
+      if(!l.refId)return;
+      const s=await db.collection("gate_visitors").doc(l.refId).get();if(!s.exists)return;
+      const v=s.data();
+      const ex=document.getElementById("dx-extra");
+      if(ex)ex.innerHTML=row("เบอร์โทร",esc(v.tel||""))+row("แผนกที่ติดต่อ",esc(v.contactDept||""))+row("วัตถุประสงค์",esc(v.purpose||""))+row("เหตุผลบัตรชั่วคราว",esc(v.reason||""))+row("แผนก (พนักงาน)",esc(v.dept||""));
+      const ac=document.getElementById("dx-actions");
+      if(ac)ac.innerHTML=`<button class="btn btn-out" onclick='printVisitorPass(${JSON.stringify(v).replace(/'/g,"&#39;")})'><i class="ti ti-printer"></i> พิมพ์ใบผ่านซ้ำ</button>`;
+    }
+  }catch(e){}
+}
+</script>
+</body>
+</html>
