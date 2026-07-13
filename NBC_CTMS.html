@@ -143,7 +143,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.31</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.32</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -3464,35 +3464,39 @@ async function submitAddDocs(){
   if(["safety","firewatchman"].includes(r.position))slotIds.push("cert");
   if(r.position==="driver"){slotIds.push("dl","vi");}
   const labels={photo:"รูปถ่าย",idcopy:"สำเนาบัตรประชาชน / ID Card Copy",insure:"เอกสารประกันตน / Insurance",drug:"ผลตรวจสารเสพติด / Drug Test",other:"เอกสารแนบ",cert:"Certificate",dl:"ใบอนุญาตขับขี่",vi:"ใบตรวจสภาพรถ"};
-  const update={},newDocs=[...(r.docs||[])];let photoUrl=null,certUrl=null,dlUrl=null,viUrl=null,any=false;
+  const update={},newDocs=[...(r.docs||[])];let photoUrl=null,certUrl=null,dlUrl=null,viUrl=null,any=false,uploadedCount=0,failCount=0;
   showToast("⏳ กำลังอัปโหลด...");
   for(const k of slotIds){
     const inp=document.getElementById("adf-"+k);if(!inp||!inp.files[0])continue;
     const f=inp.files[0];any=true;
     try{
-      if(k==="photo"){const u=await uploadFile(f,"nw-ctms/photos");photoUrl=u.url;}
-      else if(k==="cert"){const u=await uploadFile(f,"nw-ctms/certs");certUrl=u.url;}
-      else if(k==="dl"){const u=await uploadFile(f,"nw-ctms/certs");dlUrl=u.url;}
-      else if(k==="vi"){const u=await uploadFile(f,"nw-ctms/certs");viUrl=u.url;}
-      else{const u=await uploadFile(f,"nw-ctms/docs");newDocs=newDocs.filter(d=>d.slot!==k||k==="other");newDocs.push({name:u.name,url:u.url||"",slot:r.isShort?k:null,slotLabel:labels[k]});}
-    }catch(e){showToast("⚠ อัปโหลด "+labels[k]+" ไม่สำเร็จ");}
+      if(k==="photo"){const u=await uploadFile(f,"nw-ctms/photos");if(u&&u.url){photoUrl=u.url;uploadedCount++;}else failCount++;}
+      else if(k==="cert"){const u=await uploadFile(f,"nw-ctms/certs");if(u&&u.url){certUrl=u.url;uploadedCount++;}else failCount++;}
+      else if(k==="dl"){const u=await uploadFile(f,"nw-ctms/certs");if(u&&u.url){dlUrl=u.url;uploadedCount++;}else failCount++;}
+      else if(k==="vi"){const u=await uploadFile(f,"nw-ctms/certs");if(u&&u.url){viUrl=u.url;uploadedCount++;}else failCount++;}
+      else{const u=await uploadFile(f,"nw-ctms/docs");if(u&&u.url){newDocs=newDocs.filter(d=>!(d.slot===k&&k!=="other"));newDocs.push({name:u.name||f.name,url:u.url,slot:r.isShort?k:"extra",slotLabel:labels[k]||"เอกสารแนบ"});uploadedCount++;}else failCount++;}
+    }catch(e){failCount++;showToast("⚠ อัปโหลด "+(labels[k]||k)+" ไม่สำเร็จ: "+e.message);}
   }
   if(!any){showToast("⚠ ยังไม่ได้เลือกไฟล์");return;}
+  if(uploadedCount===0){showToast("⚠ อัปโหลดไม่สำเร็จ กรุณาลองใหม่ (ตรวจสอบอินเทอร์เน็ต)");return;}
+  // สร้าง update object โดยไม่ใส่ค่า undefined (กัน Firestore reject ทั้งชุด)
   if(photoUrl)update.photo=photoUrl;
   if(certUrl)update.certUrl=certUrl;
   if(dlUrl)update.dlUrl=dlUrl;
   if(viUrl)update.viUrl=viUrl;
-  update.docs=newDocs;
-  update.docsUpdatedBy=(mode==="contractor"?"contractor":SESSION.email);update.docsUpdatedDate=TODAY;
-  // ถ้าเคยเป็น waiting/rejected และตอนนี้เอกสารครบแล้ว → กลับเป็น pending
+  update.docs=newDocs.map(d=>({name:d.name||"เอกสาร",url:d.url||"",slot:d.slot||null,slotLabel:d.slotLabel||null}));
+  update.docsUpdatedBy=(mode==="contractor"?"contractor":(SESSION.email||"staff"));
+  update.docsUpdatedDate=TODAY;
   const merged={...r,...update};
-  if((r.approvalStatus==="waiting"||r.approvalStatus==="rejected")&&docsComplete(merged)){update.approvalStatus=null;update.waitDocs=null;}
+  if((r.approvalStatus==="waiting"||r.approvalStatus==="rejected")&&docsComplete(merged)){update.approvalStatus=firebase.firestore.FieldValue.delete();update.waitDocs=firebase.firestore.FieldValue.delete();merged.approvalStatus=null;}
   try{
     await db.collection("registrations").doc(regId).update(update);
     if(window._statusReg&&window._statusReg.id===regId)window._statusReg=merged;
-    closeModal();showToast("✅ เพิ่มเอกสารสำเร็จ");
+    if(window._statusRegs&&window._statusRegs[regId])window._statusRegs[regId]=merged;
+    closeModal();
+    showToast(failCount>0?`✅ เพิ่มเอกสาร ${uploadedCount} ไฟล์ (ล้มเหลว ${failCount})`:`✅ เพิ่มเอกสาร ${uploadedCount} ไฟล์สำเร็จ`);
     if(mode==="contractor")checkStatus();
-  }catch(e){showToast("⚠ "+e.message);}
+  }catch(e){showToast("⚠ บันทึกไม่สำเร็จ: "+e.message);}
 }
 async function issueShortCard(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
@@ -3509,6 +3513,14 @@ async function issueShortCard(regId){
 }
 
 // ── VIEW DOCS ──
+async function setScreen(regId,field,val){
+  try{
+    await db.collection("registrations").doc(regId).update({[field]:val,screenBy:SESSION.email,screenDate:TODAY});
+    const r=_allRegs.find(x=>x.id===regId);if(r){r[field]=val;}
+    showToast(val==="found"?"⛔ บันทึก: พบประวัติ":"✅ บันทึก: ไม่พบประวัติ");
+    viewDocs(regId);
+  }catch(e){showToast("⚠ "+e.message);}
+}
 function viewDocs(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
   const photoHTML=r.photo?`<div style="text-align:center;margin-bottom:16px"><img src="${r.photo}" style="width:120px;height:120px;border-radius:6px;object-fit:cover;border:2px solid var(--nw-teal);cursor:pointer" onclick="window.open('${r.photo}','_blank')"><div style="font-size:11px;color:#888;margin-top:4px">รูปถ่าย (คลิกขยาย)</div></div>`:`<div style="text-align:center;margin-bottom:12px;color:#888;font-size:12px"><i class="ti ti-user" style="font-size:40px;display:block;margin-bottom:4px"></i>ไม่มีรูปถ่าย</div>`;
@@ -3532,7 +3544,19 @@ function viewDocs(regId){
     const certName=`${r.position==="safety"?"Safety Certificate":"Watchman Certificate"}_${r.fn} ${r.ln}${(r.certUrl||"").toLowerCase().includes(".pdf")?".pdf":".jpg"}`;
     certHTML=r.certUrl?`<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-gold)"><i class="ti ti-certificate"></i> ใบ Certificate (${r.positionLabel||""}):</div><div class="file-item" style="justify-content:space-between;margin-bottom:12px;border:1px solid #E8D9B0;background:#FFFDF5"><div style="display:flex;align-items:center;gap:7px"><i class="ti ti-certificate" style="color:var(--nw-gold)"></i><span class="fi-name">${certName}</span></div><div style="display:flex;gap:5px"><button class="btn-sm" onclick="window.open('${r.certUrl}','_blank')"><i class="ti ti-eye"></i> ดู</button><button class="btn-sm" onclick="dlFile('${r.certUrl}','${certName}')"><i class="ti ti-download"></i> โหลด</button></div></div>`:`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span>ตำแหน่ง ${r.positionLabel||""} — ไม่พบใบ Certificate ในระบบ</span></div>`;
   }
-  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"ผู้รับเหมาทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div><div><b>Safety Record:</b> ${_blSet.has(r.idno)?"⛔ Blacklist":r.violation==="1st"?"⚠ 1st Warning":r.violation==="2nd"?"⚠ 2nd Warning":"✅ ปกติ"}${r.violationReason?` — <span style="color:#A32D2D">${r.violationReason}</span>`:""}</div></div>`);
+  // ── Screening (Full Course): ผลตรวจอาชญากรรม + สารเสพติด ──
+  let screenHTML="";
+  if(!r.isShort){
+    const cr=r.screenCriminal||"",dr=r.screenDrug||"";
+    const sel=(id,val,cur)=>`<button onclick="setScreen('${r.id}','${id}','${val}')" style="font-size:11px;padding:4px 9px;border-radius:5px;cursor:pointer;border:1px solid ${cur===val?(val==='found'?'#A32D2D':val==='clear'?'#2E7D32':'#bbb'):'#ddd'};background:${cur===val?(val==='found'?'#FCEBEB':val==='clear'?'#EAF6EA':'#f0f0f0'):'#fff'};color:${cur===val?(val==='found'?'#A32D2D':val==='clear'?'#2E7D32':'#555'):'#888'};font-weight:${cur===val?'700':'400'}">${val==='found'?'⛔ พบประวัติ':val==='clear'?'✅ ไม่พบ':'ยังไม่ตรวจ'}</button>`;
+    screenHTML=`<div class="divider"></div><div style="font-size:12px;font-weight:600;color:var(--nw-navy);margin:8px 0 6px"><i class="ti ti-shield-search"></i> ผลการตรวจคัดกรอง (EHS ระบุหลังตรวจเอกสาร):</div>
+      <div style="background:${(cr==='found'||dr==='found')?'#FCEBEB':'#F8FAFB'};border:1px solid ${(cr==='found'||dr==='found')?'#E8B4B4':'#E0E8EE'};border-radius:8px;padding:10px;margin-bottom:12px;display:grid;gap:10px">
+        <div><div style="font-size:11px;color:#666;margin-bottom:4px">🔎 ผลตรวจประวัติอาชญากรรม / Criminal Record:</div><div style="display:flex;gap:5px">${sel('screenCriminal','clear',cr)}${sel('screenCriminal','found',cr)}</div></div>
+        <div><div style="font-size:11px;color:#666;margin-bottom:4px">🧪 ผลตรวจสารเสพติด / Drug Test:</div><div style="display:flex;gap:5px">${sel('screenDrug','clear',dr)}${sel('screenDrug','found',dr)}</div></div>
+        ${(cr==='found'||dr==='found')?`<div class="alert alert-err" style="margin:0"><i class="ti ti-alert-triangle"></i><span><b>⛔ พบประวัติ${cr==='found'?'อาชญากรรม':''}${(cr==='found'&&dr==='found')?' และ':''}${dr==='found'?'สารเสพติด':''}</b> — โปรดพิจารณาอย่างรอบคอบก่อนอนุมัติ</span></div>`:""}
+      </div>`;
+  }
+  showModal(`เอกสาร — ${r.fn} ${r.ln}`,`${(!r.isShort&&(r.screenCriminal==="found"||r.screenDrug==="found"))?`<div class="alert alert-err" style="margin-bottom:12px"><i class="ti ti-alert-triangle"></i><span><b>⚠ บุคคลนี้พบประวัติจากการตรวจคัดกรอง</b></span></div>`:""}${photoHTML}<div style="font-size:12px;margin-bottom:8px;font-weight:500;color:var(--nw-navy)">เอกสารแนบ:</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${docsHTML}</div>${certHTML}${screenHTML}<div class="divider"></div><div style="font-size:12px;display:grid;gap:5px;margin-top:8px"><div><b>สัญชาติ:</b> ${r.nationality==="thai"?"🇹🇭 คนไทย":"🌏 ต่างชาติ"}</div><div><b>พนักงานขับรถ:</b> ${r.isDriver?"🚛 ใช่":"ไม่ใช่"}</div><div><b>ตำแหน่ง:</b> ${r.positionLabel||"ผู้รับเหมาทั่วไป"}</div><div><b>Quiz ID:</b> ${r.quizSubmissionId||"—"}</div><div><b>คะแนน:</b> ${r.quizScore!=null?r.quizScore+(r.quizScoreMax?"/"+r.quizScoreMax:"")+(r.quizPct?" ("+r.quizPct+"%)":""):"—"} ${r.quizPass===true?"✅ Pass":r.quizPass===false?"❌ Fail":""}</div><div><b>Safety Record:</b> ${_blSet.has(r.idno)?"⛔ Blacklist":r.violation==="1st"?"⚠ 1st Warning":r.violation==="2nd"?"⚠ 2nd Warning":"✅ ปกติ"}${r.violationReason?` — <span style="color:#A32D2D">${r.violationReason}</span>`:""}</div></div>`);
 }
 async function dlFile(url,filename){try{showToast("⏳ กำลัง Download...");const res=await fetch(url);const blob=await res.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);showToast("✅ Download สำเร็จ");}catch(e){window.open(url,"_blank");}}
 
@@ -3734,7 +3758,8 @@ function renderEHSFull(){
     const isBL=_blSet.has(r.idno);
     const fcMiss=missingRequiredDocs(r);
     const can=!isBL&&r.quizPass===true&&fcMiss.length===0&&(!r.approvalStatus||r.approvalStatus==="waiting");
-    return `<tr${isBL?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
+    const flagged=r.screenCriminal==="found"||r.screenDrug==="found";
+    return `<tr${isBL||flagged?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}${flagged?' <span class="badge b-fail" title="พบประวัติจากการตรวจคัดกรอง">⚠ พบประวัติ</span>':""}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
       <td style="font-size:11px">${r.positionLabel||"—"}</td>
       <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button></td>
       <td>${ab}</td><td>${cardSt}</td>
@@ -3837,7 +3862,7 @@ function renderDB(){
       <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
       <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
     </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}${(v||isBL)&&(r.violationReason||isBL)?`<div style="font-size:9px;color:#A32D2D;margin-top:2px;max-width:130px;white-space:normal">${isBL?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}</div>`:""}`;
-    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button> <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
+    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${r.cardId?`<button class="btn-teal-sm" onclick="printCard('${r.id}')" title="พิมพ์บัตรซ้ำ"><i class="ti ti-printer"></i> พิมพ์ซ้ำ</button>`:""} <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button> <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
   }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
 }
 function filterDB(){renderDB();}
@@ -3996,7 +4021,7 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();
-console.log("✅ NatureWorks CTMS v9.31 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.32 — Firebase connected");
 </script>
 </body>
 </html>
