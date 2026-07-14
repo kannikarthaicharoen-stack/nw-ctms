@@ -143,7 +143,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.35</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.38</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -2865,17 +2865,21 @@ function qrSVG(text){
 // ── ตรวจเอกสารบังคับที่ยังขาด (คืน array ของ label) ──
 function missingRequiredDocs(r){
   const miss=[];
-  if(r.isShort){
-    const has=new Set((r.docs||[]).filter(d=>d.url).map(d=>d.slot));
-    if(!has.has("idcopy"))miss.push("สำเนาบัตรประชาชน / ID Card Copy");
-    if(!has.has("insure"))miss.push("เอกสารประกันตน / Insurance");
-  }else{
-    if(!r.photo)miss.push("รูปถ่าย / Photo");
-    if(!(r.docs&&r.docs.filter(d=>d.url).length))miss.push("เอกสารแนบ / Documents");
+  // รูปถ่ายบังคับเสมอ (ใช้ออกบัตร) ทั้งตอนเปิดและปิดการแนบเอกสาร
+  if(!r.photo)miss.push("รูปถ่าย / Photo");
+  // เอกสารอื่น ๆ ตรวจเฉพาะเมื่อเปิดการแนบเอกสารในระบบ (DOC_UPLOAD_ENABLED)
+  // ระหว่างที่ปิดไว้ (รอ IT อนุมัติ) ผู้รับเหมาส่งเอกสารทางอีเมล จึงไม่บล็อกการออกบัตร
+  if(DOC_UPLOAD_ENABLED){
+    if(r.isShort){
+      const has=new Set((r.docs||[]).filter(d=>d.url).map(d=>d.slot));
+      if(!has.has("idcopy"))miss.push("สำเนาบัตรประชาชน / ID Card Copy");
+      if(!has.has("insure"))miss.push("เอกสารประกันตน / Insurance");
+    }else{
+      if(!(r.docs&&r.docs.filter(d=>d.url).length))miss.push("เอกสารแนบ / Documents");
+    }
+    if(["safety","firewatchman"].includes(r.position)&&!r.certUrl)miss.push("ใบ Certificate");
+    if(r.position==="driver"){if(!r.dlUrl)miss.push("ใบอนุญาตขับขี่");if(!r.viUrl)miss.push("ใบตรวจสภาพรถ");}
   }
-  // ตำแหน่งพิเศษ
-  if(["safety","firewatchman"].includes(r.position)&&!r.certUrl)miss.push("ใบ Certificate");
-  if(r.position==="driver"){if(!r.dlUrl)miss.push("ใบอนุญาตขับขี่");if(!r.viUrl)miss.push("ใบตรวจสภาพรถ");}
   return miss;
 }
 function docsComplete(r){return missingRequiredDocs(r).length===0;}
@@ -3347,13 +3351,19 @@ function statusCard(r,label){
   window._statusRegs=window._statusRegs||{};window._statusRegs[r.id]=r;
   const waitBox=r.approvalStatus==="waiting"?`<div class="alert alert-warn" style="margin:0"><i class="ti ti-clock"></i><span><b>เจ้าหน้าที่กำลังรอเอกสารเพิ่มเติมจากท่าน</b> — ยังไม่อนุมัติ กรุณาแนบเอกสารต่อไปนี้:<ul style="margin:6px 0 0;padding-left:18px">${(r.waitDocs||[]).map(d=>`<li>${d}</li>`).join("")}</ul>${r.waitNote?`<div style="margin-top:5px;color:#8A6100">หมายเหตุ: ${r.waitNote}</div>`:""}</span></div>`:"";
   const canAdd=!r.cardIssued&&r.approvalStatus!=="approved";
+  const photoBtn=(canAdd&&!r.photo)?`<button class="btn-p" style="margin-top:4px;padding:8px;background:var(--nw-gold)" onclick="openAddPhotoStatus('${r.id}')"><i class="ti ti-camera"></i> แนบรูปถ่าย (จำเป็นสำหรับออกบัตร) / Add Photo</button>`:(canAdd&&r.photo?`<button class="btn-sm" style="margin-top:4px" onclick="openAddPhotoStatus('${r.id}')"><i class="ti ti-camera"></i> เปลี่ยนรูปถ่าย / Change Photo</button>`:"");
   const addBtn=(canAdd&&DOC_UPLOAD_ENABLED)?`<button class="btn-p" style="margin-top:4px;padding:8px" onclick="openAddDocsStatus('${r.id}')"><i class="ti ti-camera-plus"></i> แนบเอกสารเพิ่มเติม / Add Documents</button>`:(canAdd?docEmailNoticeSmall():"");
-  return `<div class="panel" style="margin:0 0 10px"><div style="font-size:11px;color:#888;margin-bottom:6px">${label}</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span>${r.pdate&&!r.isShort?` &nbsp;<b>วันอบรม:</b> ${fmtCard(r.pdate)}`:""}</div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${waitBox}${r.approvalStatus==="rejected"?`<div class="alert alert-err" style="margin:0"><i class="ti ti-x"></i><span><b>เหตุผลที่ปฏิเสธ:</b> ${r.rejectReason||"ไม่ระบุ"}<br><span style="color:#888;font-size:11px">กรุณาแนบเอกสารเพิ่มด้านล่าง หรือติดต่อทีม EHS หากมีข้อสงสัย</span></span></div>`:""}${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${fmtCard(r.cardExpiry)}</div>`:""}${addBtn}</div></div>`;
+  return `<div class="panel" style="margin:0 0 10px"><div style="font-size:11px;color:#888;margin-bottom:6px">${label}</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span>${r.pdate&&!r.isShort?` &nbsp;<b>วันอบรม:</b> ${fmtCard(r.pdate)}`:""}</div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${waitBox}${r.approvalStatus==="rejected"?`<div class="alert alert-err" style="margin:0"><i class="ti ti-x"></i><span><b>เหตุผลที่ปฏิเสธ:</b> ${r.rejectReason||"ไม่ระบุ"}<br><span style="color:#888;font-size:11px">กรุณาแนบเอกสารเพิ่มด้านล่าง หรือติดต่อทีม EHS หากมีข้อสงสัย</span></span></div>`:""}${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${fmtCard(r.cardExpiry)}</div>`:""}${photoBtn}${addBtn}</div></div>`;
 }
 function openAddDocsStatus(regId){
   const r=(window._statusRegs||{})[regId];if(!r){showToast("⚠ ไม่พบข้อมูล");return;}
   window._statusReg=r;
   openAddDocs(regId,"contractor");
+}
+function openAddPhotoStatus(regId){
+  const r=(window._statusRegs||{})[regId];if(!r){showToast("⚠ ไม่พบข้อมูล");return;}
+  window._statusReg=r;
+  openAddPhoto(regId,"contractor");
 }
 async function checkStatus(){
   const el=document.getElementById("s-result");
@@ -3446,8 +3456,8 @@ function renderGuardView(){
     const docs=(r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`)+(!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:"")+(r.approvalStatus==="waiting"?` <span class="badge b-pending">⏳ รอเอกสาร</span>`:"");
     return `<tr${!ok?' style="background:#FFFBF0"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
       <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
-      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','guard')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
-      <td style="white-space:nowrap">${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST</span> `:ok?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button> `:`<span class="badge b-fail" title="${miss.join(', ')}">เอกสารไม่ครบ</span> `}<button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
+      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm${!r.photo?' btn-warn-sm':''}" onclick="openAddPhoto('${r.id}','guard')" title="แนบรูปถ่าย"><i class="ti ti-camera"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','guard')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
+      <td style="white-space:nowrap">${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST</span> `:(ok||r.approvalStatus==="waiting")?`<button class="btn-approve" onclick="guardApprove('${r.id}')" title="${r.approvalStatus==='waiting'?'อนุมัติ (ตรวจเอกสารทางอีเมลแล้ว)':'อนุมัติ'}">✓</button> `:`<span class="badge b-fail" title="${miss.join(', ')}">เอกสารไม่ครบ</span> `}<button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
   }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
   const ready=shorts.filter(r=>r.approvalStatus==="approved"&&!r.cardIssued&&filt(r));
   document.getElementById("g-ready-tbody").innerHTML=ready.map(r=>`<tr><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div></td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><span class="badge ${(r.shortBriefCount||0)>=1?"b-pending":"b-active"}">${(r.shortBriefCount||0)+1}/2</span></td><td><span class="badge b-approved">รอออกบัตร</span></td><td><button class="btn-approve" onclick="issueShortCard('${r.id}')"><i class="ti ti-id-badge"></i> ออกบัตรแล้ว</button></td></tr>`).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
@@ -3467,7 +3477,7 @@ async function setScore(regId){
 }
 async function guardApprove(regId){
   const r=_allRegs.find(x=>x.id===regId);
-  if(r&&!docsComplete(r)){showToast("⛔ เอกสารไม่ครบ — อนุมัติไม่ได้ (ขาด: "+missingRequiredDocs(r).join(", ")+")");return;}
+  if(r&&!docsComplete(r)){showToast("⛔ ยังขาด: "+missingRequiredDocs(r).join(", ")+" — กรุณาแนบก่อนอนุมัติ");return;}
   try{await db.collection("registrations").doc(regId).update({approvalStatus:"approved",approvedBy:SESSION.email,approvedDate:TODAY});showToast("✅ อนุมัติแล้ว");}catch(e){showToast("⚠ "+e.message);}}
 async function guardReject(regId){const reason=prompt("ระบุเหตุผลการปฏิเสธ / Rejection reason:");if(reason===null)return;try{await db.collection("registrations").doc(regId).update({approvalStatus:"rejected",rejectedBy:SESSION.email,rejectReason:reason});showToast("🚫 ปฏิเสธแล้ว");}catch(e){showToast("⚠ "+e.message);}}
 
@@ -3531,6 +3541,33 @@ function openAddDocs(regId,mode){
     <button class="btn-p" style="margin-top:14px" onclick="submitAddDocs()"><i class="ti ti-upload"></i> อัปโหลดเอกสาร</button>`;
   showModal("📎 เพิ่มเอกสาร / Add Documents",html);
 }
+function openAddPhoto(regId,mode){
+  ADD_CTX={regId,mode:mode||"ehs"};
+  const r=(_allRegs||[]).find(x=>x.id===regId)||window._statusReg;
+  if(!r){showToast("⚠ ไม่พบข้อมูล");return;}
+  const html=`<div style="font-size:12px;color:#555;margin-bottom:10px">แนบรูปถ่ายสำหรับออกบัตรของ <b>${r.fn} ${r.ln}</b>${r.photo?' <span style="color:#2E7D32">(มีรูปแล้ว — แนบใหม่เพื่อแทนที่ได้)</span>':' <span style="color:#C0392B">(ยังไม่มีรูป)</span>'}</div>
+    <label style="font-size:12px;font-weight:500;color:var(--nw-navy)">รูปถ่าย / Photo</label>
+    <div class="upload-zone" style="padding:10px" onclick="document.getElementById('adf-photo').click()"><i class="ti ti-camera"></i><p id="adp-photo">ถ่ายรูป/เลือกไฟล์ (JPG, PNG)</p></div>
+    <input type="file" id="adf-photo" accept="image/*" capture="user" style="display:none" onchange="document.getElementById('adp-photo').textContent='✓ '+this.files[0].name">
+    <button class="btn-p" style="margin-top:14px" onclick="submitAddPhoto()"><i class="ti ti-upload"></i> อัปโหลดรูปถ่าย</button>`;
+  showModal("📷 แนบรูปถ่าย / Add Photo",html);
+}
+async function submitAddPhoto(){
+  const {regId,mode}=ADD_CTX;
+  const inp=document.getElementById("adf-photo");
+  if(!inp||!inp.files[0]){showToast("⚠ กรุณาเลือกรูปถ่าย");return;}
+  showToast("⏳ กำลังอัปโหลด...");
+  try{
+    const u=await uploadFile(inp.files[0],"nw-ctms/photos");
+    if(!u||!u.url){showToast("⚠ อัปโหลดไม่สำเร็จ กรุณาลองใหม่");return;}
+    await db.collection("registrations").doc(regId).update({photo:u.url,docsUpdatedBy:(mode==="contractor"?"contractor":(SESSION.email||"staff")),docsUpdatedDate:TODAY});
+    const r=(_allRegs||[]).find(x=>x.id===regId);if(r)r.photo=u.url;
+    if(window._statusReg&&window._statusReg.id===regId)window._statusReg.photo=u.url;
+    if(window._statusRegs&&window._statusRegs[regId])window._statusRegs[regId].photo=u.url;
+    closeModal();showToast("✅ แนบรูปถ่ายสำเร็จ");
+    if(mode==="contractor")checkStatus();
+  }catch(e){showToast("⚠ "+e.message);}
+}
 async function submitAddDocs(){
   const {regId,mode}=ADD_CTX;
   const r=(_allRegs||[]).find(x=>x.id===regId)||window._statusReg;if(!r){showToast("⚠ ไม่พบข้อมูล");return;}
@@ -3574,7 +3611,7 @@ async function submitAddDocs(){
 }
 async function issueShortCard(regId){
   const r=_allRegs.find(x=>x.id===regId);if(!r)return;
-  if(!docsComplete(r)){showToast("⛔ เอกสารไม่ครบ — ออกบัตรไม่ได้ (ขาด: "+missingRequiredDocs(r).join(", ")+")");return;}
+  if(!docsComplete(r)){showToast("⛔ ยังขาด: "+missingRequiredDocs(r).join(", ")+" — กรุณาแนบก่อนออกบัตร");return;}
   const cnt=(r.shortBriefCount||0)+1;
   const exp=new Date();exp.setDate(exp.getDate()+7);const expiry=isoLocal(exp);
   const cardId=await genId("NBC-SB");
@@ -3813,9 +3850,9 @@ function renderEHSShort(){
     const cardSt=r.cardIssued?`<span class="badge b-active">ออกบัตรแล้ว</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
     const miss=missingRequiredDocs(r);const ok=miss.length===0;
     return `<tr${!ok?' style="background:#FFFBF0"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm${!r.photo?' btn-warn-sm':''}" onclick="openAddPhoto('${r.id}','ehs')" title="แนบรูปถ่าย"><i class="ti ti-camera"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
       <td>${ab}</td><td>${cardSt}</td>
-      <td style="white-space:nowrap">${(!r.approvalStatus||r.approvalStatus==="waiting")?`${ok?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button>`:`<span class="badge b-fail" title="${miss.join(', ')}">ไม่ครบ</span>`} <button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
+      <td style="white-space:nowrap">${(!r.approvalStatus||r.approvalStatus==="waiting")?`${(ok||r.approvalStatus==="waiting")?`<button class="btn-approve" onclick="guardApprove('${r.id}')" title="${r.approvalStatus==='waiting'?'อนุมัติ (ตรวจเอกสารทางอีเมลแล้ว)':'อนุมัติ'}">✓</button>`:`<span class="badge b-fail" title="${miss.join(', ')}">ไม่ครบ</span>`} <button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
   }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
 }
 function renderEHSFull(){
@@ -3832,11 +3869,11 @@ function renderEHSFull(){
     const cardSt=r.cardIssued?`<span class="badge b-active">จ่ายบัตรแล้ว</span>`:r.approvalStatus==="approved"?`<span class="badge b-pending">รอจ่ายบัตร</span>`:"—";
     const isBL=_blSet.has(r.idno);
     const fcMiss=missingRequiredDocs(r);
-    const can=!isBL&&r.quizPass===true&&fcMiss.length===0&&(!r.approvalStatus||r.approvalStatus==="waiting");
+    const can=!isBL&&r.quizPass===true&&(fcMiss.length===0||r.approvalStatus==="waiting")&&(!r.approvalStatus||r.approvalStatus==="waiting");
     const flagged=r.screenCriminal==="found"||r.screenDrug==="found";
     return `<tr${isBL||flagged?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}${flagged?' <span class="badge b-fail" title="พบประวัติจากการตรวจคัดกรอง">⚠ พบประวัติ</span>':""}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
       <td style="font-size:11px">${r.positionLabel||"—"}</td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm${!r.photo?' btn-warn-sm':''}" onclick="openAddPhoto('${r.id}','ehs')" title="แนบรูปถ่าย"><i class="ti ti-camera"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
       <td>${ab}</td><td>${cardSt}</td>
       <td style="white-space:nowrap">${can?`<button class="btn-approve" onclick="ehsApproveFull('${r.id}')">✓</button>`:""}${(!r.approvalStatus||r.approvalStatus==="waiting")?`<button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""}${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueFullCard('${r.id}')">จ่ายบัตร</button> <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ">↩</button>`:""} <button class="btn-sm" onclick="editTrainDate('${r.id}')" title="แก้วันอบรม"><i class="ti ti-calendar"></i></button> <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button>${r.cardId?`<button class="btn-sm" onclick="printCard('${r.id}')"><i class="ti ti-printer"></i></button>`:""}</td></tr>`;
   }).join("")||`<tr><td colspan="10" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
@@ -3937,7 +3974,7 @@ function renderDB(){
       <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
       <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
     </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}${(v||isBL)&&(r.violationReason||isBL)?`<div style="font-size:9px;color:#A32D2D;margin-top:2px;max-width:130px;white-space:normal">${isBL?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}</div>`:""}`;
-    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${r.cardId?`<button class="btn-teal-sm" onclick="printCard('${r.id}')" title="พิมพ์บัตรซ้ำ"><i class="ti ti-printer"></i> พิมพ์ซ้ำ</button>`:""} ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""} <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
+    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${r.cardId?`<button class="btn-teal-sm" onclick="printCard('${r.id}')" title="พิมพ์บัตรซ้ำ"><i class="ti ti-printer"></i> พิมพ์ซ้ำ</button>`:""} <button class="btn-sm${!r.photo?' btn-warn-sm':''}" onclick="openAddPhoto('${r.id}','ehs')" title="แนบรูปถ่าย"><i class="ti ti-camera"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""} <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
   }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
 }
 function filterDB(){renderDB();}
@@ -4103,7 +4140,7 @@ addRefRow();addNameRow();
     el.innerHTML=`<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-left:4px solid var(--nw-teal);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📧</span><div style="font-size:13px;line-height:1.7;color:#2C4A5E"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน — การส่งเอกสาร</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ (รูปถ่าย, สำเนาบัตรประชาชน, เอกสารประกันตน, ผลตรวจสารเสพติด และเอกสารเฉพาะตำแหน่ง) และ<b>ส่งทางอีเมลไปยังทุกท่านในรายชื่อด้านล่างนี้</b> — หากเอกสารไม่ครบ ท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin:8px 0;display:flex;flex-direction:column;gap:4px">${DOC_EMAILS.map(e=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #D6E8F5;border-radius:5px;padding:5px 9px"><i class="ti ti-mail" style="color:var(--nw-teal)"></i><span style="flex:1;font-family:monospace">${e}</span><i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${e}')" title="คัดลอก"></i></div>`).join("")}</div><button class="btn-sm" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"><i class="ti ti-copy"></i> คัดลอกอีเมลทั้งหมด</button><div style="margin-top:7px;color:#5E7A8E;font-size:12px;font-style:italic">Please email all required documents to every address listed above. Incomplete submissions cannot attend the training.</div></div></div></div>`;
   }
 })();
-console.log("✅ NatureWorks CTMS v9.35 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.38 — Firebase connected");
 </script>
 </body>
 </html>
