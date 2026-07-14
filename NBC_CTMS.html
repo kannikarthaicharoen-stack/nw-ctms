@@ -143,7 +143,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.32</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.35</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -165,16 +165,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
         <div class="role-lock">🔒 ต้อง Login</div>
       </div>
     </div>
-    <div style="max-width:820px;margin:14px auto 0;background:#FFF9E6;border:1px solid #F0DCA0;border-left:4px solid var(--nw-gold);border-radius:10px;padding:14px 18px;text-align:left">
-      <div style="display:flex;align-items:flex-start;gap:9px">
-        <span style="font-size:18px;line-height:1.2">📌</span>
-        <div style="font-size:13px;line-height:1.7;color:#5C4A12">
-          <b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน</b><br>
-          กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ และแนบในระบบให้เรียบร้อยขณะลงทะเบียน โดย<b>ไม่ต้องส่งอีเมลถึงแผนกความปลอดภัยอีก</b> — หากเอกสารไม่ครบ ระบบจะปฏิเสธการลงทะเบียนและท่านจะไม่สามารถเข้ารับการอบรมได้
-          <div style="margin-top:7px;color:#8A7A45;font-size:12px;line-height:1.6;font-style:italic">Please prepare all required documents and attach them during registration — there is no need to email the Safety Department. Incomplete submissions will be rejected and you will not be able to attend the training.</div>
-        </div>
-      </div>
-    </div>
+    <div id="home-notice" style="max-width:820px;margin:14px auto 0"></div>
   </div>
 </div>
 
@@ -303,7 +294,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
             </div>
           </div>
         </div>
-        <div class="panel">
+        <div id="doc-email-box"></div>
+        <div class="panel" id="photo-panel">
           <div class="panel-title"><i class="ti ti-camera"></i> รูปถ่ายสำหรับบัตร / Photo <span id="photo-req" style="font-size:11px;font-weight:400"></span></div>
           <div class="upload-zone" onclick="document.getElementById('photo-in').click()">
             <i class="ti ti-camera" style="font-size:28px;color:#aaa;display:block;margin-bottom:6px"></i>
@@ -347,12 +339,21 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
       <div class="panel">
         <div class="panel-title"><i class="ti ti-search"></i> ตรวจสอบสถานะ</div>
         <div class="fg2" style="margin-bottom:8px">
-          <label>หมายเลขอ้างอิง — กรอกเฉพาะตัวเลข 4 ตัวท้าย (ค้นได้สูงสุด 10 หมายเลขพร้อมกัน)</label>
+          <label>1) หมายเลขอ้างอิง — กรอกเฉพาะตัวเลข 4 ตัวท้าย (สูงสุด 10 หมายเลข)</label>
           <div id="ref-rows" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
           <button type="button" class="btn-sm" style="margin-top:6px" onclick="addRefRow()"><i class="ti ti-plus"></i> เพิ่มหมายเลข</button>
         </div>
-        <div class="fg2" style="margin-bottom:10px"><label>หรือ ค้นด้วยเลขบัตรประชาชน / Passport</label><input id="s-search" placeholder="เลขบัตรประชาชน 13 หลัก"></div>
-        <button class="btn-p" onclick="checkStatus()">ตรวจสอบ</button>
+        <div style="text-align:center;color:#aaa;font-size:11px;margin:8px 0">— หรือ / OR —</div>
+        <div class="fg2" style="margin-bottom:8px">
+          <label>2) ค้นด้วยชื่อ-นามสกุล / Search by Name (สูงสุด 10 คน)</label>
+          <div id="name-rows" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+          <button type="button" class="btn-sm" style="margin-top:6px" onclick="addNameRow()"><i class="ti ti-plus"></i> เพิ่มคน</button>
+        </div>
+        <div style="text-align:center;color:#aaa;font-size:11px;margin:8px 0">— หรือ / OR —</div>
+        <div class="fg2" style="margin-bottom:8px"><label>3) ค้นเป็นกลุ่มด้วยชื่อบริษัท / Search by Company</label><input id="s-company" placeholder="ชื่อบริษัท (พิมพ์บางส่วนได้)"></div>
+        <div style="text-align:center;color:#aaa;font-size:11px;margin:8px 0">— หรือ / OR —</div>
+        <div class="fg2" style="margin-bottom:10px"><label>4) ค้นด้วยเลขบัตรประชาชน / Passport</label><input id="s-search" placeholder="เลขบัตรประชาชน 13 หลัก"></div>
+        <button class="btn-p" onclick="checkStatus()">ตรวจสอบ / Check Status</button>
         <div id="s-result" style="margin-top:12px"></div>
       </div>
     </div>
@@ -375,7 +376,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
       <div class="stat"><div class="stat-l">Blocked</div><div class="stat-v sv-r" id="g-s3">—</div></div>
     </div>
     <div class="search-bar">
-      <input placeholder="ค้นหาชื่อ / บริษัท..." id="g-q" oninput="renderGuardView()">
+      <input placeholder="ค้นหา ชื่อ / บริษัท / เลขบัตร / Register No..." id="g-q" oninput="renderGuardView()">
       <select id="g-fc" onchange="renderGuardView()"><option value="">ทุกบริษัท</option></select>
     </div>
     <div class="panel">
@@ -423,7 +424,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
       <div class="panel"><div class="panel-title"><i class="ti ti-history"></i> กิจกรรมล่าสุด <span class="sync-badge" style="margin-left:auto"><div class="sync-dot"></div> Real-time</span></div><div id="e-activity"></div></div>
     </div>
     <div id="e-sb-sec" style="display:none">
-      <div class="search-bar"><input placeholder="ค้นหา..." id="esb-q" oninput="renderEHSShort()"></div>
+      <div class="search-bar"><input placeholder="ค้นหา ชื่อ / บริษัท / เลขบัตร / Register No..." id="esb-q" oninput="renderEHSShort()"></div>
       <div class="panel"><div class="panel-title"><i class="ti ti-bolt"></i> Short Brief (4A/4B)</div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ชื่อ / บริษัท</th><th>Type</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-sb-tbody"></tbody></table></div>
       </div>
@@ -431,12 +432,13 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     <div id="e-fc-sec" style="display:none">
       <div class="alert alert-info"><i class="ti ti-info-circle"></i><span>EHS เท่านั้นที่อนุมัติและ Generate บัตร Full Course ได้</span></div>
       <div class="panel"><div class="panel-title" style="display:flex;justify-content:space-between;align-items:center"><span><i class="ti ti-certificate"></i> Full Course (4C/4D)</span><button class="btn-s" onclick="exportFCCSV()"><i class="ti ti-download"></i> Export CSV</button></div>
+        <div class="search-bar" style="margin-bottom:10px"><input placeholder="ค้นหา ชื่อ / บริษัท / เลขบัตร / Register No..." id="efc-q" oninput="renderEHSFull()"></div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>วันอบรม</th><th>Type</th><th>ชื่อ / บริษัท</th><th>Register No.</th><th>ตำแหน่ง</th><th>คะแนน</th><th>เอกสาร</th><th>อนุมัติ</th><th>บัตร</th><th>Action</th></tr></thead><tbody id="e-fc-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="e-sbreg" style="display:none">
       <div class="search-bar">
-        <input placeholder="ค้นหา..." id="sb-q" oninput="filterSB()">
+        <input placeholder="ค้นหา ชื่อ / บริษัท / เลขบัตร / Register No..." id="sb-q" oninput="filterSB()">
         <select id="sb-status" onchange="filterSB()"><option value="">ทุกสถานะ</option><option value="active">Active</option><option value="expired">หมดอายุ</option><option value="blocked">Blocked</option></select>
         <button class="btn-s" onclick="exportSBCSV()"><i class="ti ti-download"></i> Export</button>
       </div>
@@ -452,7 +454,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     </div>
     <div id="e-db" style="display:none">
       <div class="search-bar">
-        <input placeholder="ค้นหา..." id="db-q" oninput="filterDB()">
+        <input placeholder="ค้นหา ชื่อ / บริษัท / เลขบัตร / Register No..." id="db-q" oninput="filterDB()">
         <select id="db-t" onchange="filterDB()"><option value="">ทุก Type</option><option>4C</option><option>4D</option></select>
         <select id="db-v" onchange="filterDB()"><option value="">Safety Record ทั้งหมด</option><option value="none">✅ ปกติ</option><option value="1st">⚠ 1st Warning</option><option value="2nd">⚠ 2nd Warning</option><option value="blacklist">⛔ Blacklist</option></select>
         <button class="btn-s" onclick="exportCSV()"><i class="ti ti-download"></i> Export CSV</button>
@@ -2877,6 +2879,11 @@ function missingRequiredDocs(r){
   return miss;
 }
 function docsComplete(r){return missingRequiredDocs(r).length===0;}
+function matchSearch(r,q){
+  if(!q)return true;
+  const s=q.toLowerCase().trim();
+  return ((r.fn||"")+" "+(r.ln||"")+" "+(r.co||"")+" "+(r.idno||"")+" "+(r.id||"")).toLowerCase().includes(s);
+}
 function copyTxt(t){
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>showToast(`📋 คัดลอกแล้ว: ${t}`)).catch(()=>{
     const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();showToast(`📋 คัดลอกแล้ว: ${t}`);
@@ -2906,6 +2913,21 @@ let CFG={guardEmails:["guard1@natureworks.com"],ehsEmails:["kannikar.thaicharoen
 let LOGIN_ROLE="",PIN_VAL="";
 let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null,C_DL_FILE=null,C_VI_FILE=null;
 // ── ลิงก์เนื้อหา Short Brief (แยกตามสัญชาติ) ──
+// ═══ ปิดชั่วคราวจนกว่า IT จะยืนยัน — เปลี่ยนเป็น true เพื่อเปิดใช้การแนบเอกสารในระบบอีกครั้ง ═══
+const DOC_UPLOAD_ENABLED=false;
+// อีเมลที่ผู้ลงทะเบียนต้องส่งเอกสารแนบไปให้ (ระหว่างพักการแนบในระบบ)
+const DOC_EMAILS=["kannikar_thaicharoen@natureworkspla.com","Naowadee_kotwit@natureworkspla.com","Thitinun_Jamroen@natureworksco.com","nbc_guardhouse@natureworkspla.com"];
+function docEmailNoticeSmall(){
+  return `<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-radius:8px;padding:10px 12px;margin-top:8px;text-align:left;font-size:12px;color:#555;line-height:1.6"><b style="color:var(--nw-navy)"><i class="ti ti-mail-forward"></i> ส่งเอกสารทางอีเมล / Email your documents</b><br>กรุณาส่งเอกสารแนบทั้งหมดไปที่: ${DOC_EMAILS.map(e=>`<span style="font-family:monospace;color:var(--nw-teal)">${e}</span>`).join(", ")} <i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"></i></div>`;
+}
+function docEmailNotice(){
+  return `<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-left:4px solid var(--nw-teal);border-radius:8px;padding:12px 14px;margin-bottom:12px;text-align:left">
+    <div style="font-size:13px;font-weight:600;color:var(--nw-navy);margin-bottom:6px"><i class="ti ti-mail-forward"></i> กรุณาส่งเอกสารแนบทั้งหมดทางอีเมล / Please email all documents</div>
+    <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">ในระหว่างนี้ ระบบยังไม่เปิดให้แนบเอกสารในเว็บ กรุณาส่งเอกสารประกอบการลงทะเบียนทั้งหมด (รูปถ่าย, สำเนาบัตรประชาชน, เอกสารประกันตน, ผลตรวจสารเสพติด และเอกสารเฉพาะตำแหน่ง) ไปที่อีเมลต่อไปนี้ทุกท่าน:<br><span style="color:#888">Documents are currently collected by email. Please send all required documents to all of the addresses below:</span></div>
+    <div style="display:flex;flex-direction:column;gap:4px">${DOC_EMAILS.map(e=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #D6E8F5;border-radius:5px;padding:5px 9px"><i class="ti ti-mail" style="color:var(--nw-teal)"></i><span style="flex:1;font-family:monospace">${e}</span><i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${e}')" title="คัดลอก"></i></div>`).join("")}</div>
+    <div style="margin-top:8px"><button class="btn-sm" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"><i class="ti ti-copy"></i> คัดลอกอีเมลทั้งหมด</button></div>
+  </div>`;
+}
 const LESSON_URLS={
   thai:"https://drive.google.com/file/d/1w2-xW9L7pmNBAj7Y9ZDPjrHk3kHBTc0K/view?usp=sharing",      // ลิงก์ 1: คนไทย
   foreign:"https://drive.google.com/file/d/1pfDu4oPwyN5U7LEKXXrvWZQSq-GHqFsw/view?usp=sharing"    // ลิงก์ 2: ต่างชาติ
@@ -3058,10 +3080,19 @@ function selectType(el,t){
   document.getElementById("pdate-sb-row").style.display=isFC?"none":"block";
   document.getElementById("pdate-fc-row").style.display=isFC?"block":"none";
   const emRow=document.getElementById("email-row");if(emRow)emRow.style.display=t==="4D"?"block":"none";
-  document.getElementById("sb-doc-panel").style.display=isFC?"none":"block";
-  document.getElementById("fc-doc-panel").style.display=isFC?"block":"none";
-  const pr=document.getElementById("photo-req");if(pr)pr.innerHTML=isFC?'<span style="color:#C0392B">* บังคับ</span>':'<span style="color:#888">(ไม่บังคับ)</span>';
-  if(!isFC)renderSBSlots();
+  // รูปถ่ายแสดงและบังคับเสมอ (ใช้ออกบัตร) ไม่ขึ้นกับ DOC_UPLOAD_ENABLED
+  document.getElementById("photo-panel").style.display="block";
+  const pr=document.getElementById("photo-req");if(pr)pr.innerHTML='<span style="color:#C0392B">* บังคับ (ใช้ออกบัตร)</span>';
+  if(DOC_UPLOAD_ENABLED){
+    document.getElementById("sb-doc-panel").style.display=isFC?"none":"block";
+    document.getElementById("fc-doc-panel").style.display=isFC?"block":"none";
+    if(!isFC)renderSBSlots();
+    document.getElementById("doc-email-box").innerHTML="";
+  }else{
+    document.getElementById("sb-doc-panel").style.display="none";
+    document.getElementById("fc-doc-panel").style.display="none";
+    document.getElementById("doc-email-box").innerHTML=docEmailNotice();
+  }
   if(isFC)populateFCDates();
   const dEl=document.getElementById("c-pdate");if(dEl)dEl.min=TODAY;
   document.getElementById("cert-row").style.display="none";
@@ -3116,14 +3147,15 @@ async function submitReg(){
   if(!isFC&&pdateVal<TODAY){showToast("⚠ วันที่อบรมต้องไม่เป็นวันที่ผ่านมาแล้ว");return;}
   if(isFC&&!eligibleMondays(8).includes(pdateVal)){showToast("⚠ วันจันทร์ที่เลือกปิดรับลงทะเบียนแล้ว กรุณาเลือกใหม่");populateFCDates();return;}
   if(!C_POSITION){showToast("⚠ กรุณาเลือกตำแหน่ง");return;}
-  if(!isFC){
+  if(!PHOTO_DATA){showToast("⚠ กรุณาแนบรูปถ่าย (จำเป็นสำหรับออกบัตร)");return;}
+  if(DOC_UPLOAD_ENABLED&&!isFC){
     // Short Brief: บังคับ สำเนาบัตร ปชช. + เอกสารประกันตน (รูปถ่าย/ผลตรวจสารเสพติด ไม่บังคับ)
     if(!SB_FILES.idcopy){showToast("⚠ กรุณาแนบสำเนาบัตรประชาชน");return;}
     if(!SB_FILES.insure){showToast("⚠ กรุณาแนบเอกสารประกันตน");return;}
   }
   const onlineEmail=(document.getElementById("c-email")||{value:""}).value.trim();
   if(C_TYPE==="4D"&&(!onlineEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(onlineEmail))){showToast("⚠ กรุณากรอกอีเมลสำหรับรับลิงก์ Online Class ให้ถูกต้อง");return;}
-  if(["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
+  if(DOC_UPLOAD_ENABLED&&["safety","firewatchman"].includes(C_POSITION)&&!C_CERT){showToast("⚠ กรุณาแนบใบ Certificate");return;}
   let dlNo="",dlType="",dlExp="";
   if(C_POSITION==="driver"){
     dlNo=(document.getElementById("c-dl-no")||{value:""}).value.trim();
@@ -3131,8 +3163,8 @@ async function submitReg(){
     dlExp=(document.getElementById("c-dl-exp")||{value:""}).value;
     if(!dlNo||!dlType||!dlExp){showToast("⚠ กรุณากรอกข้อมูลใบขับขี่ให้ครบ (เลขที่/ประเภทรถ/วันหมดอายุ)");return;}
     if(dlExp<TODAY){showToast("⚠ ใบขับขี่หมดอายุแล้ว ไม่สามารถลงทะเบียนได้");return;}
-    if(!C_DL_FILE){showToast("⚠ กรุณาแนบใบอนุญาตขับขี่");return;}
-    if(!C_VI_FILE){showToast("⚠ กรุณาแนบใบตรวจสภาพรถ");return;}
+    if(DOC_UPLOAD_ENABLED&&!C_DL_FILE){showToast("⚠ กรุณาแนบใบอนุญาตขับขี่");return;}
+    if(DOC_UPLOAD_ENABLED&&!C_VI_FILE){showToast("⚠ กรุณาแนบใบตรวจสภาพรถ");return;}
   }
   const btn=document.querySelector("#c-reg-form .btn-p");
   if(btn){btn.disabled=true;btn.textContent="⏳ กำลังอัปโหลด...";}
@@ -3246,12 +3278,14 @@ async function submitReg(){
           <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--nw-navy)">ขั้นตอนที่ 2: ทำแบบทดสอบ / Step 2: Take the quiz (ผ่าน 85%)</div>
           <a href="${QUIZ_URLS[C_TYPE]}" target="_blank" class="btn-p" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:12px"><i class="ti ti-clipboard-text"></i> ทำแบบทดสอบ / Take Quiz</a>
           <div class="alert alert-info" style="margin-bottom:0"><i class="ti ti-info-circle"></i><span>ทำแบบทดสอบเสร็จแล้ว EHS จะตรวจคะแนนและอนุมัติ — ติดตามผลได้ที่เมนู "ตรวจสอบสถานะ" ด้วยหมายเลขอ้างอิง <b>${regId}</b></span></div>
+          ${DOC_UPLOAD_ENABLED?"":docEmailNoticeSmall()}
         </div>`;
       }else{
         const is4D=data.type==="4D";
         okEl.innerHTML=is4D
           ?`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-mail"></i><span>อบรมออนไลน์ Full Course (4D) วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — แผนกความปลอดภัย (EHS) จะส่งลิงก์เข้าอบรมไปที่อีเมล <b>${data.onlineEmail||"-"}</b> ก่อนถึงวันอบรม กรุณาตรวจสอบกล่องจดหมายของท่าน<br><span style="color:#888">Online Full Course (4D) on the selected Monday — EHS will send the class link to <b>${data.onlineEmail||"-"}</b> before the training date. Please check your inbox.</span></span></div>`
           :`<div class="alert alert-info" style="max-width:430px;margin:0 auto 18px;text-align:left"><i class="ti ti-calendar-event"></i><span>มาอบรม Full Course วันจันทร์ที่ <b>${fmtCard(data.pdate)}</b> — EHS จะแจ้งให้ทำแบบทดสอบหลังอบรมเสร็จค่ะ<br><span style="color:#888">Attend the training on the selected Monday. EHS will provide the quiz after the session.</span></span></div>`;
+        if(!DOC_UPLOAD_ENABLED){const box=document.createElement("div");box.style.cssText="max-width:430px;margin:0 auto 18px";box.innerHTML=docEmailNoticeSmall();okEl.appendChild(box);}
       }
     }
     document.getElementById("c-reg-form").style.display="none";
@@ -3298,6 +3332,14 @@ function addRefRow(){
   row.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--nw-navy);background:#EFF6FB;border:1px solid #CBE4F1;border-radius:6px;padding:7px 10px;white-space:nowrap">${refPrefix()}</span><input class="ref-4" maxlength="4" inputmode="numeric" placeholder="0001" style="width:76px;text-align:center;letter-spacing:2px" oninput="this.value=this.value.replace(/\\D/g,'')"><i class="ti ti-x" style="cursor:pointer;color:#bbb" onclick="if(document.getElementById('ref-rows').children.length>1)this.parentElement.remove()"></i>`;
   box.appendChild(row);
 }
+function addNameRow(){
+  const box=document.getElementById("name-rows");if(!box)return;
+  if(box.children.length>=10){showToast("⚠ ค้นได้สูงสุดครั้งละ 10 คน");return;}
+  const row=document.createElement("div");
+  row.style.cssText="display:flex;align-items:center;gap:6px";
+  row.innerHTML=`<input class="nm-fn" placeholder="ชื่อ / First name" style="flex:1;min-width:0"><input class="nm-ln" placeholder="นามสกุล / Last name" style="flex:1;min-width:0"><i class="ti ti-x" style="cursor:pointer;color:#bbb;flex-shrink:0" onclick="if(document.getElementById('name-rows').children.length>1)this.parentElement.remove()"></i>`;
+  box.appendChild(row);
+}
 function statusCard(r,label){
   if(!r)return `<div class="alert alert-err" style="margin-bottom:8px"><i class="ti ti-x"></i>${label} — ไม่พบข้อมูล</div>`;
   const qb=r.quizPass===true?`<span class="badge b-pass">Pass ✓</span>`:r.quizPass===false?`<span class="badge b-fail">Fail ✗</span>`:`<span class="badge b-pending">รอผล</span>`;
@@ -3305,7 +3347,7 @@ function statusCard(r,label){
   window._statusRegs=window._statusRegs||{};window._statusRegs[r.id]=r;
   const waitBox=r.approvalStatus==="waiting"?`<div class="alert alert-warn" style="margin:0"><i class="ti ti-clock"></i><span><b>เจ้าหน้าที่กำลังรอเอกสารเพิ่มเติมจากท่าน</b> — ยังไม่อนุมัติ กรุณาแนบเอกสารต่อไปนี้:<ul style="margin:6px 0 0;padding-left:18px">${(r.waitDocs||[]).map(d=>`<li>${d}</li>`).join("")}</ul>${r.waitNote?`<div style="margin-top:5px;color:#8A6100">หมายเหตุ: ${r.waitNote}</div>`:""}</span></div>`:"";
   const canAdd=!r.cardIssued&&r.approvalStatus!=="approved";
-  const addBtn=canAdd?`<button class="btn-p" style="margin-top:4px;padding:8px" onclick="openAddDocsStatus('${r.id}')"><i class="ti ti-camera-plus"></i> แนบเอกสารเพิ่มเติม / Add Documents</button>`:"";
+  const addBtn=(canAdd&&DOC_UPLOAD_ENABLED)?`<button class="btn-p" style="margin-top:4px;padding:8px" onclick="openAddDocsStatus('${r.id}')"><i class="ti ti-camera-plus"></i> แนบเอกสารเพิ่มเติม / Add Documents</button>`:(canAdd?docEmailNoticeSmall():"");
   return `<div class="panel" style="margin:0 0 10px"><div style="font-size:11px;color:#888;margin-bottom:6px">${label}</div><div style="font-size:12px;display:grid;gap:6px"><div><b>ชื่อ:</b> ${r.fn} ${r.ln} &nbsp;|&nbsp; <b>บริษัท:</b> ${r.co}</div><div><b>ประเภท:</b> <span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span>${r.pdate&&!r.isShort?` &nbsp;<b>วันอบรม:</b> ${fmtCard(r.pdate)}`:""}</div><div><b>Quiz:</b> ${qb} &nbsp;|&nbsp; <b>สถานะ:</b> ${sb}</div>${waitBox}${r.approvalStatus==="rejected"?`<div class="alert alert-err" style="margin:0"><i class="ti ti-x"></i><span><b>เหตุผลที่ปฏิเสธ:</b> ${r.rejectReason||"ไม่ระบุ"}<br><span style="color:#888;font-size:11px">กรุณาแนบเอกสารเพิ่มด้านล่าง หรือติดต่อทีม EHS หากมีข้อสงสัย</span></span></div>`:""}${r.cardIssued?`<div class="alert alert-ok" style="margin:0"><i class="ti ti-check"></i>ออกบัตรแล้ว — หมดอายุ ${fmtCard(r.cardExpiry)}</div>`:""}${addBtn}</div></div>`;
 }
 function openAddDocsStatus(regId){
@@ -3316,20 +3358,52 @@ function openAddDocsStatus(regId){
 async function checkStatus(){
   const el=document.getElementById("s-result");
   const nums=[...new Set([...document.querySelectorAll(".ref-4")].map(i=>i.value.trim()).filter(v=>v))].slice(0,10);
-  const idq=document.getElementById("s-search").value.trim();
-  if(!nums.length&&!idq){showToast("⚠ กรุณากรอกหมายเลขอ้างอิง หรือเลขบัตรประชาชน");return;}
+  const names=[...document.querySelectorAll("#name-rows > div")].map(row=>({
+    fn:(row.querySelector(".nm-fn")||{value:""}).value.trim(),
+    ln:(row.querySelector(".nm-ln")||{value:""}).value.trim()
+  })).filter(n=>n.fn||n.ln).slice(0,10);
+  const company=(document.getElementById("s-company")||{value:""}).value.trim();
+  const idq=(document.getElementById("s-search")||{value:""}).value.trim();
+  if(!nums.length&&!names.length&&!company&&!idq){showToast("⚠ กรุณากรอกอย่างน้อย 1 ช่องค้นหา");return;}
   el.innerHTML=`<div class="alert alert-info"><i class="ti ti-loader"></i> กำลังค้นหา...</div>`;
   try{
-    let out="";
+    let out="",found=0;
+    // 1) ค้นด้วยหมายเลขอ้างอิง (doc id ตรง ๆ)
     for(const n of nums){
       const ref=refPrefix()+n.padStart(4,"0");
       const snap=await db.collection("registrations").doc(ref).get();
-      out+=statusCard(snap.exists?snap.data():null,ref);
+      out+=statusCard(snap.exists?snap.data():null,ref);if(snap.exists)found++;
     }
+    // 2) ค้นด้วยเลขบัตรประชาชน
     if(idq){
       const qs=await db.collection("registrations").where("idno","==",idq).get();
       if(qs.empty)out+=statusCard(null,`เลขบัตร ${idq}`);
-      else qs.docs.forEach(d=>{const r=d.data();out+=statusCard(r,r.id||d.id);});
+      else qs.docs.forEach(d=>{out+=statusCard(d.data(),d.data().id||d.id);found++;});
+    }
+    // 3-4) ค้นด้วยชื่อ / บริษัท (ต้องดึงมา filter ฝั่ง client)
+    let all=null;
+    async function loadAll(){if(!all){const s=await db.collection("registrations").get();all=s.docs.map(d=>d.data());}return all;}
+    if(company){
+      await loadAll();
+      const cq=company.toLowerCase();
+      const grp=all.filter(r=>(r.co||"").toLowerCase().includes(cq))
+        .sort((a,b)=>(a.co||"").localeCompare(b.co||"")||(a.fn||"").localeCompare(b.fn||""));
+      if(grp.length){
+        out+=`<div style="font-size:12px;font-weight:600;color:var(--nw-navy);margin:4px 0 8px"><i class="ti ti-building"></i> ผลค้นหากลุ่มบริษัท "${company}" — พบ ${grp.length} คน</div>`;
+        grp.forEach(r=>{out+=statusCard(r,r.id);found++;});
+      }else out+=`<div class="alert alert-err" style="margin-bottom:8px"><i class="ti ti-x"></i>ไม่พบผู้ลงทะเบียนจากบริษัท "${company}"</div>`;
+    }
+    if(names.length)await loadAll();
+    for(const nm of names){
+      const fq=nm.fn.toLowerCase(),lq=nm.ln.toLowerCase();
+      const matches=all.filter(r=>{
+        const okF=!fq||(r.fn||"").toLowerCase().includes(fq);
+        const okL=!lq||(r.ln||"").toLowerCase().includes(lq);
+        return okF&&okL;
+      });
+      const label=`${nm.fn} ${nm.ln}`.trim();
+      if(matches.length){matches.forEach(r=>{out+=statusCard(r,r.id);found++;});}
+      else out+=statusCard(null,label);
     }
     el.innerHTML=out||`<div class="alert alert-err"><i class="ti ti-x"></i>ไม่พบข้อมูล</div>`;
   }catch(e){el.innerHTML=`<div class="alert alert-err"><i class="ti ti-x"></i>${e.message}</div>`;}
@@ -3363,7 +3437,7 @@ function renderGuardView(){
   const cos=[...new Set(shorts.map(r=>r.co))];
   const sel=document.getElementById("g-fc"),cur=sel.value;
   sel.innerHTML=`<option value="">ทุกบริษัท</option>`+cos.map(c=>`<option${c===cur?" selected":""}>${c}</option>`).join("");
-  const filt=r=>(r.fn+r.ln+r.co).toLowerCase().includes(q)&&(!fc||r.co===fc);
+  const filt=r=>matchSearch(r,q)&&(!fc||r.co===fc);
   const pending=shorts.filter(r=>(!r.approvalStatus||r.approvalStatus==="waiting")&&filt(r));
   document.getElementById("g-pending-tbody").innerHTML=pending.map(r=>{
     const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
@@ -3372,7 +3446,7 @@ function renderGuardView(){
     const docs=(r.docs&&r.docs.length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`)+(!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:"")+(r.approvalStatus==="waiting"?` <span class="badge b-pending">⏳ รอเอกสาร</span>`:"");
     return `<tr${!ok?' style="background:#FFFBF0"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
       <td>${sc} ${qb} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td>
-      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm" onclick="openAddDocs('${r.id}','guard')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button></td>
+      <td>${docs} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','guard')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
       <td style="white-space:nowrap">${_blSet.has(r.idno)?`<span class="badge b-blocked">⛔ BLACKLIST</span> `:ok?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button> `:`<span class="badge b-fail" title="${miss.join(', ')}">เอกสารไม่ครบ</span> `}<button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button></td></tr>`;
   }).join("")||`<tr><td colspan="5" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
   const ready=shorts.filter(r=>r.approvalStatus==="approved"&&!r.cardIssued&&filt(r));
@@ -3731,7 +3805,7 @@ function renderEHSDash(){
 }
 function renderEHSShort(){
   const q=(document.getElementById("esb-q")||{value:""}).value.toLowerCase();
-  const rows=_allRegs.filter(r=>r.isShort&&!r.cardIssued&&(r.fn+r.ln+r.co).toLowerCase().includes(q));
+  const rows=_allRegs.filter(r=>r.isShort&&!r.cardIssued&&matchSearch(r,q));
   document.getElementById("e-sb-tbody").innerHTML=rows.map(r=>{
     const sc=r.quizScore!=null?(r.quizPct!=null?`${r.quizScore}/${r.quizScoreMax||"?"} (${r.quizPct}%)`:`${r.quizScore}%`):"—";
     const qb=r.quizPass===true?`<span class="badge b-pass">Pass</span>`:r.quizPass===false?`<span class="badge b-fail">Fail</span>`:`<span class="badge b-pending">รอ</span>`;
@@ -3739,13 +3813,14 @@ function renderEHSShort(){
     const cardSt=r.cardIssued?`<span class="badge b-active">ออกบัตรแล้ว</span>`:`<span class="badge b-pending">ยังไม่ออก</span>`;
     const miss=missingRequiredDocs(r);const ok=miss.length===0;
     return `<tr${!ok?' style="background:#FFFBF0"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
       <td>${ab}</td><td>${cardSt}</td>
       <td style="white-space:nowrap">${(!r.approvalStatus||r.approvalStatus==="waiting")?`${ok?`<button class="btn-approve" onclick="guardApprove('${r.id}')">✓</button>`:`<span class="badge b-fail" title="${miss.join(', ')}">ไม่ครบ</span>`} <button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""} ${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueShortCard('${r.id}')">ออกบัตร</button>`:""} <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button></td></tr>`;
   }).join("")||`<tr><td colspan="7" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ</td></tr>`;
 }
 function renderEHSFull(){
-  const rows=_allRegs.filter(r=>!r.isShort&&!r.cardIssued).sort((a,b)=>
+  const q=(document.getElementById("efc-q")||{value:""}).value.toLowerCase();
+  const rows=_allRegs.filter(r=>!r.isShort&&!r.cardIssued&&matchSearch(r,q)).sort((a,b)=>
     (a.pdate||"9999").localeCompare(b.pdate||"9999")||
     (a.type||"").localeCompare(b.type||"")||
     (a.co||"").localeCompare(b.co||"")||
@@ -3761,7 +3836,7 @@ function renderEHSFull(){
     const flagged=r.screenCriminal==="found"||r.screenDrug==="found";
     return `<tr${isBL||flagged?' style="background:#FFF5F5"':""}><td style="font-size:11px;font-weight:600;color:var(--nw-navy);white-space:nowrap">${fmtCard(r.pdate)}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td><div class="td-name">${r.fn} ${r.ln}${isBL?' <span class="badge b-blocked">⛔ BLACKLIST</span>':""}${flagged?' <span class="badge b-fail" title="พบประวัติจากการตรวจคัดกรอง">⚠ พบประวัติ</span>':""}</div><div class="td-sub">${r.co}</div>${idnoCopy(r.idno)}</td><td style="font-size:10px;color:#888;white-space:nowrap">${r.id||"—"}</td>
       <td style="font-size:11px">${r.positionLabel||"—"}</td>
-      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button></td>
+      <td>${sc} ${qb}</td><td>${r.docs&&r.docs.filter(d=>d.url).length?`<span class="badge b-pass">${r.docs.filter(d=>d.url).length} ไฟล์</span>`:`<span class="badge b-fail">ไม่มีเอกสาร</span>`}${!r.photo?` <span class="badge b-fail">ไม่มีรูป</span>`:""} <button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""}</td>
       <td>${ab}</td><td>${cardSt}</td>
       <td style="white-space:nowrap">${can?`<button class="btn-approve" onclick="ehsApproveFull('${r.id}')">✓</button>`:""}${(!r.approvalStatus||r.approvalStatus==="waiting")?`<button class="btn-warn-sm" onclick="waitDocsPicker('${r.id}')" title="รอคอยเอกสาร">⏳</button> <button class="btn-reject" onclick="guardReject('${r.id}')">✗</button>`:""}${r.approvalStatus==="approved"&&!r.cardIssued?`<button class="btn-teal-sm" onclick="issueFullCard('${r.id}')">จ่ายบัตร</button> <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ">↩</button>`:""} <button class="btn-sm" onclick="editTrainDate('${r.id}')" title="แก้วันอบรม"><i class="ti ti-calendar"></i></button> <button class="btn-sm" onclick="setScore('${r.id}')"><i class="ti ti-edit"></i></button>${r.cardId?`<button class="btn-sm" onclick="printCard('${r.id}')"><i class="ti ti-printer"></i></button>`:""}</td></tr>`;
   }).join("")||`<tr><td colspan="10" style="text-align:center;color:#888;padding:16px">ไม่มีรายการ Full Course</td></tr>`;
@@ -3823,7 +3898,7 @@ function renderSBReg(){
   const q=(document.getElementById("sb-q")||{value:""}).value.toLowerCase();
   const sf=(document.getElementById("sb-status")||{value:""}).value;
   const filtered=rows.filter(r=>{
-    const mq=(r.fn+r.ln+r.co).toLowerCase().includes(q);
+    const mq=matchSearch(r,q);
     let ms=true;if(sf==="active")ms=r.cardIssued&&r.cardExpiry>=TODAY&&r.status!=="blocked";else if(sf==="expired")ms=r.cardExpiry&&r.cardExpiry<TODAY;else if(sf==="blocked")ms=r.status==="blocked";
     return mq&&ms;
   }).sort((a,b)=>a.co.localeCompare(b.co));
@@ -3846,7 +3921,7 @@ function renderDB(){
   const ft=(document.getElementById("db-t")||{value:""}).value;
   const fv=(document.getElementById("db-v")||{value:""}).value;
   const rows=_allRegs.filter(r=>!r.isShort&&r.approvalStatus==="approved").filter(r=>{
-    const okQ=(r.fn+r.ln+r.co+r.idno).toLowerCase().includes(q)&&(!ft||r.type===ft);
+    const okQ=matchSearch(r,q)&&(!ft||r.type===ft);
     const v=r.violation||"none";
     const okV=!fv||(fv==="none"?v==="none":v===fv);
     return okQ&&okV;
@@ -3862,7 +3937,7 @@ function renderDB(){
       <option value="2nd"${v==="2nd"?" selected":""}>⚠ 2nd Warning</option>
       <option value="blacklist"${v==="blacklist"?" selected":""}>⛔ Blacklist</option>
     </select>${isBL?`<div style="margin-top:2px"><span class="badge b-blocked">⛔ BLACKLIST</span></div>`:""}${(v||isBL)&&(r.violationReason||isBL)?`<div style="font-size:9px;color:#A32D2D;margin-top:2px;max-width:130px;white-space:normal">${isBL?((_blDocs.find(b=>b.active&&b.idno===r.idno)||{}).reason||r.violationReason||""):(r.violationReason||"")}</div>`:""}`;
-    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${r.cardId?`<button class="btn-teal-sm" onclick="printCard('${r.id}')" title="พิมพ์บัตรซ้ำ"><i class="ti ti-printer"></i> พิมพ์ซ้ำ</button>`:""} <button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button> <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
+    return`<tr${isBL?' style="background:#FFF5F5"':""}><td><div class="td-name">${r.fn} ${r.ln}</div><div class="td-sub">${r.idno}</div></td><td class="td-sub">${r.co}</td><td><span class="badge b-${(r.type||"").toLowerCase()}">${r.type}</span></td><td style="font-size:10px;color:#888">${r.created||""}</td><td>${sc} ${r.quizPass===true?`<span class="badge b-pass">P</span>`:r.quizPass===false?`<span class="badge b-fail">F</span>`:""}</td><td><span class="badge ${r.approvalStatus==="approved"?"b-approved":r.approvalStatus==="rejected"?"b-fail":"b-pending"}">${r.approvalStatus||"pending"}</span></td><td style="font-size:10px;color:#888">${r.cardExpiry||"—"}</td><td>${vSel}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="viewDocs('${r.id}')"><i class="ti ti-eye"></i></button> ${r.cardId?`<button class="btn-teal-sm" onclick="printCard('${r.id}')" title="พิมพ์บัตรซ้ำ"><i class="ti ti-printer"></i> พิมพ์ซ้ำ</button>`:""} ${DOC_UPLOAD_ENABLED?`<button class="btn-sm" onclick="openAddDocs('${r.id}','ehs')" title="เพิ่มเอกสาร"><i class="ti ti-camera-plus"></i></button>`:""} <button class="btn-warn-sm" onclick="revertApproval('${r.id}')" title="ถอยสถานะ/แนบเอกสาร">↩</button></td></tr>`;
   }).join("")||`<tr><td colspan="9" style="text-align:center;color:#888;padding:16px">ไม่พบข้อมูล</td></tr>`;
 }
 function filterDB(){renderDB();}
@@ -4020,8 +4095,15 @@ function eTab(id,btn){
 
 // ── INIT ──
 loadCFG();
-addRefRow();
-console.log("✅ NatureWorks CTMS v9.32 — Firebase connected");
+addRefRow();addNameRow();
+(function(){const el=document.getElementById("home-notice");if(!el)return;
+  if(DOC_UPLOAD_ENABLED){
+    el.innerHTML=`<div style="background:#FFF9E6;border:1px solid #F0DCA0;border-left:4px solid var(--nw-gold);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📌</span><div style="font-size:13px;line-height:1.7;color:#5C4A12"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ และแนบในระบบให้เรียบร้อยขณะลงทะเบียน — หากเอกสารไม่ครบ ระบบจะปฏิเสธการลงทะเบียนและท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin-top:7px;color:#8A7A45;font-size:12px;font-style:italic">Please prepare and attach all required documents during registration. Incomplete submissions will be rejected.</div></div></div></div>`;
+  }else{
+    el.innerHTML=`<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-left:4px solid var(--nw-teal);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📧</span><div style="font-size:13px;line-height:1.7;color:#2C4A5E"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน — การส่งเอกสาร</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ (รูปถ่าย, สำเนาบัตรประชาชน, เอกสารประกันตน, ผลตรวจสารเสพติด และเอกสารเฉพาะตำแหน่ง) และ<b>ส่งทางอีเมลไปยังทุกท่านในรายชื่อด้านล่างนี้</b> — หากเอกสารไม่ครบ ท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin:8px 0;display:flex;flex-direction:column;gap:4px">${DOC_EMAILS.map(e=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #D6E8F5;border-radius:5px;padding:5px 9px"><i class="ti ti-mail" style="color:var(--nw-teal)"></i><span style="flex:1;font-family:monospace">${e}</span><i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${e}')" title="คัดลอก"></i></div>`).join("")}</div><button class="btn-sm" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"><i class="ti ti-copy"></i> คัดลอกอีเมลทั้งหมด</button><div style="margin-top:7px;color:#5E7A8E;font-size:12px;font-style:italic">Please email all required documents to every address listed above. Incomplete submissions cannot attend the training.</div></div></div></div>`;
+  }
+})();
+console.log("✅ NatureWorks CTMS v9.35 — Firebase connected");
 </script>
 </body>
 </html>
