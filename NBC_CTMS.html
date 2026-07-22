@@ -143,7 +143,7 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.39</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.41</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
@@ -2832,11 +2832,21 @@ window.qrcode=qrcode;
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
 <script>
 // ── FIREBASE ──
 const firebaseConfig={apiKey:"AIzaSyCKASP9RLRFgvdsM98cgbK3gJQiYQDqFC4",authDomain:"nw-contractor-training.firebaseapp.com",projectId:"nw-contractor-training",storageBucket:"nw-contractor-training.firebasestorage.app",messagingSenderId:"543139137624",appId:"1:543139137624:web:04b331bd7187046352222d"};
 firebase.initializeApp(firebaseConfig);
+
+// ═══ SECURITY LAYER ═══
+// App Check (reCAPTCHA v3): ใส่ Site Key จาก Firebase Console → App Check แล้วระบบเปิดใช้อัตโนมัติ
+const APP_CHECK_SITE_KEY=""; // เว้นว่าง = ยังไม่เปิด App Check
+if(APP_CHECK_SITE_KEY){try{firebase.appCheck().activate(APP_CHECK_SITE_KEY,true);}catch(e){console.warn("App Check:",e.message);}}
 const db=firebase.firestore();
+// Anonymous Authentication: ทุกการเชื่อมต่อต้องมีตัวตน (รองรับ Firestore Rules ที่บังคับ auth)
+// ต้องเปิด Anonymous ใน Firebase Console → Authentication → Sign-in method ก่อนใช้ Rules ชุดใหม่
+let AUTH_READY=firebase.auth().signInAnonymously().catch(e=>console.warn("Anon auth:",e.message));
 
 // ── CLOUDINARY ──
 const CLD_CLOUD="zjtygb1h",CLD_PRESET="nw_ctms_unsigned";
@@ -3038,7 +3048,14 @@ function doPinClear(){PIN_VAL="";updatePinDots();document.getElementById("pin-er
 function updatePinDots(){for(let i=0;i<6;i++)document.getElementById("pd"+i).classList.toggle("filled",i<PIN_VAL.length);}
 function verifyPIN(){
   const correct=LOGIN_ROLE==="guard"?CFG.guardPIN:CFG.ehsPIN;
-  if(PIN_VAL===correct){SESSION={role:LOGIN_ROLE,email:document.getElementById("login-email").value.trim().toLowerCase()};enterPortal();}
+  if(PIN_VAL===correct){
+    const em=document.getElementById("login-email").value.trim().toLowerCase();
+    SESSION={role:LOGIN_ROLE,email:em};
+    // ยกระดับตัวตนเป็น Firebase Auth (email+password) ถ้าบัญชีถูกสร้างไว้ใน Console แล้ว
+    // ใช้กับ Rules Phase 2 ที่ตรวจอีเมลเจ้าหน้าที่ — ถ้ายังไม่สร้างบัญชี ระบบทำงานต่อแบบ anonymous ได้
+    try{firebase.auth().signInWithEmailAndPassword(em,PIN_VAL).catch(e=>console.warn("Staff auth (ยังไม่เปิดใช้):",e.code));}catch(e){}
+    enterPortal();
+  }
   else{document.getElementById("pin-err").textContent="PIN ไม่ถูกต้อง / Incorrect PIN";PIN_VAL="";updatePinDots();}
 }
 function enterPortal(){
@@ -3194,19 +3211,14 @@ async function submitReg(){
       const LOST_NOTE=`<br><br>📌 <b>กรณีบัตรหาย</b> กรุณาติดต่อแผนก EHS เพื่อขอออกบัตรใหม่ / If the card is lost, please contact EHS to reissue.`;
       if(!isFC){
         const sbAll=allNR.filter(r=>r.isShort);
-        // 1) มีรายการ Short Brief ค้างที่ยังไม่ออกบัตร
-        const dup=sbAll.find(r=>!r.cardIssued);
+        // 1) มีใบสมัคร Short Brief ที่ยังรอตรวจ/รอเอกสาร (อนุมัติแล้ว-รอออกบัตร-จ่ายแล้ว-Reject ลงใหม่ได้)
+        const dup=sbAll.find(r=>(!r.approvalStatus||r.approvalStatus==="waiting"));
         if(dup){
-          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอทำแบบทดสอบ / รอตรวจ / รอออกบัตร<br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
+          showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ค้างอยู่แล้ว</b><br>This ID already has a pending Short Brief registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${dup.id}</b><br>สถานะ: รอตรวจสอบ / รอเอกสาร<br><br>กรุณาติดตามผลหรือส่งเอกสารให้ครบที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
           stopBtn();return;
         }
-        // 2) มีบัตร Short Brief ที่ยังไม่หมดอายุ
-        const act=sbAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY&&r.status!=="blocked");
-        if(act){
-          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Short Brief ที่ยังไม่หมดอายุ</b><br>An active Short Brief card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${act.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(act.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
-          stopBtn();return;
-        }
-        // 3) โควตา 2 ครั้ง/ปี
+        // (มีบัตรที่ยังไม่หมดอายุ = ลงทะเบียนล่วงหน้าเพื่อต่ออายุได้ — ไม่บล็อก)
+        // 2) โควตา 2 ครั้ง/ปี
         const sbYear=sbAll.filter(r=>String(r.created||"").startsWith(yr));
         sbUsed=sbYear.reduce((m,r)=>Math.max(m,r.cardIssued?Math.max(r.shortBriefCount||0,1):(r.shortBriefCount||0)),0);
         if(sbUsed>=2){
@@ -3214,25 +3226,20 @@ async function submitReg(){
           stopBtn();return;
         }
       }else{
-        const sbPend=allNR.find(r=>r.isShort&&!r.cardIssued);
+        const sbPend=allNR.find(r=>r.isShort&&(!r.approvalStatus||r.approvalStatus==="waiting"));
         const fcAll=allNR.filter(r=>!r.isShort);
         // 1) มี Short Brief ค้างที่ยังไม่ออกบัตร → ห้ามลง Full Course
         if(sbPend){
-          showModal("⚠ มี Short Brief ค้างอยู่",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ที่ยังไม่เสร็จสิ้น</b><br>A pending Short Brief registration exists for this ID.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${sbPend.id}</b><br><br>ต้องดำเนินการ Short Brief ให้เสร็จ (ออกบัตรแล้ว) ก่อน จึงจะลงทะเบียน Full Course ได้ค่ะ<br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ"</div>`);
+          showModal("⚠ มี Short Brief ค้างอยู่",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Short Brief ที่ยังไม่เสร็จสิ้น</b><br>A pending Short Brief registration exists for this ID.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${sbPend.id}</b><br><br>มีใบสมัคร Short Brief ที่ยังรอตรวจ/รอเอกสารอยู่ — กรุณาดำเนินการให้เสร็จก่อน จึงจะลงทะเบียน Full Course ได้ค่ะ<br>ติดตามผลที่เมนู "ตรวจสอบสถานะ"</div>`);
           stopBtn();return;
         }
-        // 2) มี Full Course ค้าง → ห้ามลงซ้ำ
-        const fcDup=fcAll.find(r=>!r.cardIssued);
+        // 2) มีใบสมัคร Full Course ที่ยังรอตรวจ/รอเอกสาร → ห้ามลงซ้ำ
+        const fcDup=fcAll.find(r=>(!r.approvalStatus||r.approvalStatus==="waiting"));
         if(fcDup){
           showModal("⚠ ลงทะเบียนซ้ำ",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-alert-triangle"></i><span><b>เลขบัตรประชาชนนี้มีการลงทะเบียน Full Course ค้างอยู่แล้ว</b><br>This ID already has a pending Full Course registration.</span></div><div style="font-size:12px;color:#555">หมายเลขอ้างอิง: <b>${fcDup.id}</b><br>วันอบรม: <b>${fmtCard(fcDup.pdate)}</b><br><br>กรุณาติดตามผลที่เมนู "ตรวจสอบสถานะ" — ไม่ต้องลงทะเบียนใหม่ค่ะ</div>`);
           stopBtn();return;
         }
-        // 3) มีบัตร Full Course ที่ยังไม่หมดอายุ
-        const fcAct=fcAll.find(r=>r.cardIssued&&r.cardExpiry&&r.cardExpiry>=TODAY);
-        if(fcAct){
-          showModal("⚠ มีบัตรที่ใช้งานได้อยู่แล้ว",`<div class="alert alert-warn" style="margin-bottom:10px"><i class="ti ti-id-badge"></i><span><b>เลขบัตรประชาชนนี้มีบัตร Full Course ที่ยังไม่หมดอายุ</b><br>An active Full Course card already exists for this ID.</span></div><div style="font-size:12px;color:#555">Card ID: <b>${fcAct.cardId||"—"}</b><br>ใช้ได้ถึง: <b>${fmtCard(fcAct.cardExpiry)}</b><br><br>กรุณาใช้บัตรเดิมเข้าพื้นที่ค่ะ${LOST_NOTE}</div>`);
-          stopBtn();return;
-        }
+        // (มีบัตร Full Course ที่ยังไม่หมดอายุ = ลงทะเบียนล่วงหน้าเพื่อต่ออายุได้ — ไม่บล็อก)
       }
     }
     const regId=await genId("NBC-REG");
@@ -4152,7 +4159,7 @@ addRefRow();addNameRow();addIdRow();
     el.innerHTML=`<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-left:4px solid var(--nw-teal);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📧</span><div style="font-size:13px;line-height:1.7;color:#2C4A5E"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน — การส่งเอกสาร</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ (รูปถ่าย, สำเนาบัตรประชาชน, เอกสารประกันตน, ผลตรวจสารเสพติด และเอกสารเฉพาะตำแหน่ง) และ<b>ส่งทางอีเมลไปยังทุกท่านในรายชื่อด้านล่างนี้</b> — หากเอกสารไม่ครบ ท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin:8px 0;display:flex;flex-direction:column;gap:4px">${DOC_EMAILS.map(e=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #D6E8F5;border-radius:5px;padding:5px 9px"><i class="ti ti-mail" style="color:var(--nw-teal)"></i><span style="flex:1;font-family:monospace">${e}</span><i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${e}')" title="คัดลอก"></i></div>`).join("")}</div><button class="btn-sm" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"><i class="ti ti-copy"></i> คัดลอกอีเมลทั้งหมด</button><div style="margin-top:7px;color:#5E7A8E;font-size:12px;font-style:italic">Please email all required documents to every address listed above. Incomplete submissions cannot attend the training.</div></div></div></div>`;
   }
 })();
-console.log("✅ NatureWorks CTMS v9.39 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.41 — Firebase connected");
 </script>
 </body>
 </html>
