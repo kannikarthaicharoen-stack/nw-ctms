@@ -143,14 +143,14 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
 <div id="s-home" class="screen active">
   <div class="home-wrap">
     <img src="https://kannikarthaicharoen-stack.github.io/nw-ctms/logo.png" alt="NatureWorks" style="height:52px">
-    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.41</span></div>
+    <div style="font-size:12px;color:#888;text-align:center">Contractor Training Management System — NatureWorks Asia Pacific <span style="background:var(--nw-teal);color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:4px">v9.42</span></div>
     <div class="sync-badge"><div class="sync-dot"></div> Firebase Connected — Real-time Sync</div>
     <div class="role-cards">
       <div class="role-card" onclick="goContractor()">
         <div class="role-icon ri-c">⛑️</div>
         <div class="role-name">Contractor / Visitor</div>
-        <div class="role-desc">ลงทะเบียนเข้ารับการอบรม<br>Register for Safety Training</div>
-        <div class="role-lock" style="color:var(--nw-teal)">🔓 เปิดได้เลย</div>
+        <div class="role-desc">ลงทะเบียน / ตรวจสอบสถานะ<br>Register / Check Status</div>
+        <div class="role-lock" id="c-card-lock" style="color:var(--nw-teal)">🔓 เปิดได้เลย</div>
       </div>
       <div class="role-card" onclick="doShowLogin('guard')">
         <div class="role-icon ri-g">🛡️</div>
@@ -214,8 +214,8 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222;font-s
     <button class="tb-logout" onclick="goHome()"><i class="ti ti-arrow-left"></i> หน้าหลัก</button>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="cTab('c-reg',this)"><i class="ti ti-clipboard-plus"></i> ลงทะเบียน</button>
-    <button class="nav-tab" onclick="cTab('c-status',this)"><i class="ti ti-eye"></i> ตรวจสอบสถานะ</button>
+    <button class="nav-tab active" id="c-reg-tab" onclick="cTab('c-reg',this)"><i class="ti ti-clipboard-plus"></i> ลงทะเบียน</button>
+    <button class="nav-tab" id="c-status-tab" onclick="cTab('c-status',this)"><i class="ti ti-eye"></i> ตรวจสอบสถานะ</button>
   </div>
   <div class="content">
     <div id="c-reg">
@@ -2933,6 +2933,12 @@ let C_TYPE="",C_NAT="thai",C_DRIVER=false,C_POSITION="",C_CERT=null,C_DL_FILE=nu
 // ── ลิงก์เนื้อหา Short Brief (แยกตามสัญชาติ) ──
 // ═══ ปิดชั่วคราวจนกว่า IT จะยืนยัน — เปลี่ยนเป็น true เพื่อเปิดใช้การแนบเอกสารในระบบอีกครั้ง ═══
 const DOC_UPLOAD_ENABLED=false;
+// ═══ เปิด/ปิดระบบลงทะเบียนชั่วคราว — true=เปิด, false=ปิด (ตรวจสอบสถานะ/Guard/EHS ยังทำงานปกติ) ═══
+const REG_OPEN=false;
+const REG_CLOSED_MSG={
+  th:"ขณะนี้ระบบลงทะเบียนปิดปรับปรุงชั่วคราว กรุณากลับมาลงทะเบียนอีกครั้งในภายหลัง หากมีข้อสงสัยหรือเร่งด่วน กรุณาติดต่อแผนกความปลอดภัย (EHS)",
+  en:"The registration system is temporarily closed for maintenance. Please check back later. For urgent matters, please contact the Safety (EHS) Department."
+};
 // อีเมลที่ผู้ลงทะเบียนต้องส่งเอกสารแนบไปให้ (ระหว่างพักการแนบในระบบ)
 const DOC_EMAILS=["kannikar_thaicharoen@natureworkspla.com","Naowadee_kotwit@natureworkspla.com","Thitinun_Jamroen@natureworksco.com","nbc_guardhouse@natureworkspla.com"];
 function docEmailNoticeSmall(){
@@ -3003,7 +3009,20 @@ let _tt;function showToast(msg){const t=document.getElementById("toast");t.textC
 // ── NAV ──
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
 function goHome(){if(UNSUB){UNSUB();UNSUB=null;}SESSION={role:null,email:null};showScreen("s-home");}
-function goContractor(){showScreen("s-contractor");}
+function goContractor(){
+  showScreen("s-contractor");
+  const regTab=document.getElementById("c-reg-tab");
+  const regContent=document.getElementById("c-reg");
+  const statusTab=document.getElementById("c-status-tab");
+  if(!REG_OPEN){
+    // ปิดลงทะเบียน: ซ่อนแท็บลงทะเบียน แสดงข้อความปิด แล้วสลับไปแท็บตรวจสอบสถานะ
+    if(regTab)regTab.style.display="none";
+    if(statusTab)cTab("c-status",statusTab);
+    if(regContent)regContent.innerHTML=`<div class="alert alert-warn" style="margin-bottom:12px"><i class="ti ti-tools"></i><span><b>ระบบลงทะเบียนปิดปรับปรุงชั่วคราว</b><br>Registration Temporarily Closed</span></div><div style="font-size:13px;color:#555;line-height:1.7">${REG_CLOSED_MSG.th}<div style="margin-top:8px;color:#888;font-style:italic">${REG_CLOSED_MSG.en}</div></div>`;
+  }else{
+    if(regTab)regTab.style.display="";
+  }
+}
 function doLogout(){goHome();}
 function closeModal(){document.getElementById("modal").style.display="none";document.getElementById("modal-body").innerHTML="";}
 function showModal(title,html){document.getElementById("modal-title").textContent=title;document.getElementById("modal-body").innerHTML=html;document.getElementById("modal").style.display="flex";}
@@ -3165,6 +3184,7 @@ function rmFile(i){UPLOADED.splice(i,1);renderFileList();}
 async function submitReg(){
   if(!C_TYPE){showToast("⚠ กรุณาเลือกประเภทการอบรม");return;}
   const fn=document.getElementById("c-fn").value.trim(),ln=document.getElementById("c-ln").value.trim(),co=document.getElementById("c-co").value.trim(),idno=document.getElementById("c-id").value.trim(),job=document.getElementById("c-job").value.trim();
+  if(!REG_OPEN){showToast("🔧 ระบบลงทะเบียนปิดปรับปรุงชั่วคราว");return;}
   if(!fn||!ln||!co||!idno||!job){showToast("⚠ กรุณากรอกข้อมูลที่จำเป็น");return;}
   const isFC=["4C","4D"].includes(C_TYPE);
   const pdateVal=isFC?document.getElementById("c-pdate-fc").value:document.getElementById("c-pdate").value;
@@ -4152,14 +4172,22 @@ function eTab(id,btn){
 // ── INIT ──
 loadCFG();
 addRefRow();addNameRow();addIdRow();
-(function(){const el=document.getElementById("home-notice");if(!el)return;
+(function(){
+  // สถานะระบบลงทะเบียน
+  const lock=document.getElementById("c-card-lock");
+  if(lock&&!REG_OPEN){lock.innerHTML='🔧 ปิดปรับปรุง — ตรวจสอบสถานะได้';lock.style.color="#B8860B";}
+  const el=document.getElementById("home-notice");if(!el)return;
+  if(!REG_OPEN){
+    el.innerHTML=`<div style="background:#FFF4E5;border:1px solid #F0C98A;border-left:4px solid #C5940A;border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">🔧</span><div style="font-size:13px;line-height:1.7;color:#6B4E12"><b style="color:var(--nw-navy)">ระบบลงทะเบียนปิดปรับปรุงชั่วคราว / Registration Temporarily Closed</b><br>${REG_CLOSED_MSG.th}<div style="margin-top:6px;color:#8A7A45;font-style:italic">${REG_CLOSED_MSG.en}</div><div style="margin-top:8px;color:#555"><i class="ti ti-search"></i> ผู้ที่ลงทะเบียนไว้แล้วยังตรวจสอบสถานะได้ตามปกติ / Status check remains available</div></div></div></div>`;
+    return;
+  }
   if(DOC_UPLOAD_ENABLED){
     el.innerHTML=`<div style="background:#FFF9E6;border:1px solid #F0DCA0;border-left:4px solid var(--nw-gold);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📌</span><div style="font-size:13px;line-height:1.7;color:#5C4A12"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ และแนบในระบบให้เรียบร้อยขณะลงทะเบียน — หากเอกสารไม่ครบ ระบบจะปฏิเสธการลงทะเบียนและท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin-top:7px;color:#8A7A45;font-size:12px;font-style:italic">Please prepare and attach all required documents during registration. Incomplete submissions will be rejected.</div></div></div></div>`;
   }else{
     el.innerHTML=`<div style="background:#EAF4FB;border:1px solid #B8DCF0;border-left:4px solid var(--nw-teal);border-radius:10px;padding:14px 18px;text-align:left"><div style="display:flex;align-items:flex-start;gap:9px"><span style="font-size:18px">📧</span><div style="font-size:13px;line-height:1.7;color:#2C4A5E"><b style="color:var(--nw-navy)">โปรดอ่านก่อนลงทะเบียน — การส่งเอกสาร</b><br>กรุณาเตรียมเอกสารที่จำเป็นให้ครบทุกรายการ (รูปถ่าย, สำเนาบัตรประชาชน, เอกสารประกันตน, ผลตรวจสารเสพติด และเอกสารเฉพาะตำแหน่ง) และ<b>ส่งทางอีเมลไปยังทุกท่านในรายชื่อด้านล่างนี้</b> — หากเอกสารไม่ครบ ท่านจะไม่สามารถเข้ารับการอบรมได้<div style="margin:8px 0;display:flex;flex-direction:column;gap:4px">${DOC_EMAILS.map(e=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid #D6E8F5;border-radius:5px;padding:5px 9px"><i class="ti ti-mail" style="color:var(--nw-teal)"></i><span style="flex:1;font-family:monospace">${e}</span><i class="ti ti-copy" style="cursor:pointer;color:var(--nw-teal)" onclick="copyTxt('${e}')" title="คัดลอก"></i></div>`).join("")}</div><button class="btn-sm" onclick="copyTxt('${DOC_EMAILS.join('; ')}')"><i class="ti ti-copy"></i> คัดลอกอีเมลทั้งหมด</button><div style="margin-top:7px;color:#5E7A8E;font-size:12px;font-style:italic">Please email all required documents to every address listed above. Incomplete submissions cannot attend the training.</div></div></div></div>`;
   }
 })();
-console.log("✅ NatureWorks CTMS v9.41 — Firebase connected");
+console.log("✅ NatureWorks CTMS v9.42 — Firebase connected");
 </script>
 </body>
 </html>
